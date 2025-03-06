@@ -3,7 +3,7 @@
 - BACKEND
 - FRONTEND
 - DATABASE
-- STANDARD USER MANAGEMENT
+- MULTIPLAYER
 - ANOTHER GAME
 - game customization
 - support all devices
