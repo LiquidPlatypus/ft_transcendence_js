@@ -9,16 +9,34 @@ const fastify = Fastify({
 
 fastify.register(cors);
 
+/**
+ * @brief Ajoute un joueur dans la DB.
+ *
+ * @param
+ * @return
+ */
 fastify.post('/players', async (request, reply) => {
 	const { name } = request.body;
 	const id = addPlayer(name);
 	return { id };
 });
 
+/**
+ * @brief Affiche un joueur de la DB.
+ *
+ * @param
+ * @return
+ */
 fastify.get('/players', async (request, reply) => {
 	return getPlayers();
 });
 
+/**
+ * @brief Supprime un joueur de la DB et son score associe.
+ *
+ * @param
+ * @return
+ */
 fastify.delete('/players/:id', async (request, reply) => {
 	const { id } = request.params;
 	const result = deletePlayer(id);
@@ -29,15 +47,33 @@ fastify.delete('/players/:id', async (request, reply) => {
 	}
 });
 
+/**
+ * @brief Lie un score a un joueur dans la DB.
+ *
+ * @param
+ * @brief
+ */
 fastify.post('/scores', async (request, reply) => {
 	const { player_id, score } = request.body;
 	return addScore(player_id, score);
 });
 
+/**
+ * @brief Affiche le score d'un joueur.
+ *
+ * @param
+ * @return
+ */
 fastify.get('/scores', async (request, reply) => {
 	return getScores();
 })
 
+/**
+ * @brief Supprime le score d'un joueur.
+ *
+ * @param
+ * @brief
+ */
 fastify.delete('/scores/:id', async (request, reply) => {
 	const { id } = request.params;
 	const result = deleteScore(id);
