@@ -2,6 +2,7 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors';
 import { addPlayer, getPlayers, deletePlayer } from './src/models/playerModel.js';
 import { addScore, getScores, deleteScore } from './src/models/scoreModel.js';
+import db from './src/db.js';
 
 const fastify = Fastify({
 	logger: true
@@ -82,6 +83,53 @@ fastify.delete('/scores/:id', async (request, reply) => {
 	} else {
 		return { success: false, message: `Score with id ${id} not found` };
 	}
+});
+
+fastify.post('/tournaments', {
+	schema: {
+		body: {
+			type: 'object',
+			required: ['players'],
+			properties: {
+				players: {
+					type: 'array',
+					items: { type: 'string', maxLength: 20 },
+					minItems: 2, // Max 2 joueurs.
+					maxItems: 8, // Max 8 joueurs.
+				}
+			}
+		}
+	}
+}, async (request, reply) => {
+	const {players } = request.body;
+
+	const tournament = db.prepare('INSERT INTO tournaments DEFAULT VALUES').run();
+
+	const insertPlayer = db.prepare(`
+	INSERT INTO players (alias, tournament_id)
+	VALUES (?, ?)
+	`);
+
+	players.forEach(alias => {
+		insertPLayer.run(alias, tournament.lastInsertRowid);
+	});
+
+	return {
+		tournamentId: tournament.lastInsertRowid,
+		message: "Tournoi créé avec succès. Alias des joueurs : " + players.join(', ')
+	};
+});
+
+fastify.get('/tournaments/:id', async (request) => {
+	return db.prepare(`
+	SELECT t.status,
+		json_group_array(p.alias) as players,
+		json_group_array(m) as matches
+	FROM tournaments t
+	LEFT JOIN players p ON p.tournament_id = t.id
+	LEFT JOIN matches m ON m.tournament_id = t.id
+	WHERE t.id = ?
+	`).get(request.params.id);
 });
 
 const start = async () => {

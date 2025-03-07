@@ -7,12 +7,18 @@
 	<link href="css/styles.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-width flex items-center justify-center h-screen">
-	<div class="text-center">
+<!--	<div class="text-center">
 		<h1 class="text-4xl font-bold">H1</h1>
 		<button class="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-700 text-white font-semibold rounded">
 			Jouer
 		</button>
+	</div> -->
+	<div id="tournamentSetup">
+		<input type="text" id="playerAlias" placeholder="Ton alias">
+		<button onclick="startTournament()">Commencer le tournoi</button>
 	</div>
+
+	<canvas id="gameCanvas"></canvas>
 <script src="js/script.js"></script>
 </body>
 </html>
