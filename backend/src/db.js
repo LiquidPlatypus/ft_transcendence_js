@@ -1,34 +1,57 @@
 import Database from 'better-sqlite3';
+import path from 'path';
+import { fileURLToPath  } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const db = new Database('pong.db', { verbose: console.log });
 
+export function setupDatabase() {
+	db.pragma('foreign_keys = ON');
+}
+
 db.exec(`
 	CREATE TABLE IF NOT EXISTS tournaments (
-	    id INTEGER PRIMARY KEY AUTOINCREMENT,
-		status TEXT DEFAULT 'pending'
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'active', 'completed'))
 	);
 
 	CREATE TABLE IF NOT EXISTS players (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		alias TEXT NOT NULL,
-		tournament_id INTEGER REFERENCES tournaments(id)
+		name TEXT NOT NULL,
+		tournament_id INTEGER REFERENCES tournaments(id),
+		FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
 	);
 
 	CREATE TABLE IF NOT EXISTS scores (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		player_id INTEGER NOT NULL,
-		match_id INTEGER NOT NULL,
 		score INTEGER NOT NULL,
-		FOREIGN KEY (player_id) REFERENCES players(id),
-		FOREIGN KEY (match_id) REFERENCES matches(id)
+		FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
 	);
 
 	CREATE TABLE IF NOT EXISTS matches (
-	    id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		tournament_id INTEGER,
-		players TEXT, -- JSON: ["alias1", "alias2"]
-		winner TEXT CHECK(winner IN ('player1', 'player2')),
-		FOREIGN KEY (tournament_id) REFERENCES tournaments(id)
+		player1_id INTEGER NOT NULL,
+		player2_id INTEGER NOT NULL,
+		player1_score INTEGER DEFAULT 0,
+		player2_score INTEGER DEFAULT 0,
+		status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'active', 'completed')),
+		winner_id INTEGER,
+		FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+		FOREIGN KEY (player1_id) REFERENCES players(id),
+		FOREIGN KEY (player2_id) REFERENCES players(id),
+		FOREIGN KEY (winner_id) REFERENCES players(id)
+	);
+
+	CREATE TABLE IF NOT EXISTS game_settings (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER NOT NULL,
+		theme TEXT DEFAULT 'default',
+		power_ups BOOLEAN DEFAULT 0,
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 	);
 `);
 

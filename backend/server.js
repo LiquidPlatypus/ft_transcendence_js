@@ -7,11 +7,11 @@ import fastifyCookie from '@fastify/cookie';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import playerRoutes from "./src/routes/playerRoutes.js";
-import scoreRoutes from './src/routes/scoreRoutes.js';
-import tournamentRoutes from './src/routes/tournamentRoutes.js';
-import gameRoutes from './src/routes/gameRoutes.js';
-import authRoutes from './src/routes/authRoutes.js';
-import setupWebsockets from './src/setupWebsockets.js';
+// import scoreRoutes from './src/routes/scoreRoutes.js';
+// import tournamentRoutes from './src/routes/tournamentRoutes.js';
+// import gameRoutes from './src/routes/gameRoutes.js';
+// import setupWebsockets from './src/setupWebsockets.js';
+import fs from 'fs';
 import db from './src/db.js';
 
 // Pour obtenir le __dirname en ES modules
@@ -51,7 +51,7 @@ fastify.register(fastifySession, {
 });
 
 fastify.register(fastifyWebsocket);
-fastify.register(fastfyStatic, {
+fastify.register(fastifyStatic, {
 	root: path.join(__dirname, 'public'),
 	prefix: '/public/'
 });
@@ -61,7 +61,6 @@ fastify.register(playerRoutes, { prefix: '/api/players' });
 fastify.register(scoreRoutes, { prefix: 'api/scores' });
 fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
 fastify.register(gameRoutes, { prefix: '/api/games' });
-fastify.register(authRoutes, { prefix: '/api/auth' });
 
 // Config WebSockets
 setupWebsockets(fastify);
