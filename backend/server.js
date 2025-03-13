@@ -12,7 +12,7 @@ import playerRoutes from "./src/routes/playerRoutes.js";
 // import gameRoutes from './src/routes/gameRoutes.js';
 // import setupWebsockets from './src/setupWebsockets.js';
 import fs from 'fs';
-import db from './src/db.js';
+import db, { setupDatabase } from './src/db.js';
 
 // Pour obtenir le __dirname en ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -46,7 +46,7 @@ fastify.register(cors, {
 
 fastify.register(fastifyCookie);
 fastify.register(fastifySession, {
-	secret: 'a-changer-en-prod',
+	secret: '32323232323232323232323232323232',
 	cookie: { secure: false} // Changer en "true" en prod
 });
 
@@ -58,12 +58,12 @@ fastify.register(fastifyStatic, {
 
 // Routes
 fastify.register(playerRoutes, { prefix: '/api/players' });
-fastify.register(scoreRoutes, { prefix: 'api/scores' });
-fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
-fastify.register(gameRoutes, { prefix: '/api/games' });
+//fastify.register(scoreRoutes, { prefix: 'api/scores' });
+//fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
+//fastify.register(gameRoutes, { prefix: '/api/games' });
 
 // Config WebSockets
-setupWebsockets(fastify);
+//setupWebsockets(fastify);
 
 // Route par défaut SPA
 fastify.get('*', (request, reply) => {
