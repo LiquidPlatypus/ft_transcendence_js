@@ -4,43 +4,40 @@ export default function setupWebsockets(fastify) {
 			connection.socket.on('message', message => {
 				const data = JSON.parse(message.toString());
 
-				// Gestion des différents types de messages
-				switch (data.type) {
-					case 'join':
-						handlePlayerJoin(connection, data);
-						break;
-					case 'move':
-						handlePlayerMove(connection, data);
-						break;
-					case 'matchmaking':
-						handleMatchmaking(connection, data);
-					default:
-						connection.socket.send(JSON.stringify({
-							type: 'error',
-							message: 'Type de message inconnu'
-						}));
+				try {
+					const data = JSON.parse(message.toString());
+					// Gestion des différents types de messages
+					switch (data.type) {
+						case 'join':
+							console.log(`Joueur ${data.alias} a rejoint.`);
+							connection.socket.send(JSON.stringify({
+								type: 'join_ack',
+								message: `Bienvenue ${data.alias}.`
+							}));
+							break;
+						case 'move':
+							console.log(`Mouvement du joueur ${data.alias}.`);
+							break;
+						case 'matchmaking':
+							console.log(`Matchmaking demandé pat ${data.alias}.`);
+							break;
+						default:
+							connection.socket.send(JSON.stringify({
+								type: 'error',
+								message: 'Type de message inconnu.'
+							}));
+					}
+				} catch (error) {
+					connection.socket.send(JSON.stringify({
+						type: 'error',
+						message: 'Données invalides.'
+					}));
 				}
 			});
 
 			connection.socket.on('close', () => {
-				handlePlayerDisconnect(connection);
+				console.log("Un joueur s'est déconnecté.");
 			});
 		});
 	});
 };
-
-function handlePlayerJoin(connection, data) {
-
-}
-
-function handlePlayerMove(connection, data) {
-
-}
-
-function handleMatchmaking(connection, data) {
-
-}
-
-function handlePlayerDisconnect(connection) {
-
-}

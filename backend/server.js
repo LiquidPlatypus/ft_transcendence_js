@@ -10,7 +10,7 @@ import playerRoutes from "./src/routes/playerRoutes.js";
 // import scoreRoutes from './src/routes/scoreRoutes.js';
 // import tournamentRoutes from './src/routes/tournamentRoutes.js';
 // import gameRoutes from './src/routes/gameRoutes.js';
-// import setupWebsockets from './src/setupWebsockets.js';
+import setupWebsockets from './src/websockets/index.js';
 import fs from 'fs';
 import db, { setupDatabase } from './src/db.js';
 
@@ -63,7 +63,7 @@ fastify.register(playerRoutes, { prefix: '/api/players' });
 //fastify.register(gameRoutes, { prefix: '/api/games' });
 
 // Config WebSockets
-//setupWebsockets(fastify);
+setupWebsockets(fastify);
 
 // Route par défaut SPA
 fastify.get('*', (request, reply) => {
