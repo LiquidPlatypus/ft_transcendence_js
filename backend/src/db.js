@@ -48,10 +48,9 @@ db.exec(`
 
 	CREATE TABLE IF NOT EXISTS game_settings (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		user_id INTEGER NOT NULL,
+		player_id INTEGER NOT NULL,
 		theme TEXT DEFAULT 'default',
-		power_ups BOOLEAN DEFAULT 0,
-		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		power_ups BOOLEAN DEFAULT 0
 	);
 `);
 
