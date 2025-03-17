@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 let currentTournamentId = null;
 
-async function startTournamentId() {
+async function startTournament() {
 	const alias = document.getElementById('playerAlias').value;
 	const players = [alias, "Bot1", "Bot2"];
 
@@ -21,6 +21,6 @@ async function startTournamentId() {
 		const data = await response.json();
 		console.log("Tournoi créé :", data.tournamentId);
 	} catch (error) {
-		console.error("Erruer :", error);
+		console.error("Erreur :", error);
 	}
 }
