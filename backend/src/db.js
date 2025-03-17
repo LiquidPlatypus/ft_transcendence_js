@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
-import { fileURLToPath  } from 'url';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,7 +20,7 @@ db.exec(`
 	CREATE TABLE IF NOT EXISTS players (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL,
-		tournament_id INTEGER REFERENCES tournaments(id),
+		tournament_id INTEGER,
 		FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
 	);
 
@@ -51,6 +51,7 @@ db.exec(`
 		user_id INTEGER NOT NULL,
 		theme TEXT DEFAULT 'default',
 		power_ups BOOLEAN DEFAULT 0,
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 	);
 `);
 
