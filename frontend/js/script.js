@@ -1,14 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
 	const button = document.querySelector("button");
-	button.addEventListener("click", () => {
-		alert("Le jeu va commencer !");
-	});
+	button.addEventListener("click", startTournament);
 });
 
 let currentTournamentId = null;
 
 async function startTournament() {
-	const alias = document.getElementById('playerAlias').value;
+	const alias = document.getElementById('playerAlias').value.trim();
+	if (!alias) {
+		alert("Veuillez entrer un alias valide !");
+		return ;
+	}
+
+	alert("Le jeu va commencer !");
+
 	const players = [alias, "Bot1", "Bot2"];
 
 	try {
