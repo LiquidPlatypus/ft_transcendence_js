@@ -1,14 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
 	const button = document.querySelector("button");
-	button.addEventListener("click", startTournament);
+	if (button) {
+		button.removeEventListener("click", startTournament);
+		button.addEventListener("click", startTournament);
+	}
 });
 
 let currentTournamentId = null;
 
 async function startTournament() {
+	event.preventDefault();
+
+	const button = event.target;
+	button.disabled = true;
+
 	const alias = document.getElementById('playerAlias').value.trim();
 	if (!alias) {
 		alert("Veuillez entrer un alias valide !");
+		button.disabled = false;
 		return ;
 	}
 
@@ -27,5 +36,7 @@ async function startTournament() {
 		console.log("Tournoi créé :", data.tournamentId);
 	} catch (error) {
 		console.error("Erreur :", error);
+	} finally {
+		button.disabled = false;
 	}
 }
