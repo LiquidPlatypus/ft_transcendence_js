@@ -8,7 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import playerRoutes from "./src/routes/playerRoutes.js";
 // import scoreRoutes from './src/routes/scoreRoutes.js';
-// import tournamentRoutes from './src/routes/tournamentRoutes.js';
+import tournamentRoutes from './src/routes/tournamentRoutes.js';
 // import gameRoutes from './src/routes/gameRoutes.js';
 import setupWebsockets from './src/websockets/index.js';
 import fs from 'fs';
@@ -59,7 +59,7 @@ fastify.register(fastifyStatic, {
 // Routes
 fastify.register(playerRoutes, { prefix: '/api/players' });
 //fastify.register(scoreRoutes, { prefix: 'api/scores' });
-//fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
+fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
 //fastify.register(gameRoutes, { prefix: '/api/games' });
 
 // Config WebSockets
