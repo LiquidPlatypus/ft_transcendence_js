@@ -38,7 +38,7 @@ async function startTournament(event: Event): Promise<void> {
 	const mainPlayerInput: HTMLInputElement | null = document.getElementById('playerAlias') as HTMLInputElement;
 	const mainAlias: string = mainPlayerInput?.value.trim() || "";
 	if (!mainAlias) {
-		alert("Veuillez entrer un alias valide !");
+		alert("Veuillez entrer un alias valide pour le joueur 1 !");
 		button.disabled = false;
 		return ;
 	}
@@ -55,8 +55,8 @@ async function startTournament(event: Event): Promise<void> {
 		}
 	}
 
-	if (playerAliases.length < 1) {
-		alert("Minimum 1 joueur requis.");
+	if (playerAliases.length < 2) {
+		alert("Minimum 2 joueur requis.");
 		button.disabled = false;
 		return ;
 	}
