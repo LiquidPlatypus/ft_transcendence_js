@@ -6,7 +6,7 @@
   },
   "scripts": {
     "test": "jest",
-    "start": "tsc ts/home.ts && tsc ts/script.ts && npx serve ."
+    "start": "tsc ts/home.ts && tsc ts/tournament.ts && tsc ts/script.ts && npx serve ."
   },
   "name": "frontend",
   "version": "1.0.0",
