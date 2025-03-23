@@ -26,7 +26,6 @@ export function homePage() {
 				</div>
 			</div>
 			</div>
-			<button id="tournament-button" class="rounded bg-blue-500 px-4 py-2 text-white">Tournoi</button>
 		</div>
 	`;
 }
