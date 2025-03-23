@@ -9,9 +9,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 export function homePage() {
 	return `
-		<div class="container mx-auto text-center py-10">
-			<h1 class="text-4xl font bold mb-4">Pong</h1>
-			<button id="tournament-button" class="bg-blue-500 text-white px-4 py-2 rounded">Tournoi<</button>
+		<div class="container mx-auto py-10 text-center">
+			<h1 class="font bold mb-4 text-4xl">Pong</h1>
+			<div class="grid grid-cols-2 justify-center gap-10">
+			<div class="rounded-lg border p-4 shadow">
+				<h2 class="mb-2 text-2xl font-semibold">Pong</h2>
+				<div class="grid grid-cols-2 gap-0">
+				<div class="rounded-lg border p-4 shadow">Match</div>
+				<div class="rounded-lg border p-4 shadow">Tournoi</div>
+				</div>
+			</div>
+			<div class="rounded-lg border p-4 shadow">
+				<h2 class="mb-2 text-2xl font-semibold">Pierre-feuille-ciseaux</h2>
+				<div class="grid grid-cols-1 gap-0">
+				<div class="rounded-lg border p-4 shadow">Jouer</div>
+				</div>
+			</div>
+			</div>
+			<button id="tournament-button" class="rounded bg-blue-500 px-4 py-2 text-white">Tournoi</button>
 		</div>
 	`;
 }
