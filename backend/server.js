@@ -52,8 +52,8 @@ fastify.register(fastifySession, {
 
 fastify.register(fastifyWebsocket);
 fastify.register(fastifyStatic, {
-	root: path.join(__dirname, 'public'),
-	prefix: '/public/'
+	root: path.join(__dirname, '../frontend'),
+	prefix: '/'
 });
 
 // Routes
@@ -66,8 +66,12 @@ fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
 setupWebsockets(fastify);
 
 // Route par défaut SPA
-fastify.get('*', (request, reply) => {
+/*fastify.get('*', (request, reply) => {
 	reply.sendFile('index.html', path.join(__dirname, 'public'));
+});*/
+
+fastify.get('/', async (request, reply) => {
+	return reply.sendFile('index.html');
 });
 
 const start = async () => {
