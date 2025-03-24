@@ -48,7 +48,7 @@
   "scripts": {
     "test": "jest",
     "tsc": "tsc ts/*.ts",
-    "start": "tsc ts/home.ts && tsc ts/tournament.ts && tsc ts/script.ts && npx serve ."
+    "start": "npx serve ."
   },
   "name": "frontend",
   "version": "1.0.0",
