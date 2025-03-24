@@ -2,7 +2,10 @@ import { homePage } from './home.js'
 import { startTournament } from './tournament.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-	document.getElementById('app').innerHTML = homePage();
+	const appElement = document.getElementById('app');
+	if (appElement) {
+		appElement.innerHTML = homePage();
+	}
 })
 
 document.addEventListener("DOMContentLoaded", () => {

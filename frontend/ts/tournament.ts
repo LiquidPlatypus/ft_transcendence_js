@@ -88,13 +88,13 @@ export async function startTournament(event: Event): Promise<void> {
 			const playerId: string = playerData.id;
 			playersIds.push(playerId);
 
-			const addPlayerResponse: Response = await fetch(`/api/tournaments//${currentTournamentId}/players`, {
+			const addPlayerResponse: Response = await fetch(`/api/tournaments/${currentTournamentId}/players`, {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
 				body: JSON.stringify({player_id: playerId}),
 			});
 
-			if (!addPlayerResponse)
+			if (!addPlayerResponse.ok)
 				throw new Error(`Erreur lors de l'ajout du joueur ${alias} au tournoi: ${addPlayerResponse.status}`);
 
 			console.log(`Joueur ${alias} ajouté au tournoi avec succès`);
@@ -107,7 +107,7 @@ export async function startTournament(event: Event): Promise<void> {
 			body: JSON.stringify({status: 'active'}),
 		});
 
-		if (!activateResponse)
+		if (!activateResponse.ok)
 			throw new Error(`Erreur lors de l'activation du tournoi: ${activateResponse.status}`);
 
 		console.log("Tournoi activé avec succès.");
@@ -181,7 +181,7 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 async function createMatch(player1Id: string, player2Id: string, round: string, matchNumber: number): Promise<void> {
 	if (!currentTournamentId) return;
 
-	const matchResponse: Response = await fetch(`/api.tournaments/${currentTournamentId}/matches`, {
+	const matchResponse: Response = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({

@@ -6,6 +6,7 @@
   },
   "scripts": {
     "test": "jest",
+    "tsc": "tsc ts/*.ts",
     "start": "tsc ts/home.ts && tsc ts/tournament.ts && tsc ts/script.ts && npx serve ."
   },
   "name": "frontend",
@@ -15,7 +16,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@tailwindcss/cli": "^4.0.8",
     "ansi-escapes": "^4.3.2",
