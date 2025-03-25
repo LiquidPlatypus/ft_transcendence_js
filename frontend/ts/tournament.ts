@@ -25,32 +25,18 @@ export async function startTournament(event: Event): Promise<void> {
 
 	// Recupere les alias des joueurs (4 max).
 	const playerAliases: string[] = [];
+	let playerCount = 0;
 
-	// Recupere l'alias du joueur principal.
-	const mainPlayerInput: HTMLInputElement | null = document.getElementById('playerAlias') as HTMLInputElement;
-	const mainAlias: string = mainPlayerInput?.value.trim() || "";
-	if (!mainAlias) {
-		alert("Veuillez entrer un alias valide pour le joueur 1 !");
-		button.disabled = false;
-		return ;
-	}
-
-	playerAliases.push(mainAlias);
-
-	// Recupere les alias des joueurs additionnels
-	for (let i = 2; i <= MAX_PLAYERS; i++) {
-		const playerInput: HTMLInputElement | null = document.getElementById(`playerAlias${i}`) as HTMLInputElement;
-		if (playerInput) {
-			const alias: string = playerInput.value.trim();
-			if (alias)
+	// Récupérer les alias
+	for (let i = 1; i <= 4; i++) {
+		const input = document.getElementById(`playerAlias${i}`) as HTMLInputElement;
+		if (input) {
+			const alias = input.value.trim();
+			if (alias) {
 				playerAliases.push(alias);
+				playerCount++;
+			}
 		}
-	}
-
-	if (playerAliases.length < 2) {
-		alert("Minimum 2 joueurs requis.");
-		button.disabled = false;
-		return ;
 	}
 
 	alert("Le jeu va commencer !");
@@ -136,12 +122,6 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 			case 1:
 				// Un seul joueur - erreur.
 				console.log("Pas assez de joueurs.");
-				break;
-
-			case 2:
-				// Deux joueurs - match simple.
-				console.log("Match à 2 joueurs.");
-				await createMatch(playerIds[0], playerIds[1], 'final', 1);
 				break;
 
 			case 3:
