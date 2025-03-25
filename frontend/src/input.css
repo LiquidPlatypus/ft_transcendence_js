@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+	--color-catpuccin: oklch(24.29% 0.0304 283.91);
+	--color-catpuccin_text: oklch(87.87% 0.0426 272.28);
+
+	--color-button: oklch(47.65% 0.034 278.64);
+	--color-button_hover: oklch(87.87% 0.0426 272.28);
+}
+
+.btn {
+	background-color: var(--color-button);
+	color: white;
+}
+
+.btn:hover {
+	background-color: var(--color-button_hover);
+}

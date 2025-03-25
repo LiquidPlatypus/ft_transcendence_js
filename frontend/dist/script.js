@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 document.addEventListener("DOMContentLoaded", () => {
-    const button = document.querySelector("button");
+    const button = document.getElementById("tournament-button");
     if (button) {
         button.removeEventListener("click", startTournament);
         button.addEventListener("click", startTournament);

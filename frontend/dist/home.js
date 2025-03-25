@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById("tournament-button");
     if (button) {
+        console.log("clicked");
         button.addEventListener('click', () => {
             const appElement = document.getElementById('app');
             if (appElement) {
@@ -17,14 +18,14 @@ export function homePage() {
 			<div class="rounded-lg border p-4 shadow">
 				<h2 class="mb-2 text-2xl font-semibold">Pong</h2>
 				<div class="grid grid-cols-2 gap-0">
-				<div class="rounded-lg border p-4 shadow">Match</div>
-				<div class="rounded-lg border p-4 shadow">Tournoi</div>
+				<button class="btn rounded-lg border p-4 shadow">Match</button>
+				<button onclick="tournamentSetup()" id="tournament-button" class="btn rounded-lg border p-4 shadow">Tournoi</button>
 				</div>
 			</div>
 			<div class="rounded-lg border p-4 shadow">
 				<h2 class="mb-2 text-2xl font-semibold">Pierre-feuille-ciseaux</h2>
 				<div class="grid grid-cols-1 gap-0">
-				<div class="rounded-lg border p-4 shadow">Jouer</div>
+				<button class="btn rounded-lg border p-4 shadow">Jouer</button>
 				</div>
 			</div>
 			</div>
@@ -32,6 +33,7 @@ export function homePage() {
 	`;
 }
 function tournamentSetup() {
+    console.log("bonjour");
     return `
 		<div class="tournamentSetup flex flex-col items-center">
 			<h1 class="text-6xl font-bold mb-10">Configuration du tournoi</h1>
