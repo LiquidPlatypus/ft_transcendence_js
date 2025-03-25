@@ -48,7 +48,7 @@ export async function startTournament(event: Event): Promise<void> {
 	}
 
 	if (playerAliases.length < 2) {
-		alert("Minimum 2 joueur requis.");
+		alert("Minimum 2 joueurs requis.");
 		button.disabled = false;
 		return ;
 	}
