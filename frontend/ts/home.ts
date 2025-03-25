@@ -6,14 +6,14 @@ export function homePage() {
 			<div class="rounded-lg border p-4 shadow">
 				<h2 class="mb-2 text-2xl font-semibold">Pong</h2>
 				<div class="grid grid-cols-2 gap-0">
-				<button class="btn rounded-lg border p-4 shadow">Match</button>
+				<button id="match-button" class="btn rounded-lg border p-4 shadow">Match</button>
 				<button id="tournament-button" class="btn rounded-lg border p-4 shadow">Tournoi</button>
 				</div>
 			</div>
 			<div class="rounded-lg border p-4 shadow">
 				<h2 class="mb-2 text-2xl font-semibold">Pierre-feuille-ciseaux</h2>
 				<div class="grid grid-cols-1 gap-0">
-				<button class="btn rounded-lg border p-4 shadow">Jouer</button>
+				<button id="pfc-button" class="btn rounded-lg border p-4 shadow">Jouer</button>
 				</div>
 			</div>
 			</div>
