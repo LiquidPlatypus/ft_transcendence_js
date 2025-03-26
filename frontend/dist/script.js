@@ -11,16 +11,25 @@ document.addEventListener("DOMContentLoaded", () => {
         button.addEventListener("click", showPlayerCountSelection);
 });
 function showPlayerCountSelection() {
-    const container = document.getElementById("tournament-setup");
+    const container = document.getElementById("Pong");
     if (!container)
         return;
     container.innerHTML = `
+		<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
 		<h2 class="text-xl font-semibold">Combien de joueurs?</h2>
 		<div class="flex justify-center gap-4 mt-4">
-			<button class="player-count-btn btn rounded-lg border p-4 shadow" data-count="3">3 joueurs</button>
-			<button class="player-count-btn btn rounded-lg border p-4 shadow" data-count="4">4 joueurs</button>
+			<button id="3p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="3">3 joueurs</button>
+			<button id="4p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="4">4 joueurs</button>
 		</div>
 	`;
+    const backButton = document.getElementById("back-button");
+    if (backButton) {
+        backButton.addEventListener("click", () => {
+            const appElement = document.getElementById('app');
+            if (appElement)
+                appElement.innerHTML = homePage();
+        });
+    }
     document.querySelectorAll(".player-count-btn").forEach((btn) => {
         btn.addEventListener("click", (event) => {
             const target = event.target;
@@ -30,7 +39,7 @@ function showPlayerCountSelection() {
     });
 }
 function showAliasInputs(playerCount) {
-    const container = document.getElementById("tournament-setup");
+    const container = document.getElementById("Pong");
     if (!container)
         return;
     let inputsHTML = "";
@@ -43,10 +52,14 @@ function showAliasInputs(playerCount) {
 		`;
     }
     container.innerHTML = `
+		<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
 		<h2 class="text-xl font-semibold">Entrez les alias des joueurs</h2>
 		${inputsHTML}
 		<button id="start-tournament" class="btn rounded-lg border p-4 shadow">Commencer</button>
 	`;
+    const backButton = document.getElementById("back-button");
+    if (backButton)
+        backButton.addEventListener("click", (event) => { showPlayerCountSelection(); });
     const startButton = document.getElementById("start-tournament");
     if (startButton)
         startButton.addEventListener("click", startTournament);
