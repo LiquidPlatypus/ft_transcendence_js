@@ -2,8 +2,10 @@ import { homePage } from './home.js';
 import { startTournament } from './tournament.js';
 document.addEventListener('DOMContentLoaded', () => {
     const appElement = document.getElementById('app');
-    if (appElement)
+    if (appElement) {
         appElement.innerHTML = homePage();
+        attachHomePageListeners();
+    }
 });
 document.addEventListener("DOMContentLoaded", () => {
     const button = document.getElementById("tournament-button");
@@ -26,8 +28,10 @@ function showPlayerCountSelection() {
     if (backButton) {
         backButton.addEventListener("click", () => {
             const appElement = document.getElementById('app');
-            if (appElement)
+            if (appElement) {
                 appElement.innerHTML = homePage();
+                attachHomePageListeners();
+            }
         });
     }
     document.querySelectorAll(".player-count-btn").forEach((btn) => {
@@ -37,6 +41,11 @@ function showPlayerCountSelection() {
             showAliasInputs(playerCount);
         });
     });
+}
+function attachHomePageListeners() {
+    const tournament_btn = document.getElementById("tournament-button");
+    if (tournament_btn)
+        tournament_btn.addEventListener("click", showPlayerCountSelection);
 }
 function showAliasInputs(playerCount) {
     const container = document.getElementById("Pong");

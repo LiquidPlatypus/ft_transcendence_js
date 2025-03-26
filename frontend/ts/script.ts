@@ -3,8 +3,10 @@ import { startTournament } from './tournament.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 	const appElement = document.getElementById('app');
-	if (appElement)
+	if (appElement) {
 		appElement.innerHTML = homePage();
+		attachHomePageListeners();
+	}
 })
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -31,7 +33,10 @@ function showPlayerCountSelection() {
 	if (backButton) {
 		backButton.addEventListener("click", () => {
 			const appElement = document.getElementById('app');
-			if (appElement) appElement.innerHTML = homePage();
+			if (appElement) {
+				appElement.innerHTML = homePage();
+				attachHomePageListeners();
+			}
 		});
 	}
 
@@ -42,6 +47,12 @@ function showPlayerCountSelection() {
 			showAliasInputs(playerCount);
 		});
 	});
+}
+
+function attachHomePageListeners() {
+	const tournament_btn = document.getElementById("tournament-button");
+	if (tournament_btn)
+		tournament_btn.addEventListener("click", showPlayerCountSelection);
 }
 
 function showAliasInputs(playerCount: number) {
