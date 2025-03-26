@@ -7,11 +7,51 @@ document.addEventListener('DOMContentLoaded', () => {
         attachHomePageListeners();
     }
 });
-document.addEventListener("DOMContentLoaded", () => {
-    const button = document.getElementById("tournament-button");
-    if (button)
-        button.addEventListener("click", showPlayerCountSelection);
-});
+function attachHomePageListeners() {
+    const match_btn = document.getElementById('match-button');
+    if (match_btn)
+        match_btn.addEventListener('click', showMatchAliasInputs);
+    const tournament_btn = document.getElementById("tournament-button");
+    if (tournament_btn)
+        tournament_btn.addEventListener("click", showPlayerCountSelection);
+}
+function showMatchAliasInputs() {
+    const container = document.getElementById("Pong");
+    if (!container)
+        return;
+    container.innerHTML = `
+		<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
+		<h2 class="text-xl font-semibold">Entrez les alias des joueurs</h2>
+		<div class="mt-4">
+			<label for="player1" class="block text-lg">Joueur 1 :</label>
+			<input type="text" id="player1" class="border p-2 rounded w-full" placeholder="Alias Joueur 1">
+		</div>
+		<div class="mt-4">
+			<label for="player2" class="block text-lg">Joueur 2 :</label>
+			<input type="text" id="player2" class="border p-2 rounded w-full" placeholder="Alias Joueur 2">
+		</div>
+		<button id="start-button" class="btn rounded-lg border p-4 shadow">Commencer</button>
+	`;
+    const backButton = document.getElementById("back-button");
+    if (backButton) {
+        backButton.addEventListener("click", () => {
+            const appElement = document.getElementById('app');
+            if (appElement) {
+                appElement.innerHTML = homePage();
+                attachHomePageListeners();
+            }
+        });
+    }
+    const startButton = document.getElementById("start-button");
+    if (startButton) {
+        startButton.addEventListener("click", () => {
+            const player1 = document.getElementById('player1').value;
+            const player2 = document.getElementById('player2').value;
+            console.log(`Match entre ${player1} et ${player2}`);
+            // FONCTION POUR DEMARRER LE MATCH
+        });
+    }
+}
 function showPlayerCountSelection() {
     const container = document.getElementById("Pong");
     if (!container)
@@ -41,11 +81,6 @@ function showPlayerCountSelection() {
             showAliasInputs(playerCount);
         });
     });
-}
-function attachHomePageListeners() {
-    const tournament_btn = document.getElementById("tournament-button");
-    if (tournament_btn)
-        tournament_btn.addEventListener("click", showPlayerCountSelection);
 }
 function showAliasInputs(playerCount) {
     const container = document.getElementById("Pong");
