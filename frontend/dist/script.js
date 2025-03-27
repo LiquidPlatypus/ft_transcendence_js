@@ -1,5 +1,6 @@
 import { homePage } from './home.js';
 import { startTournament } from './tournament.js';
+import { Game } from './mypong.js';
 document.addEventListener('DOMContentLoaded', () => {
     const appElement = document.getElementById('app');
     if (appElement) {
@@ -14,38 +15,6 @@ function attachHomePageListeners() {
     const tournament_btn = document.getElementById("tournament-button");
     if (tournament_btn)
         tournament_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'tournoi'));
-}
-function showMatchAliasInputs(playerCount) {
-    const container = document.getElementById("Pong");
-    if (!container)
-        return;
-    let inputsHTML = "";
-    for (let i = 1; i <= playerCount; i++) {
-        inputsHTML += `
-			<div class="mt-2">
-				<label for="playerAlias${i}" class="block text-lg">Joueur ${i} :</label>
-				<input type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="Alias Joueur ${i}">
-			</div>
-		`;
-    }
-    container.innerHTML = `
-		<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
-		<h2 class="text-xl font-semibold">Entrez les alias des joueurs</h2>
-		${inputsHTML}
-		<button id="start-tournament" class="btn rounded-lg border p-4 shadow">Commencer</button>
-	`;
-    const backButton = document.getElementById("back-button");
-    if (backButton)
-        backButton.addEventListener("click", (event) => { showPlayerCountSelection(event, 'match'); });
-    const startButton = document.getElementById("start-button");
-    if (startButton) {
-        startButton.addEventListener("click", () => {
-            const player1 = document.getElementById('player1').value;
-            const player2 = document.getElementById('player2').value;
-            console.log(`Match entre ${player1} et ${player2}`);
-            // FONCTION POUR DEMARRER LE MATCH
-        });
-    }
 }
 function showPlayerCountSelection(event, buttonType) {
     const container = document.getElementById("Pong");
@@ -106,7 +75,7 @@ function showAliasInputs(playerCount, buttonType) {
 		<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
 		<h2 class="text-xl font-semibold">Entrez les alias des joueurs</h2>
 		${inputsHTML}
-		<button id="start-tournament" class="btn rounded-lg border p-4 shadow">Commencer</button>
+		<button id="start" class="btn rounded-lg border p-4 shadow">Commencer</button>
 	`;
     const backButton = document.getElementById("back-button");
     if (backButton) {
@@ -115,17 +84,28 @@ function showAliasInputs(playerCount, buttonType) {
         else if (buttonType === 'tournoi')
             backButton.addEventListener("click", (event) => { showPlayerCountSelection(event, 'tournoi'); });
     }
-    const startButton = document.getElementById("start-tournament");
+    const startButton = document.getElementById("start");
     if (startButton) {
         if (buttonType === 'match') {
             startButton.addEventListener("click", () => {
-                const player1 = document.getElementById('player1').value;
-                const player2 = document.getElementById('player2').value;
+                const player1 = document.getElementById('playerAlias1').value;
+                const player2 = document.getElementById('playerAlias2').value;
                 console.log(`Match entre ${player1} et ${player2}`);
-                // FONCTION POUR DEMARRER LE MATCH
+                startGame();
             });
         }
-        else if (buttonType === 'tournoi')
+        else if (buttonType === 'tournoi') {
             startButton.addEventListener("click", startTournament);
+        }
     }
+}
+function startGame() {
+    const container = document.getElementById("Pong");
+    if (!container)
+        return;
+    container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
+    setTimeout(() => {
+        const game = new Game();
+        requestAnimationFrame(game.gameLoop.bind(game));
+    });
 }

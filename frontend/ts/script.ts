@@ -1,5 +1,6 @@
 import { homePage } from './home.js'
 import { startTournament } from './tournament.js';
+import { Game } from './mypong.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 	const appElement = document.getElementById('app');
@@ -85,7 +86,7 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 		<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
 		<h2 class="text-xl font-semibold">Entrez les alias des joueurs</h2>
 		${inputsHTML}
-		<button id="start-tournament" class="btn rounded-lg border p-4 shadow">Commencer</button>
+		<button id="start" class="btn rounded-lg border p-4 shadow">Commencer</button>
 	`;
 
 	const backButton = document.getElementById("back-button");
@@ -96,19 +97,33 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 			backButton.addEventListener("click", (event) => {showPlayerCountSelection(event, 'tournoi')});
 	}
 
-	const startButton = document.getElementById("start-tournament");
-	if (startButton) {
+	const startButton = document.getElementById("start");
+	if (startButton)
+	{
 		if (buttonType === 'match') {
 			startButton.addEventListener("click", () => {
-				const player1 = (document.getElementById('player1') as HTMLInputElement).value;
-				const player2 = (document.getElementById('player2') as HTMLInputElement).value;
+				const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
+				const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;
 				console.log(`Match entre ${player1} et ${player2}`);
-				// FONCTION POUR DEMARRER LE MATCH
-			})
-		}
-		else if (buttonType === 'tournoi')
+				startGame();
+				})
+		} else if (buttonType === 'tournoi') {
 			startButton.addEventListener("click", startTournament);
+		}
 	}
+}
+
+function startGame() {
+	const container = document.getElementById("Pong");
+	if (!container)
+		return ;
+
+	container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
+
+	setTimeout(() => {
+		const game = new Game();
+		requestAnimationFrame(game.gameLoop.bind(game));
+	})
 }
 
 
