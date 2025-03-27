@@ -27,10 +27,15 @@ function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 	if (!container)
 		return ;
 
+	container.classList.remove("grid-cols-2");
+	container.classList.add("grid-cols-1");
+
 	if (buttonType === 'match') {
 		container.innerHTML = `
-			<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
-			<h2 class="text-xl font-semibold">Combien de joueurs?</h2>
+			<div class="flex flex-col items-center gap-4">
+				<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
+				<h2 class="text-xl font-semibold">Combien de joueurs?</h2>
+			</div>
 			<div class="flex justify-center gap-4 mt-4">
 				<button id="2p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="2">2 joueurs</button>
 				<button id="4p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="4">4 joueurs</button>
@@ -53,6 +58,11 @@ function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 			const appElement = document.getElementById('app');
 			if (appElement) {
 				appElement.innerHTML = homePage();
+				const pongContainer = document.getElementById("Pong");
+				if (pongContainer) {
+					pongContainer.classList.remove("grid-cols-1");
+					pongContainer.classList.add("grid-cols-2");
+				}
 				attachHomePageListeners();
 			}
 		});
@@ -72,6 +82,9 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 	if (!container)
 		return ;
 
+	container.classList.remove("grid-cols-2");
+	container.classList.add("grid-cols-1");
+
 	let inputsHTML = "";
 	for (let i = 1; i <= playerCount; i++) {
 		inputsHTML += `
@@ -83,9 +96,13 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 	}
 
 	container.innerHTML = `
-		<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
-		<h2 class="text-xl font-semibold">Entrez les alias des joueurs</h2>
-		${inputsHTML}
+		<div class="flex flex-col item-center gap-4">
+			<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
+			<h2 class="text-xl font-semibold">Entrez les alias des joueurs</h2>
+		</div>
+		<div class="flex felx-col items-center gap-2 w-full">
+			${inputsHTML}
+		</div>
 		<button id="start" class="btn rounded-lg border p-4 shadow">Commencer</button>
 	`;
 
