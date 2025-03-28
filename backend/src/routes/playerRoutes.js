@@ -59,4 +59,36 @@ export default async function playerRoutes(fastify, options) {
 			});
 		}
 	});
+
+	fastify.post('/match/score', async (request, reply) => {
+		const { matchId, player1Score, player2Score } = request.body;
+
+		if (!matchId || player1Score === undefined || player2Score === undefined)
+			return reply.status(400).send({ success: false, message: "ID du match et score requis."});
+
+		try {
+			let winnerId = null;
+			const match = db.prepare("SELECT * FROM matches WHERE id = ?").get(matchId);
+
+			if (!match)
+				return reply.status(404).send({ success: false, message: "Match non trouvé." });
+
+			if (player1Score > player2Score)
+				winnerId = match.player1_id;
+			else if (player2Score > player2Score)
+				winnerId = match.player2_id;
+
+			const updateMatch = db.prepare(`
+				UPDATE matches
+				SET player1_score = ?, player2_score = ?, winner_id = ?, status = 'completed'
+				WHERE id = ?
+			`);
+			updateMatch.run(player1Score, player2Score, winnerId, matchId);
+
+			reply.send({ success: true, message: "Score enregistré avec succès." });
+		} catch (error) {
+			fastify.log.error(error);
+			return reply.status(500).send({ success: false, message: "Erreur lors de l'enregisrement du score." });
+		}
+	});
 }

@@ -7,7 +7,7 @@ import fastifyCookie from '@fastify/cookie';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import playerRoutes from "./src/routes/playerRoutes.js";
-// import scoreRoutes from './src/routes/scoreRoutes.ts';
+import scoreRoutes from './src/routes/scoreRoutes.js';
 import tournamentRoutes from './src/routes/tournamentRoutes.js';
 // import gameRoutes from './src/routes/gameRoutes.ts';
 import setupWebsockets from './src/websockets/index.js';
@@ -58,7 +58,7 @@ fastify.register(fastifyStatic, {
 
 // Routes
 fastify.register(playerRoutes, { prefix: '/api/players' });
-//fastify.register(scoreRoutes, { prefix: 'api/scores' });
+fastify.register(scoreRoutes, { prefix: 'api/scores' });
 fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
 //fastify.register(gameRoutes, { prefix: '/api/games' });
 
