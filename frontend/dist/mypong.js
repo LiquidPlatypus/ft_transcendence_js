@@ -5,8 +5,10 @@ var KeyBindings;
     KeyBindings[KeyBindings["UP2"] = 38] = "UP2";
     KeyBindings[KeyBindings["DOWN2"] = 40] = "DOWN2";
 })(KeyBindings || (KeyBindings = {}));
+const MAX_SCORE = 5;
 let isPaused = false; // Variable pour gérer l'état de pause
 let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
+let gameOver = false;
 export class Game {
     constructor() {
         const canvas = document.getElementById("game-canvas");
@@ -62,6 +64,8 @@ export class Game {
         this.ball.update(this.player1, this.player2, this.gameCanvas);
     }
     gameLoop() {
+        if (gameOver)
+            return;
         this.update();
         this.draw();
         requestAnimationFrame(() => this.gameLoop());
@@ -137,12 +141,10 @@ class Ball extends Entity {
         super(w, h, x, y);
         this.speed = 5;
         const randomDirection = Math.floor(Math.random() * 2) + 1;
-        if (randomDirection % 2) {
+        if (randomDirection % 2)
             this.xVal = 1;
-        }
-        else {
+        else
             this.xVal = -1;
-        }
         this.yVal = 1;
     }
     update(player1, player2, canvas) {
@@ -150,47 +152,53 @@ class Ball extends Entity {
         if (isPaused)
             return;
         //check le haut
-        if (this.y <= 10) {
+        if (this.y <= 10)
             this.yVal = 1;
-        }
         //check le bas
-        if (this.y + this.height >= canvas.height - 10) {
+        if (this.y + this.height >= canvas.height - 10)
             this.yVal = -1;
-        }
         //check but player 2
         if (this.x <= 0) {
-            this.x = canvas.width / 2 - this.width / 2;
             Game.player2Score += 1;
-            // Mettre en pause le jeu pendant 2 secondes après un but de player 2
-            isPaused = true;
-            setTimeout(() => {
-                isPaused = false; // Reprendre le jeu après la pause
-            }, pauseDuration);
+            this.resetPosition(canvas);
+            if (this.checkGameEnd("Joueur 2"))
+                return;
         }
         //check but player 1
         if (this.x + this.width >= canvas.width) {
-            this.x = canvas.width / 2 - this.width / 2;
             Game.player1Score += 1;
-            // Mettre en pause le jeu pendant 2 secondes après un but de player 1
-            isPaused = true;
-            setTimeout(() => {
-                isPaused = false; // Reprendre le jeu après la pause
-            }, pauseDuration);
+            this.resetPosition(canvas);
+            if (this.checkGameEnd("Joueur 1"))
+                return;
         }
         //check player 1 collision
-        if (this.x <= player1.x + player1.width) {
-            if (this.y >= player1.y && this.y + this.height <= player1.y + player1.height) {
-                this.xVal = 1;
-            }
+        if (this.x <= player1.x + player1.width &&
+            this.y >= player1.y &&
+            this.y + this.height <= player1.y + player1.height) {
+            this.xVal = -1;
         }
         //check player 2 collision
-        if (this.x + this.width >= player2.x) {
-            if (this.y >= player2.y && this.y + this.height <= player2.y + player2.height) {
-                this.xVal = -1;
-            }
+        if (this.x + this.width >= player2.x &&
+            this.y >= player2.y &&
+            this.y + this.height <= player2.y + player2.height) {
+            this.xVal = -1;
         }
         this.x += this.xVal * this.speed;
         this.y += this.yVal * this.speed;
+    }
+    resetPosition(canvas) {
+        this.x = canvas.width / 2 - this.width / 2;
+        this.y = canvas.height / 2 - this.height / 2;
+        isPaused = true;
+        setTimeout(() => { isPaused = false; }, pauseDuration);
+    }
+    checkGameEnd(winner) {
+        if (Game.player1Score >= MAX_SCORE || Game.player2Score >= MAX_SCORE) {
+            alert(`${winner} gagne !`);
+            gameOver = true;
+            return true;
+        }
+        return false;
     }
 }
 //var game = new Game();
