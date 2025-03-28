@@ -5,6 +5,8 @@ enum KeyBindings{
 	DOWN2 = 40
 }
 
+const MAX_SCORE = 5;
+
 let isPaused = false; // Variable pour gérer l'état de pause
 let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
 
@@ -16,6 +18,7 @@ export class Game{
 	public static player2Score: number = 0;
 	private player1: Paddle;
 	private player2: Paddle2;
+
 	private ball: Ball;
 
 	constructor() {
@@ -172,15 +175,13 @@ class Ball extends Entity{
 
 	private speed:number = 5;
 
-	constructor(w:number, h:number, x:number, y:number){
-		super(w,h,x,y);
+	constructor(w: number, h: number, x: number, y: number){
+		super(w, h, x, y);
 		const randomDirection = Math.floor(Math.random() * 2) +1;
-		if (randomDirection % 2){
+		if (randomDirection % 2)
 			this.xVal = 1;
-		}
-		else{
+		else
 			this.xVal = -1;
-		}
 		this.yVal = 1;
 	}
 
@@ -190,25 +191,23 @@ class Ball extends Entity{
 	   if (isPaused) return;
 
 		//check le haut
-		if (this.y <= 10){
+		if (this.y <= 10)
 			this.yVal = 1;
-		}
 
 		//check le bas
-		if (this.y  + this.height >= canvas.height - 10){
+		if (this.y  + this.height >= canvas.height - 10)
 			this.yVal = -1;
-		}
 
 		//check but player 2
-		if (this.x <= 0){
+		if (this.x <= 0) {
 			this.x = canvas.width / 2 - this.width / 2;
 			Game.player2Score += 1;
 
 			// Mettre en pause le jeu pendant 2 secondes après un but de player 2
-		isPaused = true;
-		setTimeout(() => {
-			isPaused = false; // Reprendre le jeu après la pause
-		}, pauseDuration);
+			isPaused = true;
+			setTimeout(() => {
+				isPaused = false; // Reprendre le jeu après la pause
+			}, pauseDuration);
 		}
 
 		//check but player 1

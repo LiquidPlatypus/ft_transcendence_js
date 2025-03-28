@@ -87,7 +87,7 @@ function showAliasInputs(playerCount, buttonType) {
 			<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
 			<h2 class="text-xl font-semibold">Entrez les alias des joueurs</h2>
 		</div>
-		<div class="flex felx-col items-center gap-2 w-full">
+		<div class="flex flex-col items-center w-full mb-2">
 			${inputsHTML}
 		</div>
 		<button id="start" class="btn rounded-lg border p-4 shadow">Commencer</button>
