@@ -17,6 +17,9 @@ export function homePage() {
 					</div>
 				</div>
 			</div>
+			<div>
+				<button id="history-button" class="btn rounded-lg border p-4 shadow">Historique</button>
+			</div>
 		</div>
 	`;
 }

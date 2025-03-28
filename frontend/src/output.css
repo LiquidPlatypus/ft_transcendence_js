@@ -1495,6 +1495,9 @@
   .bg-catpuccin {
     background-color: var(--color-catpuccin);
   }
+  .bg-gray-100 {
+    background-color: var(--color-gray-100);
+  }
   .bg-red-500 {
     background-color: var(--color-red-500);
   }
@@ -1744,6 +1747,10 @@
     --tw-leading: 1;
     line-height: 1;
   }
+  .font-bold {
+    --tw-font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-bold);
+  }
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
@@ -1823,6 +1830,12 @@
   }
   .text-catpuccin_text {
     color: var(--color-catpuccin_text);
+  }
+  .text-green-500 {
+    color: var(--color-green-500);
+  }
+  .text-red-500 {
+    color: var(--color-red-500);
   }
   .capitalize {
     text-transform: capitalize;

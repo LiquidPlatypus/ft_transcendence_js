@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { homePage } from './home.js';
 import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
@@ -11,10 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function attachHomePageListeners() {
     const match_btn = document.getElementById('match-button');
     if (match_btn)
-        match_btn.addEventListener('click', (event) => showPlayerCountSelection(event, 'match'));
+        match_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'match'));
     const tournament_btn = document.getElementById("tournament-button");
     if (tournament_btn)
         tournament_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'tournoi'));
+    const history_btn = document.getElementById("history-button");
+    if (history_btn)
+        history_btn.addEventListener("click", (event) => showHistory(event));
 }
 function showPlayerCountSelection(event, buttonType) {
     const container = document.getElementById("Pong");
@@ -113,6 +125,41 @@ function showAliasInputs(playerCount, buttonType) {
             startButton.addEventListener("click", startTournament);
         }
     }
+}
+function showHistory(event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const container = document.getElementById("Pong");
+        if (!container)
+            return;
+        container.classList.remove("grid-cols-2");
+        container.classList.add("grid-cols-1");
+        try {
+            const response = yield fetch("/api/scores/history");
+            const data = yield response.json();
+            if (!data.success) {
+                container.innerHTML = "<p class='text-center text-red-500'>Erreur lors du chargement de l'historique.</p>";
+                return;
+            }
+            let historyHTML = "<h2 class='text-xl font-bold text-center mb-4'>Historique des matchs</h2>";
+            if (data.matches.length === 0)
+                historyHTML += "<p class='text-center'>Aucun match enregistré.</p>";
+            else {
+                data.matches.forEach((match) => {
+                    historyHTML += `
+					<div class="border p-4 mb-2 rounded-lg bg-gray-100 shadow">
+						<p><strong>${match.player1}</strong> (${match.player1_score}) vs <strong>${match.player2}</strong> (${match.player2_score})</p>
+						<p class="text-green-500">Gagnant : <strong>${match.winner || "Égalité"}</strong></p>
+					</div>
+				`;
+                });
+            }
+            container.innerHTML = historyHTML;
+        }
+        catch (error) {
+            console.error("Erreur:", error);
+            container.innerHTML = "<p class='text-center text-red-500'>Impossible de récupérer l'historique.</p>";
+        }
+    });
 }
 function startGame() {
     const container = document.getElementById("Pong");

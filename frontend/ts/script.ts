@@ -13,11 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
 function attachHomePageListeners() {
 	const match_btn = document.getElementById('match-button');
 	if (match_btn)
-		match_btn.addEventListener('click', (event) => showPlayerCountSelection(event, 'match'));
+		match_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'match'));
 
 	const tournament_btn = document.getElementById("tournament-button");
 	if (tournament_btn)
 		tournament_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'tournoi'));
+
+	const history_btn = document.getElementById("history-button");
+	if (history_btn)
+		history_btn.addEventListener("click", (event) => showHistory(event));
 }
 
 type ButtonType = 'match' | 'tournoi'
@@ -127,6 +131,53 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 		} else if (buttonType === 'tournoi') {
 			startButton.addEventListener("click", startTournament);
 		}
+	}
+}
+
+interface Match {
+	player1: string;
+	player1_score: number;
+	player2: string;
+	player2_score: number;
+	winner: string | null;
+}
+
+async function showHistory(event: Event) {
+	const container = document.getElementById("Pong");
+	if (!container)
+		return ;
+
+	container.classList.remove("grid-cols-2");
+	container.classList.add("grid-cols-1");
+
+	try {
+		const response = await fetch("/api/scores/history");
+		const data: { success: boolean; matches: Match[] } = await response.json();
+
+		if (!data.success) {
+			container.innerHTML = "<p class='text-center text-red-500'>Erreur lors du chargement de l'historique.</p>"
+			return ;
+		}
+
+		let historyHTML = "<h2 class='text-xl font-bold text-center mb-4'>Historique des matchs</h2>";
+
+		if (data.matches.length === 0)
+			historyHTML += "<p class='text-center'>Aucun match enregistré.</p>";
+		else {
+			data.matches.forEach((match: Match) => {
+				historyHTML += `
+					<div class="border p-4 mb-2 rounded-lg bg-gray-100 shadow">
+						<p><strong>${match.player1}</strong> (${match.player1_score}) vs <strong>${match.player2}</strong> (${match.player2_score})</p>
+						<p class="text-green-500">Gagnant : <strong>${match.winner || "Égalité"}</strong></p>
+					</div>
+				`;
+			});
+		}
+
+		container.innerHTML = historyHTML;
+	} catch (error) {
+		console.error("Erreur:", error);
+		container.innerHTML = "<p class='text-center text-red-500'>Impossible de récupérer l'historique.</p>";
 	}
 }
 
