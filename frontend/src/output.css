@@ -1747,6 +1747,10 @@
     --tw-leading: 1;
     line-height: 1;
   }
+  .font-bold {
+    --tw-font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-bold);
+  }
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
@@ -2286,6 +2290,7 @@
 .btn {
   background-color: var(--color-button);
   color: white;
+  width: 100px;
 }
 .btn:hover {
   background-color: var(--color-button_hover);
