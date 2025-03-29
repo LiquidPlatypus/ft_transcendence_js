@@ -24,9 +24,12 @@ function attachHomePageListeners() {
     const tournament_btn = document.getElementById("tournament-button");
     if (tournament_btn)
         tournament_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'tournoi'));
-    const history_btn = document.getElementById("history-button");
-    if (history_btn)
-        history_btn.addEventListener("click", (event) => showHistory(event));
+    const pong_hist_btn = document.getElementById("pong-hist-btn");
+    if (pong_hist_btn)
+        pong_hist_btn.addEventListener("click", (event) => showHistory(event, 'pong'));
+    const pfc_hist_btn = document.getElementById("pfc-hist-btn");
+    if (pfc_hist_btn)
+        pfc_hist_btn.addEventListener("click", (event) => showHistory(event, 'pfc'));
 }
 function showPlayerCountSelection(event, buttonType) {
     const container = document.getElementById("Pong");
@@ -122,46 +125,37 @@ function showAliasInputs(playerCount, buttonType) {
         }
     }
 }
-function showHistory(event) {
+function showHistory(event, gameType) {
     return __awaiter(this, void 0, void 0, function* () {
-        const container = document.getElementById("Pong");
+        const container = document.getElementById(`history-${gameType}`);
         if (!container)
             return;
-        const historyButton = document.getElementById('history-button');
-        if (historyButton)
-            historyButton.classList.add('hidden');
-        container.classList.remove("grid-cols-2");
-        container.classList.add("grid-cols-1");
+        // Logique pour récupérer et afficher l'historique
         try {
-            const response = yield fetch("/api/scores/history");
+            const response = yield fetch(`/api/scores/history/${gameType}`); // Assurez-vous que votre API supporte cela
             const data = yield response.json();
-            if (!data.success) {
-                container.innerHTML = "<p class='text-center text-red-500'>Erreur lors du chargement de l'historique.</p>";
-                return;
-            }
-            let historyHTML = `
-			<div class="flex flex-col items-center gap-4">
-				<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
-				<h2 class="text-xl font-semibold">Historique</h2>
-			</div>
-		`;
-            if (data.matches.length === 0)
-                historyHTML += "<p class='text-center'>Aucun match enregistré.</p>";
-            else {
+            if (data.success) {
+                let historyHTML = `<h2 class="text-xl font-semibold">Historique ${gameType}</h2>`;
                 data.matches.forEach((match) => {
-                    historyHTML += `
-					<div class="border p-4 mb-2 rounded-lg bg-gray-100 shadow">
-						<p><strong>${match.player1}</strong> (${match.player1_score}) vs <strong>${match.player2}</strong> (${match.player2_score})</p>
-						<p class="text-green-500">Gagnant : <strong>${match.winner || "Égalité"}</strong></p>
-					</div>
-				`;
+                    historyHTML += `<p>${match.player1} vs ${match.player2}: ${match.player1_score} - ${match.player2_score}</p>`;
                 });
+                container.innerHTML = historyHTML;
+                container.classList.remove('hidden');
             }
-            container.innerHTML = historyHTML;
+            else {
+                container.innerHTML = `
+				<div class="flex flex-col item-center">
+					<button id="back-button" class="little_btn rounded-lg border p-4 shadow"><</button>
+					<p>Aucun matchs enregistrés.</p>
+				</div>
+			`;
+                container.classList.remove('hidden');
+            }
         }
         catch (error) {
-            console.error("Erreur:", error);
-            container.innerHTML = "<p class='text-center text-red-500'>Impossible de récupérer l'historique.</p>";
+            console.error("Erreur lors de la récupération de l'historique:", error);
+            container.innerHTML = "<p>Erreur lors de la récupération de l'historique.</p>";
+            container.classList.remove('hidden');
         }
         const backButton = document.getElementById("back-button");
         if (backButton) {
