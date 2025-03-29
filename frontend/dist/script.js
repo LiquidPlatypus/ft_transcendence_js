@@ -64,16 +64,7 @@ function showPlayerCountSelection(event, buttonType) {
     const backButton = document.getElementById("back-button");
     if (backButton) {
         backButton.addEventListener("click", () => {
-            const appElement = document.getElementById('app');
-            if (appElement) {
-                appElement.innerHTML = homePage();
-                const pongContainer = document.getElementById("Pong");
-                if (pongContainer) {
-                    pongContainer.classList.remove("grid-cols-1");
-                    pongContainer.classList.add("grid-cols-2");
-                }
-                attachHomePageListeners();
-            }
+            showHome();
         });
     }
     document.querySelectorAll(".player-count-btn").forEach((btn) => {
@@ -136,6 +127,9 @@ function showHistory(event) {
         const container = document.getElementById("Pong");
         if (!container)
             return;
+        const historyButton = document.getElementById('history-button');
+        if (historyButton)
+            historyButton.classList.add('hidden');
         container.classList.remove("grid-cols-2");
         container.classList.add("grid-cols-1");
         try {
@@ -145,7 +139,12 @@ function showHistory(event) {
                 container.innerHTML = "<p class='text-center text-red-500'>Erreur lors du chargement de l'historique.</p>";
                 return;
             }
-            let historyHTML = "<h2 class='text-xl font-bold text-center mb-4'>Historique des matchs</h2>";
+            let historyHTML = `
+			<div class="flex flex-col items-center gap-4">
+				<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
+				<h2 class="text-xl font-semibold">Historique</h2>
+			</div>
+		`;
             if (data.matches.length === 0)
                 historyHTML += "<p class='text-center'>Aucun match enregistré.</p>";
             else {
@@ -164,6 +163,12 @@ function showHistory(event) {
             console.error("Erreur:", error);
             container.innerHTML = "<p class='text-center text-red-500'>Impossible de récupérer l'historique.</p>";
         }
+        const backButton = document.getElementById("back-button");
+        if (backButton) {
+            backButton.addEventListener("click", () => {
+                showHome();
+            });
+        }
     });
 }
 function startGame() {
@@ -175,4 +180,16 @@ function startGame() {
         const game = new Game();
         requestAnimationFrame(game.gameLoop.bind(game));
     });
+}
+function showHome() {
+    const appElement = document.getElementById('app');
+    if (appElement) {
+        appElement.innerHTML = homePage();
+        const pongContainer = document.getElementById("Pong");
+        if (pongContainer) {
+            pongContainer.classList.remove("grid-cols-1");
+            pongContainer.classList.add("grid-cols-2");
+        }
+        attachHomePageListeners();
+    }
 }
