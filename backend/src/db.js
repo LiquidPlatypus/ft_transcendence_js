@@ -34,8 +34,6 @@ export function setupDatabase() {
 			FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE
 		);
 
-		DROP TABLE IF EXISTS matches;
-
 		CREATE TABLE IF NOT EXISTS matches
 		(
 			id				INTEGER PRIMARY KEY AUTOINCREMENT,
