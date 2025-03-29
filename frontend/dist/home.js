@@ -5,7 +5,7 @@ export function homePage() {
 			<div class="grid grid-cols-2 justify-center gap-10">
 				<div class="rounded-lg border p-4 shadow">
 					<h2 class="mb-2 text-2xl font-semibold">Pong</h2>
-					<div id="Pong" class="grid grid-cols-2 gap-0">
+					<div id="Pong" class="grid grid-cols-2 gap-4">
 						<button id="match-button" class="btn rounded-lg border p-4 shadow">Match</button>
 						<button id="tournament-button" class="btn rounded-lg border p-4 shadow">Tournoi</button>
 					</div>
@@ -17,7 +17,7 @@ export function homePage() {
 					</div>
 				</div>
 			</div>
-			<div>
+			<div class="mt-4">
 				<button id="history-button" class="btn rounded-lg border p-4 shadow">Historique</button>
 			</div>
 		</div>
