@@ -32,6 +32,9 @@ function showPlayerCountSelection(event, buttonType) {
     const container = document.getElementById("Pong");
     if (!container)
         return;
+    const historyButton = document.getElementById('history-button');
+    if (historyButton)
+        historyButton.classList.add('hidden');
     container.classList.remove("grid-cols-2");
     container.classList.add("grid-cols-1");
     if (buttonType === 'match') {
@@ -48,8 +51,10 @@ function showPlayerCountSelection(event, buttonType) {
     }
     else if (buttonType === 'tournoi') {
         container.innerHTML = `
-			<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
-			<h2 class="text-xl font-semibold">Combien de joueurs?</h2>
+			<div class="flex flex-col items-center gap-4">
+				<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
+				<h2 class="text-xl font-semibold">Combien de joueurs?</h2>
+			</div>
 			<div class="flex justify-center gap-4 mt-4">
 				<button id="3p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="3">3 joueurs</button>
 				<button id="4p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="4">4 joueurs</button>
