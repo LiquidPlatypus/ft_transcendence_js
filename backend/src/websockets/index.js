@@ -19,7 +19,7 @@ export default function setupWebsockets(fastify) {
 							console.log(`Mouvement du joueur ${data.alias}.`);
 							break;
 						case 'matchmaking':
-							console.log(`Matchmaking demandé pat ${data.alias}.`);
+							console.log(`Matchmaking demandé par ${data.alias}.`);
 							break;
 						default:
 							connection.socket.send(JSON.stringify({
