@@ -1,6 +1,7 @@
 import { getMatchHistory } from "../models/scoreModel.js";
 
 export default async function scoreRoutes(fastify, options) {
+	// Route pour récupérer l'historique des matchs
 	fastify.get('/history', async (request, reply) => {
 		try {
 			const matches = getMatchHistory();
