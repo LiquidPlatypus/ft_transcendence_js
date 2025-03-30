@@ -196,13 +196,17 @@ function startGame() {
 
 	container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
 
+	Game.player1Score = 0;
+	Game.player2Score = 0;
+	Game.setGameOver(false);
+
 	setTimeout(() => {
 		const game = new Game();
 		requestAnimationFrame(game.gameLoop.bind(game));
 	})
 }
 
-function showHome() {
+export function showHome() {
 	const appElement = document.getElementById('app');
 	if (appElement) {
 		appElement.innerHTML = homePage();

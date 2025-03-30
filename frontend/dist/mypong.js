@@ -1,3 +1,4 @@
+import { showHome } from "./script.js";
 var KeyBindings;
 (function (KeyBindings) {
     KeyBindings[KeyBindings["UP"] = 90] = "UP";
@@ -69,6 +70,12 @@ export class Game {
         this.update();
         this.draw();
         requestAnimationFrame(() => this.gameLoop());
+    }
+    static setGameOver(state) {
+        gameOver = state;
+    }
+    static isGameOver() {
+        return gameOver;
     }
 }
 Game.keysPressed = [];
@@ -194,7 +201,18 @@ class Ball extends Entity {
     }
     checkGameEnd(winner) {
         if (Game.player1Score >= MAX_SCORE || Game.player2Score >= MAX_SCORE) {
-            alert(`${winner} gagne !`);
+            const victoryMessageElement = document.getElementById("Pong");
+            if (victoryMessageElement) {
+                victoryMessageElement.innerHTML = `
+					<p class="font-extrabold">${winner} a gagné !</p>
+					<div class="flex justify-center">
+						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+					</div>
+				`;
+                const menu_btn = document.getElementById("menu-btn");
+                if (menu_btn)
+                    menu_btn.addEventListener("click", () => showHome());
+            }
             gameOver = true;
             return true;
         }
