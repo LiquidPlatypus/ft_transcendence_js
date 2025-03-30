@@ -101,7 +101,9 @@ function showAliasInputs(playerCount, buttonType) {
 		<div class="flex flex-col items-center w-full mb-2">
 			${inputsHTML}
 		</div>
-		<button id="start" class="btn rounded-lg border p-4 shadow">Commencer</button>
+		<div class="felx justify-center">
+			<button id="start" class="btn rounded-lg border p-1 pe-1 shadow justify-center">Commencer</button>
+		</div>
 	`;
     const backButton = document.getElementById("back-button");
     if (backButton) {
