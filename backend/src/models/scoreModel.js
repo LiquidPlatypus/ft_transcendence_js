@@ -15,7 +15,7 @@ export const deleteScore = (scoreId) => {
 	return result.changes > 0; // Renvoie true si le score a été supprimé
 };
 
-export const getMatchHistory = () => {
+export const getMatchHistoryPong = () => {
 	return db.prepare(`
 	SELECT
 		m.id,
@@ -28,7 +28,7 @@ export const getMatchHistory = () => {
 	JOIN players p1 ON m.player1_id = p1.id
 	JOIN players p2 ON m.player2_id = p2.id
 	LEFT JOIN players w ON m.winner_id = w.id
-	WHERE m.status = 'completed'
+	WHERE m.status = 'completed' AND m.game_type = 'pong'
 	ORDER BY m.id DESC
   `).all();
 };

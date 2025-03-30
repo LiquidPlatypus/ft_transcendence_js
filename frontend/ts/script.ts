@@ -160,7 +160,10 @@ async function showHistory(event: Event, gameType: string) {
 		const data = await response.json();
 
 		if (data.success) {
-			let historyHTML = `<h2 class="text-xl font-semibold">Historique ${gameType}</h2>`;
+			let historyHTML = `
+				<button id="back-button" class="little_btn rounded-lg border p-4 shadow"><</button>
+				<h2 class="text-xl font-semibold">Historique ${gameType}</h2>
+			`;
 			data.matches.forEach((match: Match) => {
 				historyHTML += `<p>${match.player1} vs ${match.player2}: ${match.player1_score} - ${match.player2_score}</p>`;
 			});

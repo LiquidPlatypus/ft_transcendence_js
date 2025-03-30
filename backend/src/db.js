@@ -44,6 +44,7 @@ export function setupDatabase() {
 			player2_score	INTEGER DEFAULT 0,
 			status			TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'completed')),
 			winner_id		INTEGER,
+			game_type		TEXT NOT NULL DEFAULT 'pong',
 			FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE,
 			FOREIGN KEY (player1_id) REFERENCES players (id),
 			FOREIGN KEY (player2_id) REFERENCES players (id),
