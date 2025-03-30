@@ -35,9 +35,13 @@ function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 	if (!container)
 		return ;
 
-	const historyButton = document.getElementById('history-button');
-	if (historyButton)
-		historyButton.classList.add('hidden');
+	const pong_hist_btn = document.getElementById('history-pong');
+	if (pong_hist_btn)
+		pong_hist_btn.classList.add('hidden');
+
+	const pfc_hist_btn = document.getElementById('pfc-hist-btn');
+	if (pfc_hist_btn)
+		pfc_hist_btn.classList.add('hidden');
 
 	container.classList.remove("grid-cols-2");
 	container.classList.add("grid-cols-1");
