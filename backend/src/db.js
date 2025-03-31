@@ -21,9 +21,9 @@ export function setupDatabase() {
 		CREATE TABLE IF NOT EXISTS players
 		(
 			id				INTEGER PRIMARY KEY AUTOINCREMENT,
-			name			TEXT NOT NULL,
-			tournament_id	INTEGER,
-			FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE
+			name			TEXT NOT NULL
+-- 			tournament_id	INTEGER,
+-- 			FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE
 		);
 
 		CREATE TABLE IF NOT EXISTS scores
@@ -37,7 +37,7 @@ export function setupDatabase() {
 		CREATE TABLE IF NOT EXISTS matches
 		(
 			id				INTEGER PRIMARY KEY AUTOINCREMENT,
-			tournament_id	INTEGER,
+--			tournament_id	INTEGER,
 			player1_id		INTEGER NOT NULL,
 			player2_id		INTEGER NOT NULL,
 			player1_score	INTEGER DEFAULT 0,
@@ -45,7 +45,7 @@ export function setupDatabase() {
 			status			TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'completed')),
 			winner_id		INTEGER,
 			game_type		TEXT NOT NULL DEFAULT 'pong',
-			FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE,
+--			FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE,
 			FOREIGN KEY (player1_id) REFERENCES players (id),
 			FOREIGN KEY (player2_id) REFERENCES players (id),
 			FOREIGN KEY (winner_id) REFERENCES players (id)

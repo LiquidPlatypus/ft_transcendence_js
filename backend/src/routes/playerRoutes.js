@@ -1,4 +1,5 @@
 import { addPlayer, getPlayers, deletePlayer } from "../models/playerModel.js";
+import db from "../db.js"
 
 export default async function playerRoutes(fastify, options) {
 	// Validation des données d'entrée pour la sécurité
@@ -60,7 +61,28 @@ export default async function playerRoutes(fastify, options) {
 		}
 	});
 
+	fastify.post('/match', async (request, reply) => {
+		const { player1Id, player2Id, gameType } = request.body;
+
+		if (!player1Id || !player2Id || !gameType)
+			return reply.status(400).send({ success: false, message: "IDs des joueurs et type de jeu requis." });
+
+		try {
+			const stmt = db.prepare(`
+			INSERT INTO matches (player1_id, player2_id, game_type, status)
+			VALUES (?, ?, ?, 'pending')
+		`);
+			const result = stmt.run(player1Id, player2Id, gameType);
+			reply.send({ success: true, matchId: result.lastInsertRowid });
+		} catch (error) {
+			fastify.log.error(error);
+			return reply.status(500).send({ success: false, message: "Erreur lors de la création du match." });
+		}
+	});
+
 	fastify.post('/match/score', async (request, reply) => {
+		console.log("✅ Route /match/score appelée !");
+		console.log("🟢 Requête reçue :", request.body);
 		const { matchId, player1Score, player2Score } = request.body;
 
 		if (!matchId || player1Score === undefined || player2Score === undefined)
@@ -75,7 +97,7 @@ export default async function playerRoutes(fastify, options) {
 
 			if (player1Score > player2Score)
 				winnerId = match.player1_id;
-			else if (player2Score > player2Score)
+			else if (player2Score > player1Score)
 				winnerId = match.player2_id;
 
 			const updateMatch = db.prepare(`
