@@ -118,12 +118,22 @@ function showAliasInputs(playerCount, buttonType) {
     const startButton = document.getElementById("start");
     if (startButton) {
         if (buttonType === 'match') {
-            startButton.addEventListener("click", () => {
+            startButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
                 const player1 = document.getElementById('playerAlias1').value;
                 const player2 = document.getElementById('playerAlias2').value;
                 console.log(`Match entre ${player1} et ${player2}`);
+                yield fetch('/api/players', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: player1 }),
+                }).then(res => res.json()).then(console.log);
+                yield fetch("/api/players", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: player2 }),
+                });
                 startGame();
-            });
+            }));
         }
         else if (buttonType === 'tournoi') {
             startButton.addEventListener("click", startTournament);
