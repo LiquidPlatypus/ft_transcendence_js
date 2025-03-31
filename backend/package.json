@@ -8,7 +8,7 @@
     "start": "NODE_ENV=production node server.js",
     "windows": "node server.js",
     "debug": "node --inspect-brk server.js",
-    "dev": "NODE_ENV=development nodemon server.js"
+    "dev": "NODE_ENV=development DEBUG=1 node server.js"
   },
   "keywords": [],
   "author": "",
