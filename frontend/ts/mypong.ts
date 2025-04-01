@@ -214,14 +214,18 @@ class Ball extends Entity{
 		if (this.x <= 0) {
 			Game.player2Score += 1;
 			this.resetPosition(canvas);
-			if (this.checkGameEnd("Joueur 2")) return;
+			if (!this.checkGameEnd("Joueur 2")) {
+			} else
+				return;
 		}
 
 		//check but player 1
 		if (this.x + this.width >= canvas.width) {
 			Game.player1Score += 1;
 			this.resetPosition(canvas);
-			if (this.checkGameEnd("Joueur 1")) return;
+			if (!this.checkGameEnd("Joueur 1")) {
+			} else
+				return;
 		}
 
 		//check player 1 collision
@@ -249,8 +253,31 @@ class Ball extends Entity{
 		setTimeout(() => { isPaused = false; }, pauseDuration);
 	}
 
-	private checkGameEnd(winner: string): boolean {
+	private async checkGameEnd(winner: string): Promise<boolean> {
 		if (Game.player1Score >= MAX_SCORE || Game.player2Score >= MAX_SCORE) {
+			// Enregistrer les scores
+			const matchId = localStorage.getItem('currentMatchId');
+			if (matchId) {
+				try {
+					const response = await fetch("/api/players/match/score", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							matchId: parseInt(matchId),
+							player1Score: Game.player1Score,
+							player2Score: Game.player2Score
+						}),
+					});
+					const result = await response.json();
+					console.log("Résultat sauvegardé:", result);
+
+					// Supprimer l'ID du match du localStorage
+					localStorage.removeItem('currentMatchId');
+				} catch (error) {
+					console.error("Erreur lors de l'enregistrement des scores:", error);
+				}
+			}
+
 			const victoryMessageElement = document.getElementById("Pong");
 			if (victoryMessageElement) {
 				victoryMessageElement.innerHTML = `
@@ -270,6 +297,3 @@ class Ball extends Entity{
 		return false;
 	}
 }
-
-//var game = new Game();
-//requestAnimationFrame(game.gameLoop);

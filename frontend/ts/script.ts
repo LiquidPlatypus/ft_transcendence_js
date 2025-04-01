@@ -134,20 +134,42 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 				const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;
 				console.log(`Match entre ${player1} et ${player2}`);
 
-				await fetch('/api/players', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ name: player1 }),
-				}).then(res => res.json()).then(console.log);
+				try {
+					// Créer les joueurs
+					const player1Response = await fetch('/api/players', {
+						method: 'POST',
+						headers: {'Content-Type': 'application/json'},
+						body: JSON.stringify({name: player1}),
+					}).then(res => res.json());
 
-				await fetch("/api/players", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ name: player2 }),
-				});
+					const player2Response = await fetch("/api/players", {
+						method: "POST",
+						headers: {"Content-Type": "application/json"},
+						body: JSON.stringify({name: player2}),
+					}).then(res => res.json());
 
-				startGame();
-				})
+					// Créer le match
+					if (player1Response.success && player2Response.success) {
+						const matchResponse = await fetch("/api/players/match", {
+							method: "POST",
+							headers: {"Content-Type": "application/json"},
+							body: JSON.stringify({
+								player1Id: player1Response.id,
+								player2Id: player2Response.id,
+								gameType: 'pong'
+							}),
+						}).then(res => res.json());
+
+						if (matchResponse.success) {
+							// Stocker l'ID du match pour l'utiliser à la fin de la partie
+							localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
+							startGame();
+						}
+					}
+				} catch (error) {
+					console.error("Erreur lors de la création du match:", error);
+				}
+			});
 		} else if (buttonType === 'tournoi') {
 			startButton.addEventListener("click", startTournament);
 		}
@@ -169,7 +191,7 @@ async function showHistory(event: Event, gameType: string) {
 
 	// Logique pour récupérer et afficher l'historique
 	try {
-		const response = await fetch(`/api/scores/history/${gameType}`); // Assurez-vous que votre API supporte cela
+		const response = await fetch(`/api/scores/history/${gameType}`);
 		const data = await response.json();
 
 		if (data.success) {

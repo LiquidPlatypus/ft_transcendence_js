@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { showHome } from "./script.js";
 var KeyBindings;
 (function (KeyBindings) {
@@ -168,14 +177,18 @@ class Ball extends Entity {
         if (this.x <= 0) {
             Game.player2Score += 1;
             this.resetPosition(canvas);
-            if (this.checkGameEnd("Joueur 2"))
+            if (!this.checkGameEnd("Joueur 2")) {
+            }
+            else
                 return;
         }
         //check but player 1
         if (this.x + this.width >= canvas.width) {
             Game.player1Score += 1;
             this.resetPosition(canvas);
-            if (this.checkGameEnd("Joueur 1"))
+            if (!this.checkGameEnd("Joueur 1")) {
+            }
+            else
                 return;
         }
         //check player 1 collision
@@ -200,24 +213,46 @@ class Ball extends Entity {
         setTimeout(() => { isPaused = false; }, pauseDuration);
     }
     checkGameEnd(winner) {
-        if (Game.player1Score >= MAX_SCORE || Game.player2Score >= MAX_SCORE) {
-            const victoryMessageElement = document.getElementById("Pong");
-            if (victoryMessageElement) {
-                victoryMessageElement.innerHTML = `
+        return __awaiter(this, void 0, void 0, function* () {
+            if (Game.player1Score >= MAX_SCORE || Game.player2Score >= MAX_SCORE) {
+                // Enregistrer les scores
+                const matchId = localStorage.getItem('currentMatchId');
+                if (matchId) {
+                    try {
+                        const response = yield fetch("/api/players/match/score", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                matchId: parseInt(matchId),
+                                player1Score: Game.player1Score,
+                                player2Score: Game.player2Score
+                            }),
+                        });
+                        const result = yield response.json();
+                        console.log("Résultat sauvegardé:", result);
+                        // Supprimer l'ID du match du localStorage
+                        localStorage.removeItem('currentMatchId');
+                    }
+                    catch (error) {
+                        console.error("Erreur lors de l'enregistrement des scores:", error);
+                    }
+                }
+                const victoryMessageElement = document.getElementById("Pong");
+                if (victoryMessageElement) {
+                    victoryMessageElement.innerHTML = `
 					<p class="font-extrabold">${winner} a gagné !</p>
 					<div class="flex justify-center">
 						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
 					</div>
 				`;
-                const menu_btn = document.getElementById("menu-btn");
-                if (menu_btn)
-                    menu_btn.addEventListener("click", () => showHome());
+                    const menu_btn = document.getElementById("menu-btn");
+                    if (menu_btn)
+                        menu_btn.addEventListener("click", () => showHome());
+                }
+                gameOver = true;
+                return true;
             }
-            gameOver = true;
-            return true;
-        }
-        return false;
+            return false;
+        });
     }
 }
-//var game = new Game();
-//requestAnimationFrame(game.gameLoop);
