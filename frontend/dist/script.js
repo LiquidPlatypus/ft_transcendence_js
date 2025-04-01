@@ -169,7 +169,13 @@ function showHistory(event, gameType) {
             return;
         // Logique pour récupérer et afficher l'historique
         try {
-            const response = yield fetch(`/api/scores/history/${gameType}`);
+            const response = yield fetch(`/api/scores/history/${gameType}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            });
             const data = yield response.json();
             if (data.success) {
                 let historyHTML = `
