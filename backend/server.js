@@ -58,7 +58,7 @@ fastify.register(fastifyStatic, {
 
 // Routes
 fastify.register(playerRoutes, { prefix: '/api/players' });
-fastify.register(scoreRoutes, { prefix: 'api/scores' });
+fastify.register(scoreRoutes, { prefix: '/api/scores' });
 fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
 //fastify.register(gameRoutes, { prefix: '/api/games' });
 
@@ -72,6 +72,10 @@ setupWebsockets(fastify);
 
 fastify.get('/', async (request, reply) => {
 	return reply.sendFile('index.html');
+});
+
+fastify.ready(() => {
+	console.log(fastify.printRoutes());
 });
 
 const start = async () => {
