@@ -39,11 +39,9 @@ export async function startTournament(event: Event): Promise<void> {
 		}
 	}
 
-	alert("Le jeu va commencer !");
-
 	try {
 		console.log("Création du tournoi...");
-		const tournamentResponse: Response = await fetch('/api/tournament', {
+		const tournamentResponse: Response = await fetch('/api/tournaments', {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({})
@@ -119,11 +117,6 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 	try {
 		// Gestion des différents cas en fonction du nombre de joueurs.
 		switch (playerIds.length) {
-			case 1:
-				// Un seul joueur - erreur.
-				console.log("Pas assez de joueurs.");
-				break;
-
 			case 3:
 				// Trois joueurs.
 				console.log("Matchs pour 3 joueurs.");

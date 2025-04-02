@@ -203,6 +203,20 @@ export default async function tournamentRoutes(fastify) {
 		}
 	});
 
+	fastify.post('/:id/activate', async (request, reply) => {
+		const { id } = request.params;
+
+		try {
+			const success = updateTournamentStatus(id, 'active');
+				if (success)
+					return reply.code(200).send({ message: `Tournament ${id} activated` });
+			else
+				return reply.code(404).send({ error: 'Tournament not found' });
+		} catch (error) {
+			return reply.code(500).send({error: 'Internal server error', details: error.message});
+		}
+	});
+
 	/**
 	 * @brief Creer un match dans le tournoi.
 	 */

@@ -192,11 +192,11 @@ async function showHistory(event: Event, gameType: string) {
 	// Logique pour récupérer et afficher l'historique
 	try {
 		const response = await fetch(`/api/scores/history/${gameType}`, {
-   		 method: "POST",
-    		headers: {
-       		 "Content-Type": "application/json"
-    		},
-    		body: JSON.stringify({})
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({})
 		});
 		const data = await response.json();
 

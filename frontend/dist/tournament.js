@@ -34,10 +34,9 @@ export function startTournament(event) {
                 }
             }
         }
-        alert("Le jeu va commencer !");
         try {
             console.log("Création du tournoi...");
-            const tournamentResponse = yield fetch('/api/tournament', {
+            const tournamentResponse = yield fetch('/api/tournaments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({})

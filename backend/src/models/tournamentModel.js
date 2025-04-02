@@ -4,7 +4,7 @@ import db from "../db.js";
  * @brief Creer un tournoi.
  */
 export const createTournament = () => {
-	const stmt = db.prepare('INSERT INTO tournaments (status) VALUE (?)');
+	const stmt = db.prepare('INSERT INTO tournaments (status) VALUES (?)');
 	const result = stmt.run('pending');
 	return result.lastInsertRowid;
 };
@@ -32,8 +32,8 @@ export const getTournamentById = (id) => {
  * @returns {boolean}
  */
 export const updateTournamentStatus = (id, status) => {
-	const stmt = db.prepare('UPDATE tournaments SET tournament_id = ? WHERE id = ?');
-	const result = stmt.run(tournamentId, playerId);
+	const stmt = db.prepare('UPDATE tournaments SET status = ? WHERE id = ?');
+	const result = stmt.run(status, id);
 	return result.changes > 0;
 };
 
