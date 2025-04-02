@@ -211,7 +211,7 @@ function showHistory(event, gameType) {
         }
     });
 }
-function startGame() {
+export function startGame() {
     const container = document.getElementById("Pong");
     if (!container)
         return;

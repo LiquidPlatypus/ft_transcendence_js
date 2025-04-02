@@ -233,7 +233,7 @@ async function showHistory(event: Event, gameType: string) {
 	}
 }
 
-function startGame() {
+export function startGame() {
 	const container = document.getElementById("Pong");
 	if (!container)
 		return ;

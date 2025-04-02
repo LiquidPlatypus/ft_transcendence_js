@@ -236,6 +236,7 @@ export default async function tournamentRoutes(fastify) {
 				}
 			});
 
+			console.log("MA GROSSE BITE : ", matchId);
 			return {success: true, id: matchId};
 		} catch (error) {
 			fastify.log.error(error);

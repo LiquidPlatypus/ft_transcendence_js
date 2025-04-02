@@ -1,3 +1,5 @@
+import {startGame} from "./script.js";
+
 // Id du tournoi.
 let currentTournamentId: string | null = null;
 
@@ -98,8 +100,6 @@ export async function startTournament(event: Event): Promise<void> {
 
 		// Création des matchs.
 		await createTournamentMatches(playersIds);
-
-		alert("Le tournoi a été créé avec succès et a démarré !");
 	} catch (error: any) {
 		console.error("Erreur :", error);
 		alert(`Une erreur est survenue : ${error.message}`);
@@ -154,19 +154,43 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 async function createMatch(player1Id: string, player2Id: string, round: string, matchNumber: number): Promise<void> {
 	if (!currentTournamentId) return;
 
-	const matchResponse: Response = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
-		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({
-			player1_id: player1Id,
-			player2_id: player2Id,
-			round: round,
-			match_number: matchNumber
-		})
-	});
+	try {
+		const player1Response = await fetch(`/api/tournaments/${currentTournamentId}/players`, {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({player_id: player1Id}),
+		}).then(res => res.json());
 
-	if (!matchResponse.ok)
-		throw new Error(`Erreur lors de la création du match ${matchNumber}: ${matchResponse.status}`);
+		const player2Response = await fetch(`/api/tournaments/${currentTournamentId}/players`, {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({player_id: player2Id}),
+		}).then(res => res.json());
+
+		if (player1Response.success && player2Response.success) {
+			const matchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({
+					player1_id: player1Response.id,
+					player2_id: player2Response.id,
+					round: round,
+					match_number: matchNumber,
+					gameType: 'pong'
+				})
+			}).then(res => res.json());
+
+
+
+			if (matchResponse.success) {
+				localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
+				startGame();
+			}
+		}
+	} catch (error) {
+		console.error("Erreur lors de la création du match:", error);
+	}
 
 	console.log(`Match ${matchNumber} du round ${round} créé avec succès.`);
+
 }
