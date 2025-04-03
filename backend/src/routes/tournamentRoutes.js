@@ -169,7 +169,7 @@ export default async function tournamentRoutes(fastify) {
 					}
 				});
 
-				return {success: true, message: `Joueur ${player_id} ajouté au tournoi ${id}`};
+				return {success: true, id: player_id, message: `Joueur ${player_id} ajouté au tournoi ${id}`};
 			} else {
 				return reply.status(404).send({
 					success: false,
@@ -224,6 +224,8 @@ export default async function tournamentRoutes(fastify) {
 		const {id} = request.params;
 		const {player1_id, player2_id} = request.body;
 
+		console.log("LOG ID MATCH :", { id, player1_id, player2_id });
+
 		try {
 			const matchId = createMatch(id, player1_id, player2_id);
 
@@ -236,8 +238,7 @@ export default async function tournamentRoutes(fastify) {
 				}
 			});
 
-			console.log("MA GROSSE BITE : ", matchId);
-			return {success: true, id: matchId};
+			return { success: true, matchId: matchId };
 		} catch (error) {
 			fastify.log.error(error);
 			return reply.status(500).send({
@@ -261,6 +262,28 @@ export default async function tournamentRoutes(fastify) {
 			return reply.status(500).send({
 				success: false,
 				message: 'Impossible de récupérer les matchs du tournoi'
+			});
+		}
+	});
+
+	fastify.get('/:id/matches/:matchId/status', async (request, reply) => {
+		const { matchId } = request.params;
+
+		try {
+			const match = db.prepare('SELECT * FROM matches WHERE id = ?').get(matchId);
+			if (match)
+				return { success: true, match };
+			else {
+				return reply.status(404).send({
+					success: false,
+					message: `Match avec l'ID ${matchId} non trouvé.`
+				});
+			}
+		} catch (error) {
+			fastify.log.error(error);
+			return reply.status(500).send({
+				success: false,
+				message: 'Impossible de récupérer le status du match.'
 			});
 		}
 	});
