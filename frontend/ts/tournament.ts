@@ -1,4 +1,5 @@
 import {startGame} from "./script.js";
+import {check} from "yargs";
 
 // Id du tournoi.
 let currentTournamentId: string | null = null;
@@ -126,12 +127,22 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 				break;
 
 			case 4:
-				// Quatre joueurs - demi-finales puis finale.
-				console.log("match pour 4 joueurs");
-				// Demi-finales.
-				await createMatch(playerIds[0], playerIds[1], 'semi-final', 1);
-				await createMatch(playerIds[2], playerIds[3], 'semi-final', 2);
-				// La finale sera créée après les demi-finales.
+				console.log("Matchs pour 4 joueurs");
+
+				// Création des demi-finales
+				const match1 = await createMatch(playerIds[0], playerIds[1], 'semi-final', 1);
+				const match2 = await createMatch(playerIds[2], playerIds[3], 'semi-final', 2);
+
+				// Attente de la fin des deux demi-finales
+				await waitMatchFinish(match1.id);
+				await waitMatchFinish(match2.id);
+
+				// Récupérer les gagnants
+				const winner1 = await getMatchWinner(match1.id);
+				const winner2 = await getMatchWinner(match2.id);
+
+				// Lancer la finale avec des strings
+				await createMatch(String(winner1), String(winner2), 'final', 3);
 				break;
 
 			default:
@@ -142,6 +153,27 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 		console.error("Erreur lors de la création des matches :", error);
 		throw error;
 	}
+
+	async function waitMatchFinish(matchId: number): Promise<void> {
+		return new Promise((resolve) => {
+			const checkMatchStatus = async () => {
+				const response = await fetch (`/api/matches/${matchId}/status`);
+				const data = await response.json();
+				if (data.status === 'completed')
+					resolve();
+				else
+					setTimeout(checkMatchStatus, 2000);
+			};
+			checkMatchStatus();
+		});
+	}
+
+	async function getMatchWinner(matchId: number): Promise<string> {
+		const response = await fetch(`/api/matches/${matchId}/winner`);
+		const data = await response.json();
+		return String(data.winner_id); // ✅ Convertit en string
+	}
+
 }
 
 /**
@@ -151,46 +183,41 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
  * @param round Nom du round.
  * @param matchNumber Numéro du match dans le round.
  */
-async function createMatch(player1Id: string, player2Id: string, round: string, matchNumber: number): Promise<void> {
-	if (!currentTournamentId) return;
+async function createMatch(player1Id: string, player2Id: string, round: string, matchNumber: number): Promise<any> {
+	if (!currentTournamentId) return null;
 
 	try {
-		const player1Response = await fetch(`/api/tournaments/${currentTournamentId}/players`, {
+		const matchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({player_id: player1Id}),
-		}).then(res => res.json());
+			body: JSON.stringify({
+				player1_id: player1Id,
+				player2_id: player2Id,
+				round: round,
+				match_number: matchNumber,
+				gameType: 'pong'
+			})
+		});
 
-		const player2Response = await fetch(`/api/tournaments/${currentTournamentId}/players`, {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({player_id: player2Id}),
-		}).then(res => res.json());
+		if (!matchResponse.ok) {
+			throw new Error(`Error creating match: ${matchResponse.status}`);
+		}
 
-		if (player1Response.success && player2Response.success) {
-			const matchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({
-					player1_id: player1Response.id,
-					player2_id: player2Response.id,
-					round: round,
-					match_number: matchNumber,
-					gameType: 'pong'
-				})
-			}).then(res => res.json());
+		const matchData = await matchResponse.json();
 
+		if (matchData.success) {
+			console.log(`Match created with ID: ${matchData.id}`);
+			localStorage.setItem('currentMatchId', matchData.id.toString());
+			startGame();
 
-
-			if (matchResponse.success) {
-				localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-				startGame();
-			}
+			// Retourner l'objet avec l'ID du match
+			return { id: matchData.id };
+		} else {
+			console.error("Failed to create match:", matchData.message);
+			return null;
 		}
 	} catch (error) {
-		console.error("Erreur lors de la création du match:", error);
+		console.error("Error while creating match:", error);
+		return null;
 	}
-
-	console.log(`Match ${matchNumber} du round ${round} créé avec succès.`);
-
 }

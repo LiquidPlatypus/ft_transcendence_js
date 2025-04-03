@@ -7,7 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { startGame } from "./script.js";
 // Id du tournoi.
 let currentTournamentId = null;
 // Nombre max de joueur dans le tournoi.
@@ -109,12 +108,18 @@ function createTournamentMatches(playerIds) {
                     yield createMatch(playerIds[0], playerIds[2], 'round3', 3);
                     break;
                 case 4:
-                    // Quatre joueurs - demi-finales puis finale.
                     console.log("match pour 4 joueurs");
-                    // Demi-finales.
-                    yield createMatch(playerIds[0], playerIds[1], 'semi-final', 1);
-                    yield createMatch(playerIds[2], playerIds[3], 'semi-final', 2);
-                    // La finale sera créée après les demi-finales.
+                    // Création des demi-finales
+                    const match1 = yield createMatch(playerIds[0], playerIds[1], 'semi-final', 1);
+                    const match2 = yield createMatch(playerIds[2], playerIds[3], 'semi-final', 2);
+                    // Attente de la fin des deux demi-finales
+                    yield waitMatchFinish(match1.matchId);
+                    yield waitMatchFinish(match2.matchId);
+                    // Récupérer les gagnants
+                    const winner1 = yield getMatchWinner(match1.matchId);
+                    const winner2 = yield getMatchWinner(match2.matchId);
+                    // Lancer la finale avec des strings
+                    yield createMatch(String(winner1), String(winner2), 'final', 3);
                     break;
                 default:
                     console.log("Nombre de joueurs non pris en charge.");
@@ -124,6 +129,28 @@ function createTournamentMatches(playerIds) {
         catch (error) {
             console.error("Erreur lors de la création des matches :", error);
             throw error;
+        }
+        function waitMatchFinish(matchId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return new Promise((resolve) => {
+                    const checkMatchStatus = () => __awaiter(this, void 0, void 0, function* () {
+                        const response = yield fetch(`/api/matches/${matchId}/status`);
+                        const data = yield response.json();
+                        if (data.status === 'completed')
+                            resolve();
+                        else
+                            setTimeout(checkMatchStatus, 2000);
+                    });
+                    checkMatchStatus();
+                });
+            });
+        }
+        function getMatchWinner(matchId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const response = yield fetch(`/api/matches/${matchId}/winner`);
+                const data = yield response.json();
+                return String(data.winner_id); // ✅ Convertit en string
+            });
         }
     });
 }
@@ -137,39 +164,28 @@ function createTournamentMatches(playerIds) {
 function createMatch(player1Id, player2Id, round, matchNumber) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!currentTournamentId)
-            return;
+            throw new Error("Aucun tournoi actif");
         try {
-            const player1Response = yield fetch(`/api/tournaments/${currentTournamentId}/players`, {
+            const matchResponse = yield fetch(`/api/tournaments/${currentTournamentId}/matches`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ player_id: player1Id }),
-            }).then(res => res.json());
-            const player2Response = yield fetch(`/api/tournaments/${currentTournamentId}/players`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ player_id: player2Id }),
-            }).then(res => res.json());
-            if (player1Response.success && player2Response.success) {
-                const matchResponse = yield fetch(`/api/tournaments/${currentTournamentId}/matches`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        player1_id: player1Id,
-                        player2_id: player2Id,
-                        round: round,
-                        match_number: matchNumber,
-                        gameType: 'pong'
-                    })
-                }).then(res => res.json());
-                if (matchResponse.success) {
-                    localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-                    startGame();
-                }
-            }
+                body: JSON.stringify({
+                    player1_id: player1Id,
+                    player2_id: player2Id,
+                    round: round,
+                    match_number: matchNumber,
+                    gameType: 'pong'
+                })
+            });
+            const data = yield matchResponse.json();
+            if (!data.success)
+                throw new Error("Erreur lors de la création du match");
+            console.log(`Match ${matchNumber} du round ${round} créé avec succès.`);
+            return { matchId: data.matchId }; // ✅ Retourne l'ID du match
         }
         catch (error) {
             console.error("Erreur lors de la création du match:", error);
+            throw error;
         }
-        console.log(`Match ${matchNumber} du round ${round} créé avec succès.`);
     });
 }
