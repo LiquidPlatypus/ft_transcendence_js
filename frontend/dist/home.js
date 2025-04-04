@@ -32,6 +32,5 @@ export function homePage() {
 				</div>
 			</div>
 		</div>
-
 	`;
 }

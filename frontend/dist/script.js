@@ -181,10 +181,23 @@ function showHistory(event, gameType) {
                 let historyHTML = `
 				<button id="back-button" class="little_btn rounded-lg border p-4 shadow"><</button>
 				<h2 class="text-xl font-semibold">Historique ${gameType}</h2>
-			`;
+				<div class="mt-4 space-y-4">
+		`;
                 data.matches.forEach((match) => {
-                    historyHTML += `<p>${match.player1} vs ${match.player2}: ${match.player1_score} - ${match.player2_score}</p>`;
+                    historyHTML += `
+					<table class="border-collapse border w-full text-center">
+						<tr class="bg-hist">
+							<th class="border p-2">${match.player1}</th>
+							<th class="border p-2">${match.player2}</th>
+						</tr>
+						<tr>
+							<td class="border p-2">${match.player1_score}</td>
+							<td class="border p-2">${match.player2_score}</td>
+						</tr>
+					</table>
+				`;
                 });
+                historyHTML += `</div>`;
                 container.innerHTML = historyHTML;
                 container.classList.remove('hidden');
             }

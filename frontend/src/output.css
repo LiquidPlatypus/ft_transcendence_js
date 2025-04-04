@@ -378,6 +378,7 @@
     --color-catpuccin_text: oklch(87.87% 0.0426 272.28);
     --color-button: oklch(47.65% 0.034 278.64);
     --color-button_hover: oklch(87.87% 0.0426 272.28);
+    --color-hist: oklch(0.34 0.048 278.64);
   }
 }
 @layer base {
@@ -1272,6 +1273,13 @@
   .gap-10 {
     gap: calc(var(--spacing) * 10);
   }
+  .space-y-4 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
+    }
+  }
   .space-y-reverse {
     :where(& > :not(:last-child)) {
       --tw-space-y-reverse: 1;
@@ -1494,6 +1502,9 @@
   }
   .bg-catpuccin {
     background-color: var(--color-catpuccin);
+  }
+  .bg-hist {
+    background-color: var(--color-hist);
   }
   .bg-red-500 {
     background-color: var(--color-red-500);

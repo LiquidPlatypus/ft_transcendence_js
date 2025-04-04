@@ -6,6 +6,7 @@
 
 	--color-button: oklch(47.65% 0.034 278.64);
 	--color-button_hover: oklch(87.87% 0.0426 272.28);
+	--color-hist: oklch(0.34 0.048 278.64);
 }
 
 .btn {

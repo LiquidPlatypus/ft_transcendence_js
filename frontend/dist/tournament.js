@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { startGame } from "./script.js";
 // Id du tournoi.
 let currentTournamentId = null;
 // Nombre max de joueur dans le tournoi.
@@ -108,16 +109,16 @@ function createTournamentMatches(playerIds) {
                     yield createMatch(playerIds[0], playerIds[2], 'round3', 3);
                     break;
                 case 4:
-                    console.log("match pour 4 joueurs");
+                    console.log("Matchs pour 4 joueurs");
                     // Création des demi-finales
                     const match1 = yield createMatch(playerIds[0], playerIds[1], 'semi-final', 1);
                     const match2 = yield createMatch(playerIds[2], playerIds[3], 'semi-final', 2);
                     // Attente de la fin des deux demi-finales
-                    yield waitMatchFinish(match1.matchId);
-                    yield waitMatchFinish(match2.matchId);
+                    yield waitMatchFinish(match1.id);
+                    yield waitMatchFinish(match2.id);
                     // Récupérer les gagnants
-                    const winner1 = yield getMatchWinner(match1.matchId);
-                    const winner2 = yield getMatchWinner(match2.matchId);
+                    const winner1 = yield getMatchWinner(match1.id);
+                    const winner2 = yield getMatchWinner(match2.id);
                     // Lancer la finale avec des strings
                     yield createMatch(String(winner1), String(winner2), 'final', 3);
                     break;
@@ -164,7 +165,7 @@ function createTournamentMatches(playerIds) {
 function createMatch(player1Id, player2Id, round, matchNumber) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!currentTournamentId)
-            throw new Error("Aucun tournoi actif");
+            return null;
         try {
             const matchResponse = yield fetch(`/api/tournaments/${currentTournamentId}/matches`, {
                 method: 'POST',
@@ -177,15 +178,25 @@ function createMatch(player1Id, player2Id, round, matchNumber) {
                     gameType: 'pong'
                 })
             });
-            const data = yield matchResponse.json();
-            if (!data.success)
-                throw new Error("Erreur lors de la création du match");
-            console.log(`Match ${matchNumber} du round ${round} créé avec succès.`);
-            return { matchId: data.matchId }; // ✅ Retourne l'ID du match
+            if (!matchResponse.ok) {
+                throw new Error(`Error creating match: ${matchResponse.status}`);
+            }
+            const matchData = yield matchResponse.json();
+            if (matchData.success) {
+                console.log(`Match created with ID: ${matchData.id}`);
+                localStorage.setItem('currentMatchId', matchData.id.toString());
+                startGame();
+                // Retourner l'objet avec l'ID du match
+                return { id: matchData.id };
+            }
+            else {
+                console.error("Failed to create match:", matchData.message);
+                return null;
+            }
         }
         catch (error) {
-            console.error("Erreur lors de la création du match:", error);
-            throw error;
+            console.error("Error while creating match:", error);
+            return null;
         }
     });
 }
