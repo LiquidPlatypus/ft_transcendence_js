@@ -185,64 +185,84 @@ interface Match {
 }
 
 async function showHistory(event: Event, gameType: string) {
-	const container = document.getElementById(`history-${gameType}`);
-	if (!container)
-		return;
+	// On garde la référence au conteneur spécifique d'historique
+	const historyContainer = document.getElementById(`history-${gameType}`);
+	if (!historyContainer) return;
 
-	// Logique pour récupérer et afficher l'historique
 	try {
 		const response = await fetch(`/api/scores/history/${gameType}`, {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
+			headers: {"Content-Type": "application/json"},
 			body: JSON.stringify({})
 		});
 		const data = await response.json();
 
-		if (data.success) {
-			let historyHTML = `
-				<button id="back-button" class="little_btn rounded-lg border p-4 shadow"><</button>
-				<h2 class="text-xl font-semibold">Historique ${gameType}</h2>
-				<div class="mt-4 space-y-4">
+		// On vide d'abord le conteneur d'historique
+		historyContainer.innerHTML = "";
+		historyContainer.classList.remove('hidden');
+
+		// On crée deux divs distinctes - une pour l'en-tête et une pour les tableaux
+		const headerDiv = document.createElement('div');
+		headerDiv.className = 'flex items-center justify-center gap-2 mb-4 mt-2';
+		headerDiv.innerHTML = `
+			<button id="back-button-${gameType}" class="little_btn rounded-lg border p-2 shadow"><</button>
+			<h2 class="text-xl font-semibold">Historique ${gameType}</h2>
 		`;
+		historyContainer.appendChild(headerDiv);
+
+		// Div pour les tableaux d'historique
+		const tablesDiv = document.createElement('div');
+		tablesDiv.className = 'w-full space-y-2';
+
+		if (data.success && data.matches && data.matches.length > 0) {
 			data.matches.forEach((match: Match) => {
-				historyHTML += `
-					<table class="border-collapse border w-full text-center">
-						<tr class="bg-hist">
-							<th class="border p-2">${match.player1}</th>
-							<th class="border p-2">${match.player2}</th>
-						</tr>
-						<tr>
-							<td class="border p-2">${match.player1_score}</td>
-							<td class="border p-2">${match.player2_score}</td>
-						</tr>
-					</table>
+				const tableEl = document.createElement('table');
+				tableEl.className = 'border-collapse border w-full text-center';
+				tableEl.innerHTML = `
+					<tr class="bg-hist">
+						<th class="border p-2">${match.player1}</th>
+						<th class="border p-2">${match.player2}</th>
+					</tr>
+					<tr>
+						<td class="border p-2">${match.player1_score}</td>
+						<td class="border p-2">${match.player2_score}</td>
+					</tr>
 				`;
+				tablesDiv.appendChild(tableEl);
 			});
-			historyHTML += `</div>`;
-			container.innerHTML = historyHTML;
-			container.classList.remove('hidden');
 		} else {
-			container.innerHTML = `
-				<div class="flex flex-col item-center">
-					<button id="back-button" class="little_btn rounded-lg border p-4 shadow"><</button>
-					<p>Aucun matchs enregistrés.</p>
-				</div>
-			`;
-			container.classList.remove('hidden');
+			const noMatchesEl = document.createElement('p');
+			noMatchesEl.textContent = 'Aucun matchs enregistrés.';
+			tablesDiv.appendChild(noMatchesEl);
+		}
+
+		historyContainer.appendChild(tablesDiv);
+
+		// Ajouter l'écouteur d'événement pour le bouton retour
+		const backButton = document.getElementById(`back-button-${gameType}`);
+		if (backButton) {
+			backButton.addEventListener("click", () => {
+				historyContainer.classList.add('hidden');
+				showHome();
+			});
 		}
 	} catch (error) {
 		console.error("Erreur lors de la récupération de l'historique:", error);
-		container.innerHTML = "<p>Erreur lors de la récupération de l'historique.</p>";
-		container.classList.remove('hidden');
-	}
+		historyContainer.innerHTML = `
+			<div class="flex items-center justify-center gap-2 mb-4">
+				<button id="back-button-${gameType}" class="little_btn rounded-lg border p-2 shadow"><</button>
+				<h2 class="text-xl font-semibold">Erreur</h2>
+			</div>
+			<p>Erreur lors de la récupération de l'historique.</p>
+		`;
 
-	const backButton = document.getElementById("back-button");
-	if (backButton) {
-		backButton.addEventListener("click", () => {
-			showHome();
-		});
+		const backButton = document.getElementById(`back-button-${gameType}`);
+		if (backButton) {
+			backButton.addEventListener("click", () => {
+				historyContainer.classList.add('hidden');
+				showHome();
+			});
+		}
 	}
 }
 
