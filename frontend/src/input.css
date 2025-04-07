@@ -29,3 +29,10 @@
 .little_btn:hover {
 	background-color: var(--color-button_hover);
 }
+
+#history-pong, #history-pfc {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	overflow: hidden;
+}

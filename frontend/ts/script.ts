@@ -189,6 +189,9 @@ async function showHistory(event: Event, gameType: string) {
 	const historyContainer = document.getElementById(`history-${gameType}`);
 	if (!historyContainer) return;
 
+	// On s'assure que ce conteneur spécifique est visible
+	historyContainer.classList.remove('hidden');
+
 	try {
 		const response = await fetch(`/api/scores/history/${gameType}`, {
 			method: "POST",
@@ -199,7 +202,6 @@ async function showHistory(event: Event, gameType: string) {
 
 		// On vide d'abord le conteneur d'historique
 		historyContainer.innerHTML = "";
-		historyContainer.classList.remove('hidden');
 
 		// On crée deux divs distinctes - une pour l'en-tête et une pour les tableaux
 		const headerDiv = document.createElement('div');
@@ -242,8 +244,14 @@ async function showHistory(event: Event, gameType: string) {
 		const backButton = document.getElementById(`back-button-${gameType}`);
 		if (backButton) {
 			backButton.addEventListener("click", () => {
-				historyContainer.classList.add('hidden');
-				showHome();
+				// On vide et cache juste le conteneur actuel
+				historyContainer.innerHTML = "";
+				historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
+
+				// Réattacher l'écouteur pour le bouton d'historique
+				const histBtn = document.getElementById(`${gameType}-hist-btn`);
+				if (histBtn)
+					histBtn.addEventListener("click", (e) => showHistory(e, gameType));
 			});
 		}
 	} catch (error) {
@@ -259,8 +267,14 @@ async function showHistory(event: Event, gameType: string) {
 		const backButton = document.getElementById(`back-button-${gameType}`);
 		if (backButton) {
 			backButton.addEventListener("click", () => {
-				historyContainer.classList.add('hidden');
-				showHome();
+				// On vide et restaure juste le bouton d'historique
+				historyContainer.innerHTML = "";
+				historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
+
+				// Réattacher l'écouteur pour le bouton d'historique
+				const histBtn = document.getElementById(`${gameType}-hist-btn`);
+				if (histBtn)
+					histBtn.addEventListener("click", (e) => showHistory(e, gameType));
 			});
 		}
 	}
