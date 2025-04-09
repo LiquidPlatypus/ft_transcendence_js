@@ -190,7 +190,16 @@ async function showHistory(event: Event, gameType: string) {
 	if (!historyContainer) return;
 
 	// On s'assure que ce conteneur spécifique est visible
-	historyContainer.classList.remove('hidden');
+//	historyContainer.classList.remove('hidden');
+
+	// Sauvegarde du contenu original pour le restaurer plus tard.
+	const originalHTML = historyContainer.innerHTML;
+
+	// Appliquer style de position fixe au conteneur avant de le remplir.
+	if (gameType === 'pong')
+		historyContainer.classList.add('self-start');
+	else if (gameType === 'pfc')
+		historyContainer.classList.add('self-start');
 
 	try {
 		const response = await fetch(`/api/scores/history/${gameType}`, {
@@ -245,10 +254,20 @@ async function showHistory(event: Event, gameType: string) {
 		if (backButton) {
 			backButton.addEventListener("click", () => {
 				// On vide et cache juste le conteneur actuel
-				historyContainer.innerHTML = "";
-				historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
-
+				// historyContainer.innerHTML = "";
+				// historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
+				//
 				// Réattacher l'écouteur pour le bouton d'historique
+				// const histBtn = document.getElementById(`${gameType}-hist-btn`);
+				// if (histBtn)
+				// 	histBtn.addEventListener("click", (e) => showHistory(e, gameType));
+
+				// Restaure le contenu original.
+				historyContainer.innerHTML = originalHTML;
+				// Enleve la classe d'alignement.
+				historyContainer.classList.remove('self-start');
+
+				// Reattache l'ecouteur pour le bouton hist.
 				const histBtn = document.getElementById(`${gameType}-hist-btn`);
 				if (histBtn)
 					histBtn.addEventListener("click", (e) => showHistory(e, gameType));
@@ -268,8 +287,13 @@ async function showHistory(event: Event, gameType: string) {
 		if (backButton) {
 			backButton.addEventListener("click", () => {
 				// On vide et restaure juste le bouton d'historique
-				historyContainer.innerHTML = "";
-				historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
+				//historyContainer.innerHTML = "";
+				//historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
+
+				// Restaure le contenu original.
+				historyContainer.innerHTML = originalHTML;
+				// Enleve la classe d'alignement.
+				historyContainer.classList.remove('self-start');
 
 				// Réattacher l'écouteur pour le bouton d'historique
 				const histBtn = document.getElementById(`${gameType}-hist-btn`);

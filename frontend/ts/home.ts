@@ -24,10 +24,10 @@ export function homePage() {
 				</div>
 			</div>
 			<div class="mt-4 grid grid-cols-2 justify-center gap-10">
-				<div id="history-pong" class="fle flex-cols justify-center">
+				<div id="history-pong" class="fle flex-cols items-center self-start">
 					<button id="pong-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>
 				</div>
-				<div id="history-pfc" class="flex flex-cols justify-center">
+				<div id="history-pfc" class="flex flex-cols items-center self-start">
 					<button id="pfc-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>
 				</div>
 			</div>

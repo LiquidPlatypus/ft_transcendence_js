@@ -169,7 +169,14 @@ function showHistory(event, gameType) {
         if (!historyContainer)
             return;
         // On s'assure que ce conteneur spécifique est visible
-        historyContainer.classList.remove('hidden');
+        //	historyContainer.classList.remove('hidden');
+        // Sauvegarde du contenu original pour le restaurer plus tard.
+        const originalHTML = historyContainer.innerHTML;
+        // Appliquer style de position fixe au conteneur avant de le remplir.
+        if (gameType === 'pong')
+            historyContainer.classList.add('self-start');
+        else if (gameType === 'pfc')
+            historyContainer.classList.add('self-start');
         try {
             const response = yield fetch(`/api/scores/history/${gameType}`, {
                 method: "POST",
@@ -183,9 +190,9 @@ function showHistory(event, gameType) {
             const headerDiv = document.createElement('div');
             headerDiv.className = 'flex items-center justify-center gap-2 mb-4 mt-2';
             headerDiv.innerHTML = `
-            <button id="back-button-${gameType}" class="little_btn rounded-lg border p-2 shadow"><</button>
-            <h2 class="text-xl font-semibold">Historique ${gameType}</h2>
-        `;
+			<button id="back-button-${gameType}" class="little_btn rounded-lg border p-2 shadow"><</button>
+			<h2 class="text-xl font-semibold">Historique ${gameType}</h2>
+		`;
             historyContainer.appendChild(headerDiv);
             // Div pour les tableaux d'historique
             const tablesDiv = document.createElement('div');
@@ -195,15 +202,15 @@ function showHistory(event, gameType) {
                     const tableEl = document.createElement('table');
                     tableEl.className = 'border-collapse border w-full text-center';
                     tableEl.innerHTML = `
-                    <tr class="bg-hist">
-                        <th class="border p-2">${match.player1}</th>
-                        <th class="border p-2">${match.player2}</th>
-                    </tr>
-                    <tr>
-                        <td class="border p-2">${match.player1_score}</td>
-                        <td class="border p-2">${match.player2_score}</td>
-                    </tr>
-                `;
+					<tr class="bg-hist">
+						<th class="border p-2">${match.player1}</th>
+						<th class="border p-2">${match.player2}</th>
+					</tr>
+					<tr>
+						<td class="border p-2">${match.player1_score}</td>
+						<td class="border p-2">${match.player2_score}</td>
+					</tr>
+				`;
                     tablesDiv.appendChild(tableEl);
                 });
             }
@@ -218,36 +225,47 @@ function showHistory(event, gameType) {
             if (backButton) {
                 backButton.addEventListener("click", () => {
                     // On vide et cache juste le conteneur actuel
-                    historyContainer.innerHTML = "";
-                    historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
+                    // historyContainer.innerHTML = "";
+                    // historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
+                    //
                     // Réattacher l'écouteur pour le bouton d'historique
+                    // const histBtn = document.getElementById(`${gameType}-hist-btn`);
+                    // if (histBtn)
+                    // 	histBtn.addEventListener("click", (e) => showHistory(e, gameType));
+                    // Restaure le contenu original.
+                    historyContainer.innerHTML = originalHTML;
+                    // Enleve la classe d'alignement.
+                    historyContainer.classList.remove('self-start');
+                    // Reattache l'ecouteur pour le bouton hist.
                     const histBtn = document.getElementById(`${gameType}-hist-btn`);
-                    if (histBtn) {
+                    if (histBtn)
                         histBtn.addEventListener("click", (e) => showHistory(e, gameType));
-                    }
                 });
             }
         }
         catch (error) {
             console.error("Erreur lors de la récupération de l'historique:", error);
             historyContainer.innerHTML = `
-            <div class="flex items-center justify-center gap-2 mb-4">
-                <button id="back-button-${gameType}" class="little_btn rounded-lg border p-2 shadow"><</button>
-                <h2 class="text-xl font-semibold">Erreur</h2>
-            </div>
-            <p>Erreur lors de la récupération de l'historique.</p>
-        `;
+			<div class="flex items-center justify-center gap-2 mb-4">
+				<button id="back-button-${gameType}" class="little_btn rounded-lg border p-2 shadow"><</button>
+				<h2 class="text-xl font-semibold">Erreur</h2>
+			</div>
+			<p>Erreur lors de la récupération de l'historique.</p>
+		`;
             const backButton = document.getElementById(`back-button-${gameType}`);
             if (backButton) {
                 backButton.addEventListener("click", () => {
                     // On vide et restaure juste le bouton d'historique
-                    historyContainer.innerHTML = "";
-                    historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
+                    //historyContainer.innerHTML = "";
+                    //historyContainer.innerHTML = `<button id="${gameType}-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>`;
+                    // Restaure le contenu original.
+                    historyContainer.innerHTML = originalHTML;
+                    // Enleve la classe d'alignement.
+                    historyContainer.classList.remove('self-start');
                     // Réattacher l'écouteur pour le bouton d'historique
                     const histBtn = document.getElementById(`${gameType}-hist-btn`);
-                    if (histBtn) {
+                    if (histBtn)
                         histBtn.addEventListener("click", (e) => showHistory(e, gameType));
-                    }
                 });
             }
         }
