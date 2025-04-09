@@ -1,4 +1,16 @@
-import { createTournament, getTournaments, getTournamentById, updateTournamentStatus, addPlayerToTournament, getTournamentPlayers, createMatch, getTournamentMatches, updateMatchScore, updateMatchStatus } from "../models/tournamentModel.js";
+import {
+	createTournament,
+	getTournaments,
+	getTournamentById,
+	updateTournamentStatus,
+	addPlayerToTournament,
+	getTournamentPlayers,
+	createMatch,
+	getTournamentMatches,
+	updateMatchScore,
+	updateMatchStatus,
+	getMatchById
+} from "../models/tournamentModel.js";
 
 export default async function tournamentRoutes(fastify) {
 	const createTournamentSchema = {
@@ -270,7 +282,7 @@ export default async function tournamentRoutes(fastify) {
 		const { matchId } = request.params;
 
 		try {
-			const match = db.prepare('SELECT * FROM matches WHERE id = ?').get(matchId);
+			const match = getMatchById(matchId);
 			if (match)
 				return { success: true, match };
 			else {
@@ -284,6 +296,31 @@ export default async function tournamentRoutes(fastify) {
 			return reply.status(500).send({
 				success: false,
 				message: 'Impossible de récupérer le status du match.'
+			});
+		}
+	});
+
+	fastify.get('/:id/matches/:matchId/winner', async (request, reply) => {
+		const { matchId } = request.params;
+
+		try {
+			const match = await getMatchById(matchId);
+			if (match) {
+				return {
+					success: true,
+					winner_id: match.winner_id
+				};
+			} else {
+				return reply.status(404).send({
+					success: false,
+					message: `Match avec l'ID ${matchId} non trouvé.`
+				});
+			}
+		} catch (error) {
+			fastify.log.error(error);
+			return reply.status(500).send({
+				success: false,
+				message: 'Impossible de récupérer le gagnant du match.'
 			});
 		}
 	});

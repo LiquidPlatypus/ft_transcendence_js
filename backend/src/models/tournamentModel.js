@@ -107,3 +107,7 @@ export const updateMatchStatus = (matchId, status, winnerId = null) => {
 	const result = stmt.run(status, winnerId, matchId   );
 	return result.changes > 0;
 };
+
+export const getMatchById = (matchId) => {
+	return db.prepare('SELECT * FROM matches WHERE id = ?').get(matchId);
+};
