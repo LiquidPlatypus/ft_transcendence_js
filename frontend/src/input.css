@@ -36,3 +36,14 @@
 	align-items: center;
 	overflow: hidden;
 }
+
+.history-table {
+	table-layout: fixed;
+	width: 100%;
+}
+
+.history-table th, .history-table td {
+	width: 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
