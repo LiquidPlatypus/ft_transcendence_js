@@ -129,47 +129,52 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 	if (startButton)
 	{
 		if (buttonType === 'match') {
-			startButton.addEventListener("click", async () => {
-				const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
-				const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;
-				console.log(`Match entre ${player1} et ${player2}`);
+			if (playerCount == 2)
+			{
+				startButton.addEventListener("click", async () => {
+					const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
+					const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;
+					console.log(`Match entre ${player1} et ${player2}`);
 
-				try {
-					// Créer les joueurs
-					const player1Response = await fetch('/api/players', {
-						method: 'POST',
-						headers: {'Content-Type': 'application/json'},
-						body: JSON.stringify({name: player1}),
-					}).then(res => res.json());
-
-					const player2Response = await fetch("/api/players", {
-						method: "POST",
-						headers: {"Content-Type": "application/json"},
-						body: JSON.stringify({name: player2}),
-					}).then(res => res.json());
-
-					// Créer le match
-					if (player1Response.success && player2Response.success) {
-						const matchResponse = await fetch("/api/players/match", {
-							method: "POST",
-							headers: {"Content-Type": "application/json"},
-							body: JSON.stringify({
-								player1Id: player1Response.id,
-								player2Id: player2Response.id,
-								gameType: 'pong'
-							}),
+					try {
+						// Créer les joueurs
+						const player1Response = await fetch('/api/players', {
+							method: 'POST',
+							headers: {'Content-Type': 'application/json'},
+							body: JSON.stringify({name: player1}),
 						}).then(res => res.json());
 
-						if (matchResponse.success) {
-							// Stocker l'ID du match pour l'utiliser à la fin de la partie
-							localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-							startGame();
+						const player2Response = await fetch("/api/players", {
+							method: "POST",
+							headers: {"Content-Type": "application/json"},
+							body: JSON.stringify({name: player2}),
+						}).then(res => res.json());
+
+						// Créer le match
+						if (player1Response.success && player2Response.success) {
+							const matchResponse = await fetch("/api/players/match", {
+								method: "POST",
+								headers: {"Content-Type": "application/json"},
+								body: JSON.stringify({
+									player1Id: player1Response.id,
+									player2Id: player2Response.id,
+									gameType: 'pong'
+								}),
+							}).then(res => res.json());
+
+							if (matchResponse.success) {
+								// Stocker l'ID du match pour l'utiliser à la fin de la partie
+								localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
+								startGame();
+							}
 						}
+					} catch (error) {
+						console.error("Erreur lors de la création du match:", error);
 					}
-				} catch (error) {
-					console.error("Erreur lors de la création du match:", error);
-				}
-			});
+				});
+			} else if (playerCount == 4) {
+
+			}
 		} else if (buttonType === 'tournoi') {
 			startButton.addEventListener("click", startTournament);
 		}
