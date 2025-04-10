@@ -1,6 +1,7 @@
 import { homePage } from './home.js'
 import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
+import { GameFour } from './fourpong.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 	const appElement = document.getElementById('app');
@@ -371,16 +372,15 @@ export function startGame(playerCount: number) {
 			const game = new Game();
 			requestAnimationFrame(game.gameLoop.bind(game));
 		})
-	} else if (playerCount === 4)
-	{
-		Game.player1Score = 0;
-		Game.player2Score = 0;
-		Game.player3Score = 0;
-		Game.player4Score = 0;
+	} else if (playerCount === 4) {
+		GameFour.player1Score = 0;
+		GameFour.player2Score = 0;
+		GameFour.player3Score = 0;
+		GameFour.player4Score = 0;
 		Game.setGameOver(false);
 
 		setTimeout(() => {
-			const game = new Game();
+			const game = new GameFour();
 			requestAnimationFrame(game.gameLoop.bind(game));
 		})
 	}

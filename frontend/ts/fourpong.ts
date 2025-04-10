@@ -15,7 +15,7 @@ let isPaused = false; // Variable pour gérer l'état de pause
 let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
 let gameOver = false;
 
-class Game{
+export class GameFour {
 	private gameCanvas: HTMLCanvasElement | null;
 	private gameContext: CanvasRenderingContext2D | null;
 	public static keysPressed: boolean[] = [];
@@ -42,14 +42,14 @@ class Game{
 		this.gameContext.font = "30px Orbitron";
 
 		window.addEventListener("keydown", function(e){
-			Game.keysPressed[e.which] = true;
+			GameFour.keysPressed[e.which] = true;
 		});
 
 		window.addEventListener("keyup", function(e){
-			Game.keysPressed[e.which] = false;
+			GameFour.keysPressed[e.which] = false;
 		});
 
-		var paddleWidth:number = 15, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
+		let paddleWidth:number = 15, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
 
 		this.player1 = new Paddle(paddleWidth, paddleHeight, wallOffset, this.gameCanvas.height / 2 - paddleWidth / 2 - paddleHeight / 2);
 		this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
@@ -71,12 +71,12 @@ class Game{
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
 			this.gameContext.fillStyle = "#fff";
 		}
-		
+
 		//draw scores
-		this.gameContext.fillText(Game.player1Score.toString(), 280, 350);
-		this.gameContext.fillText(Game.player2Score.toString(), 420, 350);
-		this.gameContext.fillText(Game.player3Score.toString(), 350, 280);
-		this.gameContext.fillText(Game.player4Score.toString(), 350, 420);
+		this.gameContext.fillText(GameFour.player1Score.toString(), 280, 350);
+		this.gameContext.fillText(GameFour.player2Score.toString(), 420, 350);
+		this.gameContext.fillText(GameFour.player3Score.toString(), 350, 280);
+		this.gameContext.fillText(GameFour.player4Score.toString(), 350, 420);
 	}
 
 	draw(){
@@ -85,7 +85,7 @@ class Game{
 
 		this.gameContext.fillStyle = "#000";
 		this.gameContext.fillRect(0,0,this.gameCanvas.width,this.gameCanvas.height);
-		  
+
 		this.drawBoardDetails();
 		this.player1.draw(this.gameContext);
 		this.player2.draw(this.gameContext);
@@ -105,10 +105,11 @@ class Game{
 		this.ball.update(this.player1, this.player2, this.player3, this.player4, this.gameCanvas);
 	}
 
-	gameLoop(){
-		game.update();
-		game.draw();
-		requestAnimationFrame(game.gameLoop);
+	gameLoop = () => {
+		if (gameOver) return;
+		this.update();
+		this.draw();
+		requestAnimationFrame(this.gameLoop);
 	}
 
 	public static setGameOver(state: boolean): void {
@@ -148,13 +149,13 @@ class Paddle extends Entity{
 	}
 
 	update(canvas: HTMLCanvasElement){
-		if (Game.keysPressed[KeyBindings.UPONE]){
+		if (GameFour.keysPressed[KeyBindings.UPONE]){
 			this.yVal = -1;
 			if (this.y <= 20){
 				this.yVal = 0
 			}
 		}
-		else if (Game.keysPressed[KeyBindings.DOWNONE]){
+		else if (GameFour.keysPressed[KeyBindings.DOWNONE]){
 			this.yVal = +1;
 			if (this.y + this.height >= canvas.height - 20){
 				this.yVal = 0
@@ -177,13 +178,13 @@ class Paddle2 extends Entity{
 	}
 
 	update(canvas: HTMLCanvasElement){
-		if (Game.keysPressed[KeyBindings.UPTWO]){
+		if (GameFour.keysPressed[KeyBindings.UPTWO]){
 			this.yVal = -1;
 			if (this.y <= 20){
 				this.yVal = 0
 			}
 		}
-		else if (Game.keysPressed[KeyBindings.DOWNTWO]){
+		else if (GameFour.keysPressed[KeyBindings.DOWNTWO]){
 			this.yVal = +1;
 			if (this.y + this.height >= canvas.height - 20){
 				this.yVal = 0
@@ -206,13 +207,13 @@ class Paddle3 extends Entity{
 	}
 
 	update(canvas: HTMLCanvasElement){
-		if (Game.keysPressed[KeyBindings.LEFTONE]){
+		if (GameFour.keysPressed[KeyBindings.LEFTONE]){
 			this.xVal = -1;
 			if (this.x <= 20){
 				this.xVal = 0
 			}
 		}
-		else if (Game.keysPressed[KeyBindings.RIGHTONE]){
+		else if (GameFour.keysPressed[KeyBindings.RIGHTONE]){
 			this.xVal = +1;
 			if (this.x + this.width >= canvas.width - 20){
 				this.xVal = 0
@@ -235,13 +236,13 @@ class Paddle4 extends Entity{
 	}
 
 	update(canvas: HTMLCanvasElement){
-		if (Game.keysPressed[KeyBindings.LEFTTWO]){
+		if (GameFour.keysPressed[KeyBindings.LEFTTWO]){
 			this.xVal = -1;
 			if (this.x <= 20){
 				this.xVal = 0
 			}
 		}
-		else if (Game.keysPressed[KeyBindings.RIGHTTWO]){
+		else if (GameFour.keysPressed[KeyBindings.RIGHTTWO]){
 			this.xVal = +1;
 			if (this.x + this.width >= canvas.width - 20){
 				this.xVal = 0
@@ -269,7 +270,7 @@ class Ball extends Entity{
 		let margin = 50; // Taille de la zone au centre
 		this.x = 700 / 2 - this.width / 2 + (Math.random() * margin - margin / 2);
 		this.y = 700 / 2 - this.height / 2 + (Math.random() * margin - margin / 2);
-	
+
 		// Réinitialisation de la direction de la balle
 		let randomDirection = Math.floor(Math.random() * 2) + 1;
 		if (randomDirection % 2) {
@@ -280,49 +281,119 @@ class Ball extends Entity{
 		this.yVal = (Math.random() * 2 - 1) * 2; // Direction verticale aléatoire
 	}
 
+	async checkGameEnd(): Promise<boolean> {
+		const highestScore = Math.max(
+			GameFour.player1Score,
+			GameFour.player2Score,
+			GameFour.player3Score,
+			GameFour.player4Score
+		);
+
+		if (highestScore >= MAX_SCORE) {
+			// Déterminer le gagnant
+			let winner = "";
+			if (GameFour.player1Score >= MAX_SCORE) winner = "Joueur 1";
+			else if (GameFour.player2Score >= MAX_SCORE) winner = "Joueur 2";
+			else if (GameFour.player3Score >= MAX_SCORE) winner = "Joueur 3";
+			else if (GameFour.player4Score >= MAX_SCORE) winner = "Joueur 4";
+
+			// Enregistrer les scores
+			const matchId = localStorage.getItem('currentMatchId');
+			if (matchId) {
+				try {
+					const response = await fetch("/api/players/match/score", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							matchId: parseInt(matchId),
+							player1Score: GameFour.player1Score,
+							player2Score: GameFour.player2Score,
+							player3Score: GameFour.player3Score,
+							player4Score: GameFour.player4Score
+						}),
+					});
+					const result = await response.json();
+					console.log("Résultat sauvegardé:", result);
+
+					// Supprimer l'ID du match du localStorage
+					localStorage.removeItem('currentMatchId');
+				} catch (error) {
+					console.error("Erreur lors de l'enregistrement des scores:", error);
+				}
+			}
+
+			const victoryMessageElement = document.getElementById("Pong");
+			if (victoryMessageElement) {
+				victoryMessageElement.innerHTML = `
+					<p class="font-extrabold">${winner} a gagné !</p>
+					<div class="flex justify-center">
+						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+					</div>
+				`;
+
+				// Import dynamique pour éviter les problèmes de référence circulaire
+				import('./script.js').then(module => {
+					const menu_btn = document.getElementById("menu-btn");
+					if (menu_btn)
+						menu_btn.addEventListener("click", () => module.showHome());
+				});
+			}
+			GameFour.setGameOver(true);
+			return true;
+		}
+		return false;
+	}
+
 	update(player1: Paddle, player2: Paddle2, player3: Paddle3, player4: Paddle4, canvas: HTMLCanvasElement) {
 		// Si le jeu est en pause, on ne met pas à jour la position de la balle
 		if (isPaused) return;
 
 		// Vérification des buts dans les camps respectifs
 		if (this.x <= 0) {
-			Game.player1Score += 1;
+			GameFour.player1Score += 1;
 			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
+				this.checkGameEnd();
 			}, pauseDuration);
 		}
 
 		if (this.x + this.width >= canvas.width) {
-			Game.player2Score += 1;
+			GameFour.player2Score += 1;
 			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
+				this.checkGameEnd();
 			}, pauseDuration);
 		}
 
 		if (this.y <= 0) {
-			Game.player3Score += 1;
+			GameFour.player3Score += 1;
 			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
+				this.checkGameEnd();
 			}, pauseDuration);
 		}
 
 		if (this.y + this.height >= canvas.height) {
-			Game.player4Score += 1;
+			GameFour.player4Score += 1;
 			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
+				this.checkGameEnd();
 			}, pauseDuration);
 		}
 
 		// Collision avec player 1
-		if (this.x <= player1.x + player1.width && this.y + this.height >= player1.y && this.y <= player1.y + player1.height) {
+		if (this.x <= player1.x + player1.width &&
+			this.x >= player1.x &&
+			this.y + this.height >= player1.y &&
+			this.y <= player1.y + player1.height) {
 			let relativeY = (this.y + this.height / 2) - (player1.y + player1.height / 2);
 			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale
 			this.xVal = 1;
@@ -330,7 +401,10 @@ class Ball extends Entity{
 		}
 
 		// Collision avec player 2
-		if (this.x + this.width >= player2.x && this.y + this.height >= player2.y && this.y <= player2.y + player2.height) {
+		if (this.x + this.width >= player2.x &&
+			this.x <= player2.x + player2.width &&
+			this.y + this.height >= player2.y &&
+			this.y <= player2.y + player2.height) {
 			let relativeY = (this.y + this.height / 2) - (player2.y + player2.height / 2);
 			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale
 			this.xVal = -1;
@@ -338,7 +412,10 @@ class Ball extends Entity{
 		}
 
 		// Collision avec player 3 (paddle vertical)
-		if (this.y <= player3.y + player3.height && this.x + this.width >= player3.x && this.x <= player3.x + player3.width) {
+		if (this.y <= player3.y + player3.height &&
+			this.y >= player3.y &&
+			this.x + this.width >= player3.x &&
+			this.x <= player3.x + player3.width) {
 			let relativeX = (this.x + this.width / 2) - (player3.x + player3.width / 2);
 			let normalizedX = relativeX / (player3.width / 2);
 			this.yVal = 1;
@@ -346,7 +423,10 @@ class Ball extends Entity{
 		}
 
 		// Collision avec player 4 (paddle vertical)
-		if (this.y + this.height >= player4.y && this.x + this.width >= player4.x && this.x <= player4.x + player4.width) {
+		if (this.y + this.height >= player4.y &&
+			this.y <= player4.y + player4.height &&
+			this.x + this.width >= player4.x &&
+			this.x <= player4.x + player4.width) {
 			let relativeX = (this.x + this.width / 2) - (player4.x + player4.width / 2);
 			let normalizedX = relativeX / (player4.width / 2);
 			this.yVal = -1;
@@ -358,6 +438,3 @@ class Ball extends Entity{
 		this.y += this.yVal * this.speed;
 	}
 }
-
-var game = new Game();
-requestAnimationFrame(game.gameLoop);
