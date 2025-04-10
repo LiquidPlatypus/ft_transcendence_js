@@ -59,13 +59,13 @@ export class Game{
 		this.gameContext.strokeStyle = "#fff";
 		this.gameContext.lineWidth = 5;
 		this.gameContext.strokeRect(10,10,this.gameCanvas.width - 20 ,this.gameCanvas.height - 20);
-	
+
 		//draw center lines
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
 			this.gameContext.fillStyle = "#fff";
 			this.gameContext.fillRect(this.gameCanvas.width / 2 - 10, i + 10, 15, 20);
 		}
-	
+
 		//draw scores
 		this.gameContext.fillText(Game.player1Score.toString(), 280, 50);
 		this.gameContext.fillText(Game.player2Score.toString(), 390, 50);
@@ -76,7 +76,7 @@ export class Game{
 
 		this.gameContext.fillStyle = "#000";
 		this.gameContext.fillRect(0,0,this.gameCanvas.width,this.gameCanvas.height);
-		  
+
 		this.drawBoardDetails();
 		this.player1.draw(this.gameContext);
 		this.player2.draw(this.gameContext);
@@ -200,7 +200,7 @@ class Ball extends Entity{
 	update(player1: Paddle, player2: Paddle2, canvas: HTMLCanvasElement){
 
 		 // Si le jeu est en pause, on ne met pas à jour la position de la balle
-	   if (isPaused) return;
+		if (isPaused) return;
 
 		//check le haut
 		if (this.y <= 10)

@@ -260,12 +260,12 @@ class Ball extends Entity{
 	private speed:number = 5;
 
 	constructor(w: number, h: number, x: number, y: number) {
-        super(w, h, x, y);
-        this.resetBallPosition(); // Positionne la balle au centre du terrain avec une direction aléatoire
-    }
+		super(w, h, x, y);
+		this.resetBallPosition(); // Positionne la balle au centre du terrain avec une direction aléatoire
+	}
 
-    // Fonction pour réinitialiser la position de la balle après un but
-    resetBallPosition() {
+	// Fonction pour réinitialiser la position de la balle après un but
+	resetBallPosition() {
 		let margin = 50; // Taille de la zone au centre
 		this.x = 700 / 2 - this.width / 2 + (Math.random() * margin - margin / 2);
 		this.y = 700 / 2 - this.height / 2 + (Math.random() * margin - margin / 2);
@@ -281,82 +281,82 @@ class Ball extends Entity{
 	}
 
 	update(player1: Paddle, player2: Paddle2, player3: Paddle3, player4: Paddle4, canvas: HTMLCanvasElement) {
-        // Si le jeu est en pause, on ne met pas à jour la position de la balle
-        if (isPaused) return;
+		// Si le jeu est en pause, on ne met pas à jour la position de la balle
+		if (isPaused) return;
 
-        // Vérification des buts dans les camps respectifs
-        if (this.x <= 0) {
-            Game.player1Score += 1;
-            this.resetBallPosition();  // Réinitialiser la position de la balle au centre
-            isPaused = true;
-            setTimeout(() => {
-                isPaused = false;
-            }, pauseDuration);
-        }
+		// Vérification des buts dans les camps respectifs
+		if (this.x <= 0) {
+			Game.player1Score += 1;
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
+			isPaused = true;
+			setTimeout(() => {
+				isPaused = false;
+			}, pauseDuration);
+		}
 
-        if (this.x + this.width >= canvas.width) {
-            Game.player2Score += 1;
-            this.resetBallPosition();  // Réinitialiser la position de la balle au centre
-            isPaused = true;
-            setTimeout(() => {
-                isPaused = false;
-            }, pauseDuration);
-        }
+		if (this.x + this.width >= canvas.width) {
+			Game.player2Score += 1;
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
+			isPaused = true;
+			setTimeout(() => {
+				isPaused = false;
+			}, pauseDuration);
+		}
 
-        if (this.y <= 0) {
-            Game.player3Score += 1;
-            this.resetBallPosition();  // Réinitialiser la position de la balle au centre
-            isPaused = true;
-            setTimeout(() => {
-                isPaused = false;
-            }, pauseDuration);
-        }
+		if (this.y <= 0) {
+			Game.player3Score += 1;
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
+			isPaused = true;
+			setTimeout(() => {
+				isPaused = false;
+			}, pauseDuration);
+		}
 
-        if (this.y + this.height >= canvas.height) {
-            Game.player4Score += 1;
-            this.resetBallPosition();  // Réinitialiser la position de la balle au centre
-            isPaused = true;
-            setTimeout(() => {
-                isPaused = false;
-            }, pauseDuration);
-        }
+		if (this.y + this.height >= canvas.height) {
+			Game.player4Score += 1;
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
+			isPaused = true;
+			setTimeout(() => {
+				isPaused = false;
+			}, pauseDuration);
+		}
 
-        // Collision avec player 1
-        if (this.x <= player1.x + player1.width && this.y + this.height >= player1.y && this.y <= player1.y + player1.height) {
-            let relativeY = (this.y + this.height / 2) - (player1.y + player1.height / 2);
-            let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale
-            this.xVal = 1;
-            this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision
-        }
+		// Collision avec player 1
+		if (this.x <= player1.x + player1.width && this.y + this.height >= player1.y && this.y <= player1.y + player1.height) {
+			let relativeY = (this.y + this.height / 2) - (player1.y + player1.height / 2);
+			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale
+			this.xVal = 1;
+			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision
+		}
 
-        // Collision avec player 2
-        if (this.x + this.width >= player2.x && this.y + this.height >= player2.y && this.y <= player2.y + player2.height) {
-            let relativeY = (this.y + this.height / 2) - (player2.y + player2.height / 2);
-            let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale
-            this.xVal = -1;
-            this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision
-        }
+		// Collision avec player 2
+		if (this.x + this.width >= player2.x && this.y + this.height >= player2.y && this.y <= player2.y + player2.height) {
+			let relativeY = (this.y + this.height / 2) - (player2.y + player2.height / 2);
+			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale
+			this.xVal = -1;
+			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision
+		}
 
-        // Collision avec player 3 (paddle vertical)
-        if (this.y <= player3.y + player3.height && this.x + this.width >= player3.x && this.x <= player3.x + player3.width) {
-            let relativeX = (this.x + this.width / 2) - (player3.x + player3.width / 2);
-            let normalizedX = relativeX / (player3.width / 2);
-            this.yVal = 1;
-            this.xVal = normalizedX * 1.2;
-        }
+		// Collision avec player 3 (paddle vertical)
+		if (this.y <= player3.y + player3.height && this.x + this.width >= player3.x && this.x <= player3.x + player3.width) {
+			let relativeX = (this.x + this.width / 2) - (player3.x + player3.width / 2);
+			let normalizedX = relativeX / (player3.width / 2);
+			this.yVal = 1;
+			this.xVal = normalizedX * 1.2;
+		}
 
-        // Collision avec player 4 (paddle vertical)
-        if (this.y + this.height >= player4.y && this.x + this.width >= player4.x && this.x <= player4.x + player4.width) {
-            let relativeX = (this.x + this.width / 2) - (player4.x + player4.width / 2);
-            let normalizedX = relativeX / (player4.width / 2);
-            this.yVal = -1;
-            this.xVal = normalizedX * 1.2;
-        }
+		// Collision avec player 4 (paddle vertical)
+		if (this.y + this.height >= player4.y && this.x + this.width >= player4.x && this.x <= player4.x + player4.width) {
+			let relativeX = (this.x + this.width / 2) - (player4.x + player4.width / 2);
+			let normalizedX = relativeX / (player4.width / 2);
+			this.yVal = -1;
+			this.xVal = normalizedX * 1.2;
+		}
 
-        // Mise à jour de la position de la balle
-        this.x += this.xVal * this.speed;
-        this.y += this.yVal * this.speed;
-    }
+		// Mise à jour de la position de la balle
+		this.x += this.xVal * this.speed;
+		this.y += this.yVal * this.speed;
+	}
 }
 
 var game = new Game();
