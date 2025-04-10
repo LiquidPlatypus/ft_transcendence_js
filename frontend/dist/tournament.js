@@ -247,7 +247,7 @@ function createMatch(player1Id, player2Id, round, matchNumber) {
                 }
                 console.log(`Match créé avec ID: ${matchId}`);
                 localStorage.setItem('currentMatchId', matchId.toString());
-                startGame();
+                startGame(2);
                 return { id: matchId };
             }
             else {

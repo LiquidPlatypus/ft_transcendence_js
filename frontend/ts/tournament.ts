@@ -277,7 +277,7 @@ async function createMatch(player1Id: string, player2Id: string, round: string, 
 
 			console.log(`Match créé avec ID: ${matchId}`);
 			localStorage.setItem('currentMatchId', matchId.toString());
-			startGame();
+			startGame(2);
 
 			return { id: matchId };
 		} else {
