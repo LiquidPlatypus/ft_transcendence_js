@@ -9,12 +9,15 @@ enum KeyBindings{
 	LEFTTWO = 67 //C
 }
 
+const MAX_SCORE = 5;
+
 let isPaused = false; // Variable pour gérer l'état de pause
 let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
+let gameOver = false;
 
 class Game{
-	private gameCanvas;
-	private gameContext;
+	private gameCanvas: HTMLCanvasElement | null;
+	private gameContext: CanvasRenderingContext2D | null;
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
@@ -27,8 +30,15 @@ class Game{
 	private ball: Ball;
 
 	constructor(){
-		this.gameCanvas = document.getElementById("game-canvas");
+		const canvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
+		if (!canvas)
+			throw new Error("Element canvas non-trouve");
+
+		this.gameCanvas = canvas;
 		this.gameContext = this.gameCanvas.getContext("2d");
+		if (!this.gameContext)
+			throw new Error("Impossible de recuperer 2D rendering context");
+
 		this.gameContext.font = "30px Orbitron";
 
 		window.addEventListener("keydown", function(e){
@@ -49,24 +59,30 @@ class Game{
 	}
 
 	drawBoardDetails(){
+		if (!this.gameContext || !this.gameCanvas)
+			return ;
+
 		//draw court outline
 		this.gameContext.strokeStyle = "#fff";
 		this.gameContext.lineWidth = 5;
 		this.gameContext.strokeRect(10,10,this.gameCanvas.width - 20 ,this.gameCanvas.height - 20);
 
 		//draw color
-		for (var i = 0; i + 30 < this.gameCanvas.height; i += 30) {
+		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
 			this.gameContext.fillStyle = "#fff";
 		}
 		
 		//draw scores
-		this.gameContext.fillText(Game.player1Score, 280, 350);
-		this.gameContext.fillText(Game.player2Score, 420, 350);
-		this.gameContext.fillText(Game.player3Score, 350, 280);
-		this.gameContext.fillText(Game.player4Score, 350, 420);
+		this.gameContext.fillText(Game.player1Score.toString(), 280, 350);
+		this.gameContext.fillText(Game.player2Score.toString(), 420, 350);
+		this.gameContext.fillText(Game.player3Score.toString(), 350, 280);
+		this.gameContext.fillText(Game.player4Score.toString(), 350, 420);
 	}
 
 	draw(){
+		if (!this.gameContext || !this.gameCanvas)
+			return ;
+
 		this.gameContext.fillStyle = "#000";
 		this.gameContext.fillRect(0,0,this.gameCanvas.width,this.gameCanvas.height);
 		  
@@ -79,6 +95,9 @@ class Game{
 	}
 
 	update(){
+		if (!this.gameCanvas)
+			return ;
+
 		this.player1.update(this.gameCanvas);
 		this.player2.update(this.gameCanvas);
 		this.player3.update(this.gameCanvas);
@@ -90,6 +109,14 @@ class Game{
 		game.update();
 		game.draw();
 		requestAnimationFrame(game.gameLoop);
+	}
+
+	public static setGameOver(state: boolean): void {
+		gameOver = state;
+	}
+
+	public static isGameOver(): boolean {
+		return gameOver;
 	}
 }
 
@@ -106,7 +133,7 @@ class Entity{
 		this.x = x;
 		this.y =y;
 	}
-	draw(context){
+	draw(context: CanvasRenderingContext2D){
 		context.fillStyle = "#fff";
 		context.fillRect(this.x,this.y,this.width,this.height);
 	}
@@ -120,7 +147,7 @@ class Paddle extends Entity{
 		super(w,h,x,y);
 	}
 
-	update(canvas){
+	update(canvas: HTMLCanvasElement){
 		if (Game.keysPressed[KeyBindings.UPONE]){
 			this.yVal = -1;
 			if (this.y <= 20){
@@ -149,7 +176,7 @@ class Paddle2 extends Entity{
 		super(w,h,x,y);
 	}
 
-	update(canvas){
+	update(canvas: HTMLCanvasElement){
 		if (Game.keysPressed[KeyBindings.UPTWO]){
 			this.yVal = -1;
 			if (this.y <= 20){
@@ -178,7 +205,7 @@ class Paddle3 extends Entity{
 		super(w,h,x,y);
 	}
 
-	update(canvas){
+	update(canvas: HTMLCanvasElement){
 		if (Game.keysPressed[KeyBindings.LEFTONE]){
 			this.xVal = -1;
 			if (this.x <= 20){
@@ -207,7 +234,7 @@ class Paddle4 extends Entity{
 		super(w,h,x,y);
 	}
 
-	update(canvas){
+	update(canvas: HTMLCanvasElement){
 		if (Game.keysPressed[KeyBindings.LEFTTWO]){
 			this.xVal = -1;
 			if (this.x <= 20){
@@ -253,7 +280,7 @@ class Ball extends Entity{
 		this.yVal = (Math.random() * 2 - 1) * 2; // Direction verticale aléatoire
 	}
 
-	update(player1: Paddle, player2: Paddle2, player3: Paddle3, player4: Paddle4, canvas) {
+	update(player1: Paddle, player2: Paddle2, player3: Paddle3, player4: Paddle4, canvas: HTMLCanvasElement) {
         // Si le jeu est en pause, on ne met pas à jour la position de la balle
         if (isPaused) return;
 
