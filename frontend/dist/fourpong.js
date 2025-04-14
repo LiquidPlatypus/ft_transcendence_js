@@ -50,7 +50,7 @@ export class GameFour {
         this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
         this.player3 = new Paddle3(paddleHeight, paddleWidth, this.gameCanvas.width / 2 - paddleHeight / 2, wallOffset);
         this.player4 = new Paddle4(paddleHeight, paddleWidth, this.gameCanvas.width / 2 - paddleHeight / 2, this.gameCanvas.height - (wallOffset + paddleWidth));
-        this.ball = new Ball(ballSize, ballSize, this.gameCanvas.width / 2 - ballSize / 2, this.gameCanvas.height / 2 - ballSize / 2);
+        this.ball = new Ball(ballSize, ballSize, 0, 0, this.gameCanvas.width, this.gameCanvas.height);
     }
     drawBoardDetails() {
         if (!this.gameContext || !this.gameCanvas)
@@ -214,25 +214,21 @@ class Paddle4 extends Entity {
     }
 }
 class Ball extends Entity {
-    constructor(w, h, x, y) {
+    constructor(w, h, x, y, canvasWidth, canvasHeight) {
         super(w, h, x, y);
         this.speed = 5;
+        this.canvasWidth = canvasWidth;
+        this.canvasHeight = canvasHeight;
         this.resetBallPosition(); // Positionne la balle au centre du terrain avec une direction aléatoire
     }
     // Fonction pour réinitialiser la position de la balle après un but
     resetBallPosition() {
-        let margin = 50; // Taille de la zone au centre
-        this.x = 700 / 2 - this.width / 2 + (Math.random() * margin - margin / 2);
-        this.y = 700 / 2 - this.height / 2 + (Math.random() * margin - margin / 2);
-        // Réinitialisation de la direction de la balle
+        let margin = 50;
+        this.x = this.canvasWidth / 2 - this.width / 2 + (Math.random() * margin - margin / 2);
+        this.y = this.canvasHeight / 2 - this.height / 2 + (Math.random() * margin - margin / 2);
         let randomDirection = Math.floor(Math.random() * 2) + 1;
-        if (randomDirection % 2) {
-            this.xVal = 1;
-        }
-        else {
-            this.xVal = -1;
-        }
-        this.yVal = (Math.random() * 2 - 1) * 2; // Direction verticale aléatoire
+        this.xVal = randomDirection % 2 ? 1 : -1;
+        this.yVal = (Math.random() * 2 - 1) * 2;
     }
     checkGameEnd() {
         return __awaiter(this, void 0, void 0, function* () {
