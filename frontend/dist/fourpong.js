@@ -64,10 +64,11 @@ export class GameFour {
             this.gameContext.fillStyle = "#fff";
         }
         //draw scores
-        this.gameContext.fillText(GameFour.player1Score.toString(), 280, 350);
-        this.gameContext.fillText(GameFour.player2Score.toString(), 420, 350);
-        this.gameContext.fillText(GameFour.player3Score.toString(), 350, 280);
-        this.gameContext.fillText(GameFour.player4Score.toString(), 350, 420);
+        this.gameContext.textAlign = "center";
+        this.gameContext.fillText(GameFour.player1Score.toString(), this.gameCanvas.width / 3, this.gameCanvas.height / 2);
+        this.gameContext.fillText(GameFour.player2Score.toString(), (3 * this.gameCanvas.width) / 4.60, this.gameCanvas.height / 2);
+        this.gameContext.fillText(GameFour.player3Score.toString(), this.gameCanvas.width / 2, this.gameCanvas.height / 4);
+        this.gameContext.fillText(GameFour.player4Score.toString(), this.gameCanvas.width / 2, (3 * this.gameCanvas.height) / 4);
     }
     draw() {
         if (!this.gameContext || !this.gameCanvas)
