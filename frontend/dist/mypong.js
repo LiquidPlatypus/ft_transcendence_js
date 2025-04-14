@@ -53,8 +53,9 @@ export class Game {
             this.gameContext.fillRect(this.gameCanvas.width / 2 - 10, i + 10, 15, 20);
         }
         //draw scores
-        this.gameContext.fillText(Game.player1Score.toString(), 280, 50);
-        this.gameContext.fillText(Game.player2Score.toString(), 390, 50);
+        this.gameContext.textAlign = "center";
+        this.gameContext.fillText(Game.player1Score.toString(), this.gameCanvas.width / 4, 50);
+        this.gameContext.fillText(Game.player2Score.toString(), (3 * this.gameCanvas.width) / 4, 50);
     }
     draw() {
         if (!this.gameContext || !this.gameCanvas)
