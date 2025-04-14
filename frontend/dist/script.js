@@ -323,8 +323,8 @@ export function startGame(playerCount) {
     const container = document.getElementById("Pong");
     if (!container)
         return;
-    container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
     if (playerCount === 2) {
+        container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
         Game.player1Score = 0;
         Game.player2Score = 0;
         Game.setGameOver(false);
@@ -334,6 +334,7 @@ export function startGame(playerCount) {
         });
     }
     else if (playerCount === 4) {
+        container.innerHTML = '<canvas id="game-canvas" width="600" height="600"></canvas>';
         GameFour.player1Score = 0;
         GameFour.player2Score = 0;
         GameFour.player3Score = 0;
