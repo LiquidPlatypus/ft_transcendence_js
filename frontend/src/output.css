@@ -838,6 +838,9 @@
   .h-screen {
     height: 100vh;
   }
+  .max-h-60 {
+    max-height: calc(var(--spacing) * 60);
+  }
   .max-h-none {
     max-height: none;
   }
@@ -882,6 +885,9 @@
   }
   .flex-shrink {
     flex-shrink: 1;
+  }
+  .flex-shrink-0 {
+    flex-shrink: 0;
   }
   .shrink {
     flex-shrink: 1;
@@ -1373,6 +1379,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .overflow-y-auto {
+    overflow-y: auto;
   }
   .scroll-auto {
     scroll-behavior: auto;
@@ -2323,10 +2332,12 @@
   background-color: var(--color-button_hover);
 }
 #history-pong, #history-pfc {
-  display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: 300px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-button) transparent;
 }
 .history-table {
   table-layout: fixed;

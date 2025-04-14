@@ -23,11 +23,11 @@ export function homePage() {
 					</div>
 				</div>
 			</div>
-			<div class="mt-4 grid grid-cols-2 justify-center gap-10">
-				<div id="history-pong" class="fle flex-cols items-center self-start">
+			<div class="mt-4 grid grid-cols-2 justify-center gap-10 flex-shrink-0">
+				<div id="history-pong" class="fle flex-cols items-center max-h-60 overflow-y-auto">
 					<button id="pong-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>
 				</div>
-				<div id="history-pfc" class="flex flex-cols items-center self-start">
+				<div id="history-pfc" class="flex flex-cols items-center max-h-60 overflow-y-auto">
 					<button id="pfc-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">Historique</button>
 				</div>
 			</div>
