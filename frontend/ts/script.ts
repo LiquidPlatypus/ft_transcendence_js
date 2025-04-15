@@ -246,7 +246,12 @@ interface Match {
 	player1_score: number;
 	player2: string;
 	player2_score: number;
+	player3?: string;
+	player3_score?: number;
+	player4?: string;
+	player4_score?: number;
 	winner: string | null;
+	playerCount?: number;
 }
 
 async function showHistory(event: Event, gameType: string) {
@@ -261,10 +266,10 @@ async function showHistory(event: Event, gameType: string) {
 	const originalHTML = historyContainer.innerHTML;
 
 	// Appliquer style de position fixe au conteneur avant de le remplir.
-	if (gameType === 'pong')
-		historyContainer.classList.add('self-start');
-	else if (gameType === 'pfc')
-		historyContainer.classList.add('self-start');
+//	if (gameType === 'pong')
+//		historyContainer.classList.add('self-start');
+//	else if (gameType === 'pfc')
+//		historyContainer.classList.add('self-start');
 
 	try {
 		const response = await fetch(`/api/scores/history/${gameType}`, {
@@ -281,9 +286,9 @@ async function showHistory(event: Event, gameType: string) {
 		const headerDiv = document.createElement('div');
 		headerDiv.className = 'flex items-center justify-center gap-2 mb-4 mt-2';
 		headerDiv.innerHTML = `
-    <button id="back-button-${gameType}" class="little_btn rounded-lg border p-4 shadow flex items-center justify-center w-8 h-8"><span class="inline-block">&lt;</span></button>
-    <h2 class="text-xl font-semibold">Historique ${gameType}</h2>
-`;
+			<button id="back-button-${gameType}" class="little_btn rounded-lg border p-4 shadow flex items-center justify-center w-8 h-8"><span class="inline-block">&lt;</span></button>
+			<h2 class="text-xl font-semibold">Historique ${gameType}</h2>
+		`;
 		historyContainer.appendChild(headerDiv);
 
 		// Div pour les tableaux d'historique
@@ -291,21 +296,61 @@ async function showHistory(event: Event, gameType: string) {
 		tablesDiv.className = 'w-full space-y-2';
 
 		if (data.success && data.matches && data.matches.length > 0) {
-			data.matches.forEach((match: Match) => {
-				const tableEl = document.createElement('table');
-				tableEl.className = 'border-collapse border w-full text-center table-fixed';
-				tableEl.innerHTML = `
-					<tr class="bg-hist">
-						<th class="border p-2 w-1/2">${match.player1}</th>
-						<th class="border p-2 w-1/2">${match.player2}</th>
-					</tr>
-					<tr>
-						<td class="border p-2">${match.player1_score}</td>
-						<td class="border p-2">${match.player2_score}</td>
-					</tr>
-				`;
-				tablesDiv.appendChild(tableEl);
-			});
+			// Séparation des matchs 2 ou 4 joueurs.
+			const twoPlayerMatches = data.matches.filter((match: Match) => !match.player3);
+			const fourPlayerMatches = data.matches.filter((match: Match) => match.player3);
+
+			// Afficher les matchs à 2 joueurs
+			if (twoPlayerMatches.length > 0) {
+				const twoPlayerTitle = document.createElement('h3');
+				twoPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
+				twoPlayerTitle.textContent = 'Matchs à 2 joueurs';
+				tablesDiv.appendChild(twoPlayerTitle);
+
+				twoPlayerMatches.forEach((match: Match) => {
+					const tableEl = document.createElement('table');
+					tableEl.className = 'border-collapse border w-full text-center table-fixed';
+					tableEl.innerHTML = `
+						<tr class="bg-hist">
+							<th class="border p-2 w-1/2">${match.player1}</th>
+							<th class="border p-2 w-1/2">${match.player2}</th>
+						</tr>
+						<tr>
+							<td class="border p-2">${match.player1_score}</td>
+							<td class="border p-2">${match.player2_score}</td>
+						</tr>
+					`;
+					tablesDiv.appendChild(tableEl);
+				});
+			}
+
+			// Afficher les matchs à 4 joueurs
+			if (fourPlayerMatches.length > 0) {
+				const fourPlayerTitle = document.createElement('h3');
+				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
+				fourPlayerTitle.textContent = 'Matchs à 4 joueurs';
+				tablesDiv.appendChild(fourPlayerTitle);
+
+				fourPlayerMatches.forEach((match: Match) => {
+					const tableEl = document.createElement('table');
+					tableEl.className = 'border-collapse border w-full text-center table-fixed';
+					tableEl.innerHTML = `
+						<tr class="bg-hist">
+							<th class="border p-2 w-1/4">${match.player1}</th>
+							<th class="border p-2 w-1/4">${match.player2}</th>
+							<th class="border p-2 w-1/4">${match.player3}</th>
+							<th class="border p-2 w-1/4">${match.player4}</th>
+						</tr>
+						<tr>
+							<td class="border p-2">${match.player1_score}</td>
+							<td class="border p-2">${match.player2_score}</td>
+							<td class="border p-2">${match.player3_score}</td>
+							<td class="border p-2">${match.player4_score}</td>
+						</tr>
+					`;
+					tablesDiv.appendChild(tableEl);
+				});
+			}
 		} else {
 			const noMatchesEl = document.createElement('p');
 			noMatchesEl.textContent = 'Aucun matchs enregistrés.';
