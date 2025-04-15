@@ -51,6 +51,29 @@ export function setupDatabase() {
 			FOREIGN KEY (winner_id) REFERENCES players (id)
 		);
 
+		CREATE TABLE IF NOT EXISTS matches_4
+		(
+			id				INTEGER PRIMARY KEY AUTOINCREMENT,
+			tournament_id	INTEGER,
+			player1_id		INTEGER NOT NULL,
+			player2_id		INTEGER NOT NULL,
+			player3_id		INTEGER NOT NULL,
+			player4_id		INTEGER NOT NULL,
+			player1_score	INTEGER DEFAULT 0,
+			player2_score	INTEGER DEFAULT 0,
+			player3_score	INTEGER DEFAULT 0,
+			player4_score	INTEGER DEFAULT 0,
+			status			TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'completed')),
+			winner_id		INTEGER,
+			game_type		TEXT NOT NULL DEFAULT 'pong',
+			FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE,
+			FOREIGN KEY (player1_id) REFERENCES players (id),
+			FOREIGN KEY (player2_id) REFERENCES players (id),
+			FOREIGN KEY (player3_id) REFERENCES players (id),
+			FOREIGN KEY (player4_id) REFERENCES players (id),
+			FOREIGN KEY (winner_id) REFERENCES players (id)
+		);
+
 		CREATE TABLE IF NOT EXISTS game_settings
 		(
 			id			INTEGER PRIMARY KEY AUTOINCREMENT,

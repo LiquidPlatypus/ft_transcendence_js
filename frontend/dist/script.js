@@ -198,7 +198,7 @@ function fourPLayersMatchs(startButton) {
                 body: JSON.stringify({ name: player4 }),
             }).then(res => res.json());
             if (player1Response.success && player2Response.success && player3Response.success && player4Response.success) {
-                const matchResponse = yield fetch("/api/players/match", {
+                const matchResponse = yield fetch("/api/players/match4", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({

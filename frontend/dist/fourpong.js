@@ -248,7 +248,7 @@ class Ball extends Entity {
                 const matchId = localStorage.getItem('currentMatchId');
                 if (matchId) {
                     try {
-                        const response = yield fetch("/api/players/match/score", {
+                        const response = yield fetch("/api/players/match4/score", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
