@@ -231,16 +231,18 @@ class Ball extends Entity{
 
 		//check player 1 collision
 		if (this.x <= player1.x + player1.width &&
-			this.y >= player1.y &&
-			this.y + this.height <= player1.y + player1.height) {
-			this.xVal = -1;
+			this.x + this.width >= player1.x && // ← important aussi pour s'assurer qu'on touche bien horizontalement
+			this.y < player1.y + player1.height &&
+			this.y + this.height > player1.y) {
+			this.xVal = 1; // rebond vers la droite
 		}
 
 		//check player 2 collision
 		if (this.x + this.width >= player2.x &&
-			this.y >= player2.y &&
-			this.y + this.height <= player2.y + player2.height) {
-			this.xVal = -1;
+			this.x <= player2.x + player2.width && // ← symétrique à la précédente
+			this.y < player2.y + player2.height &&
+			this.y + this.height > player2.y) {
+			this.xVal = -1; // rebond vers la gauche
 		}
 
 		this.x += this.xVal * this.speed;
