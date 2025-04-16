@@ -99,9 +99,10 @@ export default async function playerRoutes(fastify, options) {
 				return reply.status(404).send({ success: false, message: "Match non trouvé." });
 			}
 
-			const scores = [
-				{ }
-			]
+			if (player1Score > player2Score)
+				winnerId = match.player1_id;
+			else if (player2Score > player1Score)
+				winnerId = match.player2_id;
 
 			console.log("🏆 Winner ID:", winnerId);
 
@@ -156,13 +157,22 @@ export default async function playerRoutes(fastify, options) {
 
 			let winnerId = null;
 			const match = db.prepare("SELECT * FROM matches_4 WHERE id = ?").get(matchId);
+			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! match: ", match);
 
 			if (!match) {
 				console.error("❌ Match non trouvé :", matchId);
 				return reply.status(404).send({ success: false, message: "Match non trouvé." });
 			}
 
+			const scores = [
+				{ id: match.player1_id, score: player1Score },
+				{ id: match.player2_id, score: player2Score },
+				{ id: match.player3_id, score: player3Score },
+				{ id: match.player4_id, score: player4Score },
+			];
 
+			scores.sort((a, b) => b.score - a.score);
+			winnerId = scores[0].id;
 
 			console.log("🏆 Winner ID:", winnerId);
 
