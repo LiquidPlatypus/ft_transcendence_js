@@ -359,11 +359,12 @@ export function startGame(playerCount) {
     const container = document.getElementById("Pong");
     if (!container)
         return;
+    // Reset scores before starting a new game
+    Game.player1Score = 0;
+    Game.player2Score = 0;
+    Game.setGameOver(false);
     if (playerCount === 2) {
         container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
-        Game.player1Score = 0;
-        Game.player2Score = 0;
-        Game.setGameOver(false);
         setTimeout(() => {
             const game = new Game();
             requestAnimationFrame(game.gameLoop.bind(game));
@@ -375,7 +376,6 @@ export function startGame(playerCount) {
         GameFour.player2Score = 0;
         GameFour.player3Score = 0;
         GameFour.player4Score = 0;
-        Game.setGameOver(false);
         setTimeout(() => {
             const game = new GameFour();
             requestAnimationFrame(game.gameLoop.bind(game));

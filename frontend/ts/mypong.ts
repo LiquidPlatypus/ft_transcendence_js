@@ -1,4 +1,4 @@
-import { showHome } from "./script.js";
+import { showHome, startGame } from "./script.js";
 
 enum KeyBindings{
 	UP = 90,
@@ -208,7 +208,7 @@ class Ball extends Entity{
 			this.yVal = 1;
 
 		//check le bas
-		if (this.y  + this.height >= canvas.height - 10)
+		if (this.y + this.height >= canvas.height - 10)
 			this.yVal = -1;
 
 		//check but player 2
@@ -258,7 +258,7 @@ class Ball extends Entity{
 
 	private async checkGameEnd(winner: string): Promise<boolean> {
 		if (Game.player1Score >= MAX_SCORE || Game.player2Score >= MAX_SCORE) {
-			// Enregistrer les scores
+			// Save scores for the current match
 			const matchId = localStorage.getItem('currentMatchId');
 			if (matchId) {
 				try {
@@ -273,27 +273,166 @@ class Ball extends Entity{
 					});
 					const result = await response.json();
 					console.log("Résultat sauvegardé:", result);
-
-					// Supprimer l'ID du match du localStorage
-					localStorage.removeItem('currentMatchId');
 				} catch (error) {
 					console.error("Erreur lors de l'enregistrement des scores:", error);
 				}
 			}
 
-			const victoryMessageElement = document.getElementById("Pong");
-			if (victoryMessageElement) {
-				victoryMessageElement.innerHTML = `
-					<p class="font-extrabold">${winner} a gagné !</p>
-					<div class="flex justify-center">
-						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
-					</div>
-				`;
+			// Check if we're in tournament mode and have a pending match
+			const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
+			const pendingMatchId = localStorage.getItem('pendingMatchId');
+			const semifinal1Id = localStorage.getItem('semifinal1Id');
+			const semifinal2Id = localStorage.getItem('semifinal2Id');
 
-				const menu_btn = document.getElementById("menu-btn");
-				if (menu_btn)
-					menu_btn.addEventListener("click", () => showHome());
+			if (tournamentMode && pendingMatchId) {
+				// We have another match to play in the tournament
+				const victoryMessageElement = document.getElementById("Pong");
+				if (victoryMessageElement) {
+					victoryMessageElement.innerHTML = `
+				<p class="font-extrabold">${winner} a gagné ce match!</p>
+				<p>Prêt pour le match suivant?</p>
+				<div class="flex justify-center mt-4">
+					<button id="next-match-btn" class="btn rounded-lg border p-4 shadow">Match Suivant</button>
+				</div>
+			`;
+
+					const nextMatchBtn = document.getElementById("next-match-btn");
+					if (nextMatchBtn) {
+						nextMatchBtn.addEventListener("click", async () => {
+							// Store winner of current match
+							if (matchId === semifinal1Id) {
+								localStorage.setItem('semifinal1Winner', winner === 'Joueur 1' ?
+									localStorage.getItem('player1Id') || '' :
+									localStorage.getItem('player2Id') || '');
+								localStorage.setItem('semifinal1Loser', winner === 'Joueur 1' ?
+									localStorage.getItem('player2Id') || '' :
+									localStorage.getItem('player1Id') || '');
+							}
+
+							// Set the pending match as current
+							localStorage.setItem('currentMatchId', pendingMatchId);
+
+							// Set up final matches after second semifinal
+							if (matchId === semifinal2Id || pendingMatchId === semifinal2Id) {
+								// Create final match after this one
+								const currentTournamentId = localStorage.getItem('currentTournamentId');
+								if (currentTournamentId) {
+									try {
+										// Store winner of second semifinal
+										const semifinal2Winner = winner === 'Joueur 1' ?
+											localStorage.getItem('player3Id') || '' :
+											localStorage.getItem('player4Id') || '';
+										const semifinal2Loser = winner === 'Joueur 1' ?
+											localStorage.getItem('player4Id') || '' :
+											localStorage.getItem('player3Id') || '';
+
+										localStorage.setItem('semifinal2Winner', semifinal2Winner);
+										localStorage.setItem('semifinal2Loser', semifinal2Loser);
+
+										// Create final match (winners)
+										const finalMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
+											method: 'POST',
+											headers: {'Content-Type': 'application/json'},
+											body: JSON.stringify({
+												player1_id: localStorage.getItem('semifinal1Winner'),
+												player2_id: semifinal2Winner,
+												round: 'final',
+												match_number: 3,
+												gameType: 'pong'
+											})
+										});
+
+										const finalMatchData = await finalMatchResponse.json();
+
+										// Create 3rd place match (losers)
+										const thirdPlaceMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
+											method: 'POST',
+											headers: {'Content-Type': 'application/json'},
+											body: JSON.stringify({
+												player1_id: localStorage.getItem('semifinal1Loser'),
+												player2_id: semifinal2Loser,
+												round: 'third-place',
+												match_number: 4,
+												gameType: 'pong'
+											})
+										});
+
+										const thirdPlaceMatchData = await thirdPlaceMatchResponse.json();
+
+										// Set up next matches
+										localStorage.setItem('pendingMatchId', thirdPlaceMatchData.matchId);
+										localStorage.setItem('currentMatchId', finalMatchData.matchId);
+
+									} catch (error) {
+										console.error("Erreur lors de la création des matchs finaux:", error);
+									}
+								}
+							} else {
+								localStorage.removeItem('pendingMatchId'); // Clear pending
+							}
+
+							// Reset game state
+							Game.player1Score = 0;
+							Game.player2Score = 0;
+							Game.setGameOver(false);
+
+							// Start the next match
+							startGame(2);
+						});
+					}
+				}
+			} else if (tournamentMode && !pendingMatchId) {
+				// This was the final match of the tournament
+				const victoryMessageElement = document.getElementById("Pong");
+				if (victoryMessageElement) {
+					victoryMessageElement.innerHTML = `
+				<p class="font-extrabold">${winner} a gagné le tournoi!</p>
+				<div class="flex justify-center mt-4">
+					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+				</div>
+			`;
+
+					const menu_btn = document.getElementById("menu-btn");
+					if (menu_btn) {
+						menu_btn.addEventListener("click", () => {
+							// Clean up tournament mode
+							localStorage.removeItem('tournamentMode');
+							localStorage.removeItem('semifinal1Id');
+							localStorage.removeItem('semifinal2Id');
+							localStorage.removeItem('semifinal1Winner');
+							localStorage.removeItem('semifinal1Loser');
+							localStorage.removeItem('semifinal2Winner');
+							localStorage.removeItem('semifinal2Loser');
+							localStorage.removeItem('player1Id');
+							localStorage.removeItem('player2Id');
+							localStorage.removeItem('player3Id');
+							localStorage.removeItem('player4Id');
+							localStorage.removeItem('currentTournamentId');
+							showHome();
+						});
+					}
+				}
+			} else {
+				// Regular non-tournament match end
+				const victoryMessageElement = document.getElementById("Pong");
+				if (victoryMessageElement) {
+					victoryMessageElement.innerHTML = `
+				<p class="font-extrabold">${winner} a gagné !</p>
+				<div class="flex justify-center">
+					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+				</div>
+			`;
+
+					const menu_btn = document.getElementById("menu-btn");
+					if (menu_btn) {
+						menu_btn.addEventListener("click", () => {
+							localStorage.removeItem('currentMatchId');
+							showHome();
+						});
+					}
+				}
 			}
+
 			gameOver = true;
 			return true;
 		}

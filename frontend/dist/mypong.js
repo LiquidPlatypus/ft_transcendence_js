@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { showHome } from "./script.js";
+import { showHome, startGame } from "./script.js";
 var KeyBindings;
 (function (KeyBindings) {
     KeyBindings[KeyBindings["UP"] = 90] = "UP";
@@ -168,14 +168,17 @@ class Ball extends Entity {
         // Si le jeu est en pause, on ne met pas à jour la position de la balle
         if (isPaused)
             return;
-        //check le haut
-        if (this.y <= 10)
+        // On calcule d'abord la nouvelle position potentielle
+        const nextX = this.x + this.xVal * this.speed;
+        const nextY = this.y + this.yVal * this.speed;
+        // Vérification des collisions avec les murs horizontaux
+        if (nextY <= 10 || this.y <= 10)
             this.yVal = 1;
-        //check le bas
-        if (this.y + this.height >= canvas.height - 10)
+        if (nextY + this.height >= canvas.height - 10 || this.y + this.height >= canvas.height - 10)
             this.yVal = -1;
-        //check but player 2
-        if (this.x <= 0) {
+        // Vérification des buts - utiliser les positions actuelles ET potentielles
+        // But marqué par joueur 2
+        if (nextX <= 0 || this.x <= 0) {
             Game.player2Score += 1;
             this.resetPosition(canvas);
             if (!this.checkGameEnd("Joueur 2")) {
@@ -183,8 +186,8 @@ class Ball extends Entity {
             else
                 return;
         }
-        //check but player 1
-        if (this.x + this.width >= canvas.width) {
+        // But marqué par joueur 1
+        else if (nextX + this.width >= canvas.width || this.x + this.width >= canvas.width) {
             Game.player1Score += 1;
             this.resetPosition(canvas);
             if (!this.checkGameEnd("Joueur 1")) {
@@ -192,20 +195,20 @@ class Ball extends Entity {
             else
                 return;
         }
-        //check player 1 collision
-        if (this.x <= player1.x + player1.width &&
-            this.x + this.width >= player1.x && // ← important aussi pour s'assurer qu'on touche bien horizontalement
+        // Vérification des collisions avec les raquettes
+        else if (this.x <= player1.x + player1.width &&
+            this.x + this.width >= player1.x &&
             this.y < player1.y + player1.height &&
             this.y + this.height > player1.y) {
             this.xVal = 1; // rebond vers la droite
         }
-        //check player 2 collision
-        if (this.x + this.width >= player2.x &&
-            this.x <= player2.x + player2.width && // ← symétrique à la précédente
+        else if (this.x + this.width >= player2.x &&
+            this.x <= player2.x + player2.width &&
             this.y < player2.y + player2.height &&
             this.y + this.height > player2.y) {
             this.xVal = -1; // rebond vers la gauche
         }
+        // Mise à jour de la position
         this.x += this.xVal * this.speed;
         this.y += this.yVal * this.speed;
     }
@@ -218,7 +221,7 @@ class Ball extends Entity {
     checkGameEnd(winner) {
         return __awaiter(this, void 0, void 0, function* () {
             if (Game.player1Score >= MAX_SCORE || Game.player2Score >= MAX_SCORE) {
-                // Enregistrer les scores
+                // Save scores for the current match
                 const matchId = localStorage.getItem('currentMatchId');
                 if (matchId) {
                     try {
@@ -233,24 +236,153 @@ class Ball extends Entity {
                         });
                         const result = yield response.json();
                         console.log("Résultat sauvegardé:", result);
-                        // Supprimer l'ID du match du localStorage
-                        localStorage.removeItem('currentMatchId');
                     }
                     catch (error) {
                         console.error("Erreur lors de l'enregistrement des scores:", error);
                     }
                 }
-                const victoryMessageElement = document.getElementById("Pong");
-                if (victoryMessageElement) {
-                    victoryMessageElement.innerHTML = `
-					<p class="font-extrabold">${winner} a gagné !</p>
-					<div class="flex justify-center">
-						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
-					</div>
-				`;
-                    const menu_btn = document.getElementById("menu-btn");
-                    if (menu_btn)
-                        menu_btn.addEventListener("click", () => showHome());
+                // Check if we're in tournament mode and have a pending match
+                const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
+                const pendingMatchId = localStorage.getItem('pendingMatchId');
+                const semifinal1Id = localStorage.getItem('semifinal1Id');
+                const semifinal2Id = localStorage.getItem('semifinal2Id');
+                if (tournamentMode && pendingMatchId) {
+                    // We have another match to play in the tournament
+                    const victoryMessageElement = document.getElementById("Pong");
+                    if (victoryMessageElement) {
+                        victoryMessageElement.innerHTML = `
+				<p class="font-extrabold">${winner} a gagné ce match!</p>
+				<p>Prêt pour le match suivant?</p>
+				<div class="flex justify-center mt-4">
+					<button id="next-match-btn" class="btn rounded-lg border p-4 shadow">Match Suivant</button>
+				</div>
+			`;
+                        const nextMatchBtn = document.getElementById("next-match-btn");
+                        if (nextMatchBtn) {
+                            nextMatchBtn.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
+                                // Store winner of current match
+                                if (matchId === semifinal1Id) {
+                                    localStorage.setItem('semifinal1Winner', winner === 'Joueur 1' ?
+                                        localStorage.getItem('player1Id') || '' :
+                                        localStorage.getItem('player2Id') || '');
+                                    localStorage.setItem('semifinal1Loser', winner === 'Joueur 1' ?
+                                        localStorage.getItem('player2Id') || '' :
+                                        localStorage.getItem('player1Id') || '');
+                                }
+                                // Set the pending match as current
+                                localStorage.setItem('currentMatchId', pendingMatchId);
+                                // Set up final matches after second semifinal
+                                if (matchId === semifinal2Id || pendingMatchId === semifinal2Id) {
+                                    // Create final match after this one
+                                    const currentTournamentId = localStorage.getItem('currentTournamentId');
+                                    if (currentTournamentId) {
+                                        try {
+                                            // Store winner of second semifinal
+                                            const semifinal2Winner = winner === 'Joueur 1' ?
+                                                localStorage.getItem('player3Id') || '' :
+                                                localStorage.getItem('player4Id') || '';
+                                            const semifinal2Loser = winner === 'Joueur 1' ?
+                                                localStorage.getItem('player4Id') || '' :
+                                                localStorage.getItem('player3Id') || '';
+                                            localStorage.setItem('semifinal2Winner', semifinal2Winner);
+                                            localStorage.setItem('semifinal2Loser', semifinal2Loser);
+                                            // Create final match (winners)
+                                            const finalMatchResponse = yield fetch(`/api/tournaments/${currentTournamentId}/matches`, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    player1_id: localStorage.getItem('semifinal1Winner'),
+                                                    player2_id: semifinal2Winner,
+                                                    round: 'final',
+                                                    match_number: 3,
+                                                    gameType: 'pong'
+                                                })
+                                            });
+                                            const finalMatchData = yield finalMatchResponse.json();
+                                            // Create 3rd place match (losers)
+                                            const thirdPlaceMatchResponse = yield fetch(`/api/tournaments/${currentTournamentId}/matches`, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    player1_id: localStorage.getItem('semifinal1Loser'),
+                                                    player2_id: semifinal2Loser,
+                                                    round: 'third-place',
+                                                    match_number: 4,
+                                                    gameType: 'pong'
+                                                })
+                                            });
+                                            const thirdPlaceMatchData = yield thirdPlaceMatchResponse.json();
+                                            // Set up next matches
+                                            localStorage.setItem('pendingMatchId', thirdPlaceMatchData.matchId);
+                                            localStorage.setItem('currentMatchId', finalMatchData.matchId);
+                                        }
+                                        catch (error) {
+                                            console.error("Erreur lors de la création des matchs finaux:", error);
+                                        }
+                                    }
+                                }
+                                else {
+                                    localStorage.removeItem('pendingMatchId'); // Clear pending
+                                }
+                                // Reset game state
+                                Game.player1Score = 0;
+                                Game.player2Score = 0;
+                                Game.setGameOver(false);
+                                // Start the next match
+                                startGame(2);
+                            }));
+                        }
+                    }
+                }
+                else if (tournamentMode && !pendingMatchId) {
+                    // This was the final match of the tournament
+                    const victoryMessageElement = document.getElementById("Pong");
+                    if (victoryMessageElement) {
+                        victoryMessageElement.innerHTML = `
+				<p class="font-extrabold">${winner} a gagné le tournoi!</p>
+				<div class="flex justify-center mt-4">
+					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+				</div>
+			`;
+                        const menu_btn = document.getElementById("menu-btn");
+                        if (menu_btn) {
+                            menu_btn.addEventListener("click", () => {
+                                // Clean up tournament mode
+                                localStorage.removeItem('tournamentMode');
+                                localStorage.removeItem('semifinal1Id');
+                                localStorage.removeItem('semifinal2Id');
+                                localStorage.removeItem('semifinal1Winner');
+                                localStorage.removeItem('semifinal1Loser');
+                                localStorage.removeItem('semifinal2Winner');
+                                localStorage.removeItem('semifinal2Loser');
+                                localStorage.removeItem('player1Id');
+                                localStorage.removeItem('player2Id');
+                                localStorage.removeItem('player3Id');
+                                localStorage.removeItem('player4Id');
+                                localStorage.removeItem('currentTournamentId');
+                                showHome();
+                            });
+                        }
+                    }
+                }
+                else {
+                    // Regular non-tournament match end
+                    const victoryMessageElement = document.getElementById("Pong");
+                    if (victoryMessageElement) {
+                        victoryMessageElement.innerHTML = `
+				<p class="font-extrabold">${winner} a gagné !</p>
+				<div class="flex justify-center">
+					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+				</div>
+			`;
+                        const menu_btn = document.getElementById("menu-btn");
+                        if (menu_btn) {
+                            menu_btn.addEventListener("click", () => {
+                                localStorage.removeItem('currentMatchId');
+                                showHome();
+                            });
+                        }
+                    }
                 }
                 gameOver = true;
                 return true;

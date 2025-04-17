@@ -57,6 +57,9 @@ export async function startTournament(event: Event): Promise<void> {
 		currentTournamentId = tournamentData.id;
 		console.log("Tournoi créé : ", currentTournamentId);
 
+		// Save tournament ID to localStorage for access in other functions
+		localStorage.setItem('currentTournamentId', currentTournamentId);
+
 		// Creation et ajout des joueurs.
 		const playersIds: string[] = [];
 
@@ -129,11 +132,10 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 			case 4:
 				console.log("Matchs pour 4 joueurs");
 
-				// S'assurer que nous avons la bonne paire de joueurs pour chaque match
+				// Create semifinals
 				console.log(`Demi-finale 1: ${playerIds[0]} vs ${playerIds[1]}`);
 				console.log(`Demi-finale 2: ${playerIds[2]} vs ${playerIds[3]}`);
 
-				// Création des demi-finales
 				const match1 = await createMatch(playerIds[0], playerIds[1], 'semi-final', 1);
 				if (!match1)
 					throw new Error("Échec de la création du premier match");
@@ -144,19 +146,21 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 
 				console.log(`Match 1 ID: ${match1.id}, Match 2 ID: ${match2.id}`);
 
-				// Attente de la fin des deux demi-finales
-				console.log("Attente de la fin des demi-finales...");
-				await waitMatchFinish(match1.id);
-				await waitMatchFinish(match2.id);
+				// Store match IDs and set tournament mode
+				localStorage.setItem('currentMatchId', match1.id.toString());
+				localStorage.setItem('pendingMatchId', match2.id.toString());
+				localStorage.setItem('tournamentMode', 'true');
+				localStorage.setItem('semifinal1Id', match1.id.toString());
+				localStorage.setItem('semifinal2Id', match2.id.toString());
 
-				// Récupérer les gagnants
-				const winner1 = await getMatchWinner(match1.id);
-				const winner2 = await getMatchWinner(match2.id);
+				// Also store player IDs for final matchups
+				localStorage.setItem('player1Id', playerIds[0]);
+				localStorage.setItem('player2Id', playerIds[1]);
+				localStorage.setItem('player3Id', playerIds[2]);
+				localStorage.setItem('player4Id', playerIds[3]);
 
-				console.log(`Finale: ${winner1} vs ${winner2}`);
-
-				// Lancer la finale avec des strings
-				await createMatch(String(winner1), String(winner2), 'final', 3);
+				// Start the first semifinal
+				startGame(2);
 				break;
 
 			default:
