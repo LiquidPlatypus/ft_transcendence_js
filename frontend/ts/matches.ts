@@ -1,4 +1,4 @@
-import {startGame} from "./script";
+import { startGame } from "./script.js";
 
 export function twoPlayersMatch(startButton: HTMLElement) {
 	startButton.addEventListener("click", async () => {

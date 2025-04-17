@@ -11,6 +11,7 @@ import { homePage } from './home.js';
 import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
 import { GameFour } from './fourpong.js';
+import { twoPlayersMatch, fourPlayersMatchs } from './matches.js';
 document.addEventListener('DOMContentLoaded', () => {
     const appElement = document.getElementById('app');
     if (appElement) {
@@ -129,112 +130,14 @@ function showAliasInputs(playerCount, buttonType) {
         }
     }
 }
-function twoPlayersMatch(startButton) {
-    startButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
-        const player1 = document.getElementById('playerAlias1').value;
-        const player2 = document.getElementById('playerAlias2').value;
-        console.log(`Match entre ${player1} et ${player2}`);
-        try {
-            // Créer les joueurs
-            const player1Response = yield fetch('/api/players', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: player1 }),
-            }).then(res => res.json());
-            const player2Response = yield fetch("/api/players", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: player2 }),
-            }).then(res => res.json());
-            // Créer le match
-            if (player1Response.success && player2Response.success) {
-                const matchResponse = yield fetch("/api/players/match", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        player1Id: player1Response.id,
-                        player2Id: player2Response.id,
-                        gameType: 'pong'
-                    }),
-                }).then(res => res.json());
-                if (matchResponse.success) {
-                    // Stocker l'ID du match pour l'utiliser à la fin de la partie
-                    localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-                    startGame(2);
-                }
-            }
-        }
-        catch (error) {
-            console.error("Erreur lors de la création du match:", error);
-        }
-    }));
-}
-function fourPlayersMatchs(startButton) {
-    startButton.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
-        const player1 = document.getElementById('playerAlias1').value;
-        const player2 = document.getElementById('playerAlias2').value;
-        const player3 = document.getElementById('playerAlias3').value;
-        const player4 = document.getElementById('playerAlias4').value;
-        console.log(`Match entre ${player1}, ${player2}, ${player3} et ${player4}`);
-        try {
-            const player1Response = yield fetch('/api/players', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: player1 }),
-            }).then(res => res.json());
-            const player2Response = yield fetch("/api/players", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: player2 }),
-            }).then(res => res.json());
-            const player3Response = yield fetch("/api/players", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: player3 }),
-            }).then(res => res.json());
-            const player4Response = yield fetch("/api/players", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: player4 }),
-            }).then(res => res.json());
-            if (player1Response.success && player2Response.success && player3Response.success && player4Response.success) {
-                const matchResponse = yield fetch("/api/players/match4", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        player1Id: player1Response.id,
-                        player2Id: player2Response.id,
-                        player3Id: player3Response.id,
-                        player4Id: player4Response.id,
-                        gameType: 'pong'
-                    }),
-                }).then(res => res.json());
-                if (matchResponse.success) {
-                    localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-                    startGame(4);
-                }
-            }
-        }
-        catch (error) {
-            console.error("Erreur lors de la création du match:", error);
-        }
-    }));
-}
 function showHistory(event, gameType) {
     return __awaiter(this, void 0, void 0, function* () {
         // On garde la référence au conteneur spécifique d'historique
         const historyContainer = document.getElementById(`history-${gameType}`);
         if (!historyContainer)
             return;
-        // On s'assure que ce conteneur spécifique est visible
-        //	historyContainer.classList.remove('hidden');
         // Sauvegarde du contenu original pour le restaurer plus tard.
         const originalHTML = historyContainer.innerHTML;
-        // Appliquer style de position fixe au conteneur avant de le remplir.
-        //	if (gameType === 'pong')
-        //		historyContainer.classList.add('self-start');
-        //	else if (gameType === 'pfc')
-        //		historyContainer.classList.add('self-start');
         try {
             const response = yield fetch(`/api/scores/history/${gameType}`, {
                 method: "POST",
@@ -338,20 +241,6 @@ function showHistory(event, gameType) {
 			</div>
 			<p>Erreur lors de la récupération de l'historique.</p>
 		`;
-            // const backButton = document.getElementById(`back-button-${gameType}`);
-            // if (backButton) {
-            // 	backButton.addEventListener("click", () => {
-            // 		// Restaure le contenu original.
-            // 		historyContainer.innerHTML = originalHTML;
-            // 		// Enleve la classe d'alignement.
-            // 		historyContainer.classList.remove('self-start');
-            //
-            // 		// Réattacher l'écouteur pour le bouton d'historique
-            // 		const histBtn = document.getElementById(`${gameType}-hist-btn`);
-            // 		if (histBtn)
-            // 			histBtn.addEventListener("click", (e) => showHistory(e, gameType));
-            // 	});
-            // }
         }
     });
 }
