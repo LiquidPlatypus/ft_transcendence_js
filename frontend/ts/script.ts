@@ -133,7 +133,7 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 			if (playerCount == 2)
 				twoPlayersMatch(startButton);
 			else if (playerCount == 4)
-				fourPLayersMatchs(startButton);
+				fourPlayersMatchs(startButton);
 		} else if (buttonType === 'tournoi') {
 			startButton.addEventListener("click", startTournament);
 		}
@@ -184,7 +184,7 @@ function twoPlayersMatch(startButton: HTMLElement) {
 	});
 }
 
-function fourPLayersMatchs(startButton: HTMLElement) {
+function fourPlayersMatchs(startButton: HTMLElement) {
 	startButton.addEventListener("click", async () => {
 		const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
 		const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;

@@ -168,17 +168,14 @@ class Ball extends Entity {
         // Si le jeu est en pause, on ne met pas à jour la position de la balle
         if (isPaused)
             return;
-        // On calcule d'abord la nouvelle position potentielle
-        const nextX = this.x + this.xVal * this.speed;
-        const nextY = this.y + this.yVal * this.speed;
-        // Vérification des collisions avec les murs horizontaux
-        if (nextY <= 10 || this.y <= 10)
+        //check le haut
+        if (this.y <= 10)
             this.yVal = 1;
-        if (nextY + this.height >= canvas.height - 10 || this.y + this.height >= canvas.height - 10)
+        //check le bas
+        if (this.y + this.height >= canvas.height - 10)
             this.yVal = -1;
-        // Vérification des buts - utiliser les positions actuelles ET potentielles
-        // But marqué par joueur 2
-        if (nextX <= 0 || this.x <= 0) {
+        //check but player 2
+        if (this.x <= 0) {
             Game.player2Score += 1;
             this.resetPosition(canvas);
             if (!this.checkGameEnd("Joueur 2")) {
@@ -186,8 +183,8 @@ class Ball extends Entity {
             else
                 return;
         }
-        // But marqué par joueur 1
-        else if (nextX + this.width >= canvas.width || this.x + this.width >= canvas.width) {
+        //check but player 1
+        if (this.x + this.width >= canvas.width) {
             Game.player1Score += 1;
             this.resetPosition(canvas);
             if (!this.checkGameEnd("Joueur 1")) {
@@ -195,20 +192,20 @@ class Ball extends Entity {
             else
                 return;
         }
-        // Vérification des collisions avec les raquettes
-        else if (this.x <= player1.x + player1.width &&
-            this.x + this.width >= player1.x &&
+        //check player 1 collision
+        if (this.x <= player1.x + player1.width &&
+            this.x + this.width >= player1.x && // ← important aussi pour s'assurer qu'on touche bien horizontalement
             this.y < player1.y + player1.height &&
             this.y + this.height > player1.y) {
             this.xVal = 1; // rebond vers la droite
         }
-        else if (this.x + this.width >= player2.x &&
-            this.x <= player2.x + player2.width &&
+        //check player 2 collision
+        if (this.x + this.width >= player2.x &&
+            this.x <= player2.x + player2.width && // ← symétrique à la précédente
             this.y < player2.y + player2.height &&
             this.y + this.height > player2.y) {
             this.xVal = -1; // rebond vers la gauche
         }
-        // Mise à jour de la position
         this.x += this.xVal * this.speed;
         this.y += this.yVal * this.speed;
     }
