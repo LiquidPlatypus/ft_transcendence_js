@@ -1,4 +1,9 @@
 {
+  "match": "Match",
+  "tournament": "Tournoi",
+  "pfc": "Pierre-feuille-ciseaux",
+  "play": "Jouer",
+  "history": "Historique",
   "back": "Retour",
   "how_many_players": "Combien de joueurs ?",
   "players_count": "{{count}} joueurs"

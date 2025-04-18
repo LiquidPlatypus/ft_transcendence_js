@@ -9,8 +9,14 @@ export async function loadLanguage(lang: Lang) {
 	localStorage.setItem('lang', lang);
 }
 
-export function t(key: string): string {
-	return translations[key] || key;
+export function t(key: string, vars?: Record<string, string | number>): string {
+	let text = translations[key] || key;
+	if (vars) {
+		for (const [k, v] of Object.entries(vars)) {
+			text = text.replace(`{{${k}}}`, String(v));
+		}
+	}
+	return text;
 }
 
 
