@@ -21,7 +21,7 @@ export function homePage() {
 								<button id="match-button" class="btn rounded-lg border p-4 shadow">${t("match")}</button>
 							</div>
 							<div class="flex justify-center">
-								<button id="tournament-button" class="btn rounded-lg border p-4 shadow">${t("tournament")}</button>
+								<button id="tournament-button" class="btn rounded-lg border shadow">${t("tournament")}</button>
 							</div>
 						</div>
 					</div>
