@@ -68,7 +68,7 @@ function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 		container.innerHTML = `
 			<div class="flex flex-col items-center gap-4">
 				<button id="back-button" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
-				<h2 class="text-xl font-semibold">${t("how_many_player")}</h2>
+				<h2 class="text-xl font-semibold">${t("how_many_players")}</h2>
 			</div>
 			<div class="flex justify-center gap-4 mt-4">
 				<button id="2p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="2">${t("players_count", { count: 2 })}</button>
