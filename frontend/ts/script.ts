@@ -3,15 +3,30 @@ import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
 import { GameFour } from './fourpong.js';
 import { twoPlayersMatch, fourPlayersMatchs } from './matches.js'
-import { t } from '../lang/i18n.js';
+import {loadLanguage, t} from '../lang/i18n.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+	const savedLang = localStorage.getItem('lang') || 'fr';
+	await loadLanguage(savedLang as 'fr' | 'en' | 'es');
+
 	const appElement = document.getElementById('app');
 	if (appElement) {
 		appElement.innerHTML = homePage();
 		attachHomePageListeners();
+		attachLanguageListeners();
 	}
 })
+
+function attachLanguageListeners() {
+	document.querySelectorAll('[data-lang]').forEach((btn) => {
+		btn.addEventListener('click', async (e) => {
+			const lang = (e.target as HTMLElement).getAttribute('data-lang');
+			if (!lang) return;
+			await loadLanguage(lang as 'fr' | 'en' | 'es');
+			showHome();
+		});
+	});
+}
 
 function attachHomePageListeners() {
 	const match_btn = document.getElementById('match-button');
@@ -313,12 +328,15 @@ export function showHome() {
 	const appElement = document.getElementById('app');
 	if (appElement) {
 		appElement.innerHTML = homePage();
+
 		const pongContainer = document.getElementById("Pong");
 		if (pongContainer) {
 			pongContainer.classList.remove("grid-cols-1");
 			pongContainer.classList.add("grid-cols-2");
 		}
+
 		attachHomePageListeners();
+		attachLanguageListeners();
 	}
 }
 

@@ -12,14 +12,28 @@ import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
 import { GameFour } from './fourpong.js';
 import { twoPlayersMatch, fourPlayersMatchs } from './matches.js';
-import { t } from '../lang/i18n.js';
-document.addEventListener('DOMContentLoaded', () => {
+import { loadLanguage, t } from '../lang/i18n.js';
+document.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
+    const savedLang = localStorage.getItem('lang') || 'fr';
+    yield loadLanguage(savedLang);
     const appElement = document.getElementById('app');
     if (appElement) {
         appElement.innerHTML = homePage();
         attachHomePageListeners();
+        attachLanguageListeners();
     }
-});
+}));
+function attachLanguageListeners() {
+    document.querySelectorAll('[data-lang]').forEach((btn) => {
+        btn.addEventListener('click', (e) => __awaiter(this, void 0, void 0, function* () {
+            const lang = e.target.getAttribute('data-lang');
+            if (!lang)
+                return;
+            yield loadLanguage(lang);
+            showHome();
+        }));
+    });
+}
 function attachHomePageListeners() {
     const match_btn = document.getElementById('match-button');
     if (match_btn)
@@ -282,5 +296,6 @@ export function showHome() {
             pongContainer.classList.add("grid-cols-2");
         }
         attachHomePageListeners();
+        attachLanguageListeners();
     }
 }
