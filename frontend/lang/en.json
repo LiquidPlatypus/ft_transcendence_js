@@ -1,4 +1,9 @@
 {
+  "match": "Match",
+  "tournament": "Tournament",
+  "pfc": "Paper-Scissors-Stone",
+  "play": "Play",
+  "history": "History",
   "back": "Back",
   "how_many_players": "How many players?",
   "players_count": "{{count}} players"

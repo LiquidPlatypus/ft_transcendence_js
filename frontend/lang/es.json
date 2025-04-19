@@ -1,4 +1,9 @@
 {
+  "match": "Fósforo",
+  "tournament": "Torneo",
+  "pfc": "Roca-Hoja-Tijeras",
+  "play": "Jugar",
+  "history": "Histórico",
   "back": "Volver",
   "how_many_players": "¿Cuántos jugadores?",
   "players_count": "{{count}} jugadores"
