@@ -1,7 +1,6 @@
 import { t } from '../lang/i18n.js';
 export function homePage() {
     return `
-		<!-- Language buttons fixed at top-right -->
 		<div class="fixed top-4 right-4 z-10">
 			<div class="flex gap-2">
 				<button class="btn border p-2 shadow" data-lang="fr">FR</button>
@@ -10,7 +9,6 @@ export function homePage() {
 			</div>
 		</div>
 		
-		<!-- Main content centered in viewport with max width constraint -->
 		<div class="flex items-center justify-center min-h-screen">
 			<div class="max-w-4xl mx-auto py-10 text-center">
 				<h1 class="font-bold mb-4 text-4xl">Pong</h1>
@@ -22,7 +20,7 @@ export function homePage() {
 								<button id="match-button" class="btn rounded-lg border p-4 shadow">${t("match")}</button>
 							</div>
 							<div class="flex justify-center">
-								<button id="tournament-button" class="btn rounded-lg border p-4 shadow">${t("tournament")}</button>
+								<button id="tournament-button" class="btn rounded-lg border shadow">${t("tournament")}</button>
 							</div>
 						</div>
 					</div>
