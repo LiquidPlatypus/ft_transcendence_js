@@ -228,7 +228,7 @@ function showHistory(event, gameType) {
             }
             else {
                 const noMatchesEl = document.createElement('p');
-                noMatchesEl.textContent = 'Aucun matchs enregistrés.';
+                noMatchesEl.textContent = `${t("no_matches")}`;
                 tablesDiv.appendChild(noMatchesEl);
             }
             historyContainer.appendChild(tablesDiv);
@@ -254,7 +254,7 @@ function showHistory(event, gameType) {
 				<button id="back-button-${gameType}" class="little_btn rounded-lg border p-2 shadow"><</button>
 				<h2 class="text-xl font-semibold">Erreur</h2>
 			</div>
-			<p>Erreur lors de la récupération de l'historique.</p>
+			<p>${t("hist_error")}</p>
 		`;
         }
     });

@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { t } from "../lang/i18n.js";
 var KeyBindings;
 (function (KeyBindings) {
     KeyBindings[KeyBindings["UPONE"] = 65] = "UPONE";
@@ -271,9 +272,9 @@ class Ball extends Entity {
                 const victoryMessageElement = document.getElementById("Pong");
                 if (victoryMessageElement) {
                     victoryMessageElement.innerHTML = `
-					<p class="font-extrabold">${winner} a gagné !</p>
+					<p class="font-extrabold">${winner} ${t("as_won")}</p>
 					<div class="flex justify-center">
-						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
 					</div>
 				`;
                     // Import dynamique pour éviter les problèmes de référence circulaire
