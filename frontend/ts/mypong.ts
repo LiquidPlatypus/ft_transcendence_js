@@ -1,4 +1,5 @@
 import { showHome, startGame } from "./script.js";
+import { t } from "../lang/i18n.js"
 
 enum KeyBindings{
 	UP = 90,
@@ -289,10 +290,10 @@ class Ball extends Entity{
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `
-				<p class="font-extrabold">${winner} a gagné ce match!</p>
-				<p>Prêt pour le match suivant?</p>
+				<p class="font-extrabold">${winner} ${t("as_won")}</p>
+				<p>${t("?next_match")}</p>
 				<div class="flex justify-center mt-4">
-					<button id="next-match-btn" class="btn rounded-lg border p-4 shadow">Match Suivant</button>
+					<button id="next-match-btn" class="btn rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
 				</div>
 			`;
 
@@ -386,9 +387,9 @@ class Ball extends Entity{
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `
-				<p class="font-extrabold">${winner} a gagné le tournoi!</p>
+				<p class="font-extrabold">${winner} ${t("tournament_win")}</p>
 				<div class="flex justify-center mt-4">
-					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
 				</div>
 			`;
 
@@ -417,9 +418,9 @@ class Ball extends Entity{
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `
-				<p class="font-extrabold">${winner} a gagné !</p>
+				<p class="font-extrabold">${winner} ${t("as_won")}</p>
 				<div class="flex justify-center">
-					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
 				</div>
 			`;
 

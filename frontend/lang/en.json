@@ -12,5 +12,18 @@
   "player": "Player",
   "player_alias_ph": "Player alias",
   "enter_pl_alias": "Enter players aliases",
-  "begin": "Begin"
+  "begin": "Begin",
+
+  "2_players_matches": "2 players matches",
+  "4_players_matches": "4 players matches",
+  "no_matches": "No saved matches.",
+  "hist_error": "Error during history recuperation.",
+
+  "as_won": " as won !",
+  "menu": "Menu",
+
+  "?next_match": "Ready for the next match?",
+  "next_match_btn": "Next match",
+
+  "tournament_win": "win the tournament!"
 }

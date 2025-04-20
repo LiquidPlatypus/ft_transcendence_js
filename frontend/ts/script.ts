@@ -211,7 +211,7 @@ async function showHistory(event: Event, gameType: string) {
 			if (twoPlayerMatches.length > 0) {
 				const twoPlayerTitle = document.createElement('h3');
 				twoPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
-				twoPlayerTitle.textContent = 'Matchs à 2 joueurs';
+				twoPlayerTitle.textContent = `${t("2_players_matches")}`;
 				tablesDiv.appendChild(twoPlayerTitle);
 
 				twoPlayerMatches.forEach((match: Match) => {
@@ -235,7 +235,7 @@ async function showHistory(event: Event, gameType: string) {
 			if (fourPlayerMatches.length > 0) {
 				const fourPlayerTitle = document.createElement('h3');
 				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
-				fourPlayerTitle.textContent = 'Matchs à 4 joueurs';
+				fourPlayerTitle.textContent = `${t("4_players_matches")}`;
 				tablesDiv.appendChild(fourPlayerTitle);
 
 				fourPlayerMatches.forEach((match: Match) => {
@@ -260,7 +260,7 @@ async function showHistory(event: Event, gameType: string) {
 			}
 		} else {
 			const noMatchesEl = document.createElement('p');
-			noMatchesEl.textContent = 'Aucun matchs enregistrés.';
+			noMatchesEl.textContent = `${t("no_matches")}`;
 			tablesDiv.appendChild(noMatchesEl);
 		}
 
@@ -288,7 +288,7 @@ async function showHistory(event: Event, gameType: string) {
 				<button id="back-button-${gameType}" class="little_btn rounded-lg border p-2 shadow"><</button>
 				<h2 class="text-xl font-semibold">Erreur</h2>
 			</div>
-			<p>Erreur lors de la récupération de l'historique.</p>
+			<p>${t("hist_error")}</p>
 		`;
 	}
 }

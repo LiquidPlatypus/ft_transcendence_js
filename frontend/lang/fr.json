@@ -12,5 +12,18 @@
   "player": "Joueur",
   "player_alias_ph": "Alias Joueur",
   "enter_pl_alias": "Entrez les alias des joueurs",
-  "begin": "Commencer"
+  "begin": "Commencer",
+
+  "2_players_matches": "Matchs à 2 joueurs",
+  "4_players_matches": "Matchs à 4 joueurs",
+  "no_matches": "Aucun matchs enregistrés.",
+  "hist_error": "Erreur lors de la récupération de l'historique.",
+
+  "as_won": " a gagné !",
+  "menu": "Menu",
+
+  "?next_match": "Prêt pour le match suivant?",
+  "next_match_btn": "Match suivant",
+
+  "tournament_win": "a gagné le tournoi!"
 }

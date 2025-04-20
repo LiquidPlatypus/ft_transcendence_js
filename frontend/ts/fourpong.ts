@@ -1,3 +1,5 @@
+import { t } from "../lang/i18n.js"
+
 enum KeyBindings{
 	UPONE = 65, //A
 	DOWNONE = 81, //Q
@@ -327,9 +329,9 @@ class Ball extends Entity{
 			const victoryMessageElement = document.getElementById("Pong");
 			if (victoryMessageElement) {
 				victoryMessageElement.innerHTML = `
-					<p class="font-extrabold">${winner} a gagné !</p>
+					<p class="font-extrabold">${winner} ${t("as_won")}</p>
 					<div class="flex justify-center">
-						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">Menu</button>
+						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
 					</div>
 				`;
 

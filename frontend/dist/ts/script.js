@@ -181,7 +181,7 @@ function showHistory(event, gameType) {
                 if (twoPlayerMatches.length > 0) {
                     const twoPlayerTitle = document.createElement('h3');
                     twoPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
-                    twoPlayerTitle.textContent = 'Matchs à 2 joueurs';
+                    twoPlayerTitle.textContent = `${t("2_players_matches")}`;
                     tablesDiv.appendChild(twoPlayerTitle);
                     twoPlayerMatches.forEach((match) => {
                         const tableEl = document.createElement('table');
@@ -203,7 +203,7 @@ function showHistory(event, gameType) {
                 if (fourPlayerMatches.length > 0) {
                     const fourPlayerTitle = document.createElement('h3');
                     fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
-                    fourPlayerTitle.textContent = 'Matchs à 4 joueurs';
+                    fourPlayerTitle.textContent = `${t("4_players_matches")}`;
                     tablesDiv.appendChild(fourPlayerTitle);
                     fourPlayerMatches.forEach((match) => {
                         const tableEl = document.createElement('table');
