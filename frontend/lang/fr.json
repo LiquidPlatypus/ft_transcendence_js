@@ -5,6 +5,12 @@
   "play": "Jouer",
   "history": "Historique",
   "back": "Retour",
+
   "how_many_players": "Combien de joueurs ?",
-  "players_count": "{{count}} joueurs"
+  "players_count": "{{count}} joueurs",
+
+  "player": "Joueur",
+  "player_alias_ph": "Alias Joueur",
+  "enter_pl_alias": "Entrez les alias des joueurs",
+  "begin": "Commencer"
 }

@@ -5,6 +5,12 @@
   "play": "Jugar",
   "history": "Histórico",
   "back": "Volver",
+
   "how_many_players": "¿Cuántos jugadores?",
-  "players_count": "{{count}} jugadores"
+  "players_count": "{{count}} jugadores",
+
+  "player": "Jugador",
+  "player_alias_ph": "Alias del jugador",
+  "enter_pl_alias": "Ingrese los alias de los jugadores",
+  "begin": "Comenzar"
 }

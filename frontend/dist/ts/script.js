@@ -108,21 +108,21 @@ function showAliasInputs(playerCount, buttonType) {
     for (let i = 1; i <= playerCount; i++) {
         inputsHTML += `
 			<div class="mt-2">
-				<label for="playerAlias${i}" class="block text-lg">Joueur ${i} :</label>
-				<input type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="Alias Joueur ${i}">
+				<label for="playerAlias${i}" class="block text-lg">${t("player")} ${i} :</label>
+				<input type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="${t("player_alias_ph")} ${i}">
 			</div>
 		`;
     }
     container.innerHTML = `
 		<div class="flex flex-col item-center gap-4">
-			<button id="back-button" class="btn rounded-lg border p-4 shadow">Retour</button>
-			<h2 class="text-xl font-semibold">Entrez les alias des joueurs</h2>
+			<button id="back-button" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
+			<h2 class="text-xl font-semibold">${t("enter_pl_alias")}</h2>
 		</div>
 		<div class="flex flex-col items-center w-full mb-2">
 			${inputsHTML}
 		</div>
 		<div class="felx justify-center">
-			<button id="start" class="btn rounded-lg border p-1 pe-1 shadow justify-center">Commencer</button>
+			<button id="start" class="btn rounded-lg border p-1 pe-1 shadow justify-center">${t("begin")}</button>
 		</div>
 	`;
     const backButton = document.getElementById("back-button");
@@ -167,7 +167,7 @@ function showHistory(event, gameType) {
             headerDiv.className = 'flex items-center justify-center gap-2 mb-4 mt-2';
             headerDiv.innerHTML = `
 			<button id="back-button-${gameType}" class="little_btn rounded-lg border p-4 shadow flex items-center justify-center w-8 h-8"><span class="inline-block">&lt;</span></button>
-			<h2 class="text-xl font-semibold">Historique ${gameType}</h2>
+			<h2 class="text-xl font-semibold">${t("history")} ${gameType}</h2>
 		`;
             historyContainer.appendChild(headerDiv);
             // Div pour les tableaux d'historique

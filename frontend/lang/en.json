@@ -5,6 +5,12 @@
   "play": "Play",
   "history": "History",
   "back": "Back",
+
   "how_many_players": "How many players?",
-  "players_count": "{{count}} players"
+  "players_count": "{{count}} players",
+
+  "player": "Player",
+  "player_alias_ph": "Player alias",
+  "enter_pl_alias": "Enter players aliases",
+  "begin": "Begin"
 }
