@@ -21,6 +21,7 @@
 
   "as_won": " a gagné !",
   "menu": "Menu",
+  "as_lost": "a perdu.",
 
   "?next_match": "Prêt pour le match suivant?",
   "next_match_btn": "Match suivant",
