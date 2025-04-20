@@ -67,6 +67,18 @@ export class Game{
 			this.gameContext.fillRect(this.gameCanvas.width / 2 - 10, i + 10, 15, 20);
 		}
 
+		// Affiche noms des joueurs.
+		const player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
+		const player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
+
+		this.gameContext!.font = "20px Orbitron";
+		this.gameContext!.fillStyle = "#fff";
+		this.gameContext!.textAlign = "center";
+
+		// Positionne au dessus des scores.
+		this.gameContext!.fillText(player1Alias, this.gameCanvas!.width / 4, 25);
+		this.gameContext!.fillText(player2Alias, (3 * this.gameCanvas!.width) / 4, 25);
+
 		//draw scores
 		this.gameContext.textAlign = "center";
 		this.gameContext.fillText(Game.player1Score.toString(), this.gameCanvas.width / 4, 50);
@@ -290,7 +302,7 @@ class Ball extends Entity{
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `
-				<p class="font-extrabold">${winner} ${t("as_won")}</p>
+				<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 				<p>${t("?next_match")}</p>
 				<div class="flex justify-center mt-4">
 					<button id="next-match-btn" class="btn rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
@@ -418,7 +430,7 @@ class Ball extends Entity{
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `
-				<p class="font-extrabold">${winner} ${t("as_won")}</p>
+				<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 				<div class="flex justify-center">
 					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
 				</div>
@@ -438,5 +450,12 @@ class Ball extends Entity{
 			return true;
 		}
 		return false;
+	}
+
+	private getWinnerAlias(winner: string): string {
+		if (winner === 'Joueur 1')
+			return localStorage.getItem('player1Alias') || 'Joueur 1';
+		else
+			return localStorage.getItem('player2Alias') || 'Joueur 2';
 	}
 }

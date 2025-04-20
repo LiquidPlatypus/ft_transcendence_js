@@ -74,6 +74,22 @@ export class GameFour {
 			this.gameContext.fillStyle = "#fff";
 		}
 
+		// Affiche noms des joueurs.
+		const player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
+		const player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
+		const player3Alias = localStorage.getItem('player3Alias') || 'Joueur 3';
+		const player4Alias = localStorage.getItem('player4Alias') || 'Joueur 4';
+
+		this.gameContext!.font = "20px Orbitron";
+		this.gameContext!.fillStyle = "#fff";
+		this.gameContext!.textAlign = "center";
+
+		// Position
+		this.gameContext.fillText(player1Alias, this.gameCanvas.width / 3, (this.gameCanvas.height / 2) - 25);
+		this.gameContext.fillText(player2Alias, (3 * this.gameCanvas.width) / 4.60, (this.gameCanvas.height / 2) - 25);
+		this.gameContext.fillText(player3Alias, this.gameCanvas.width / 2, (this.gameCanvas.height / 4) - 25);
+		this.gameContext.fillText(player4Alias, this.gameCanvas.width / 2, ((3 * this.gameCanvas.height) / 4) - 25);
+
 		//draw scores
 		this.gameContext.textAlign = "center";
 		this.gameContext.fillText(GameFour.player1Score.toString(), this.gameCanvas.width / 3, this.gameCanvas.height / 2);
@@ -329,7 +345,7 @@ class Ball extends Entity{
 			const victoryMessageElement = document.getElementById("Pong");
 			if (victoryMessageElement) {
 				victoryMessageElement.innerHTML = `
-					<p class="font-extrabold">${winner} ${t("as_won")}</p>
+					<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_lost")}</p>
 					<div class="flex justify-center">
 						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
 					</div>
@@ -440,5 +456,16 @@ class Ball extends Entity{
 		// Mise à jour de la position de la balle
 		this.x += this.xVal * this.speed;
 		this.y += this.yVal * this.speed;
+	}
+
+	private getWinnerAlias(winner: string): string {
+		if (winner === "Joueur 1")
+			return "Joueur 1";
+		else if (winner === "Joueur 2")
+			return "Joueur 2";
+		else if (winner === "Joueur 3")
+			return "Joueur 3";
+		else
+			return "Joueur 4";
 	}
 }

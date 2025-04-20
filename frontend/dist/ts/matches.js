@@ -13,6 +13,9 @@ export function twoPlayersMatch(startButton) {
         const player1 = document.getElementById('playerAlias1').value;
         const player2 = document.getElementById('playerAlias2').value;
         console.log(`Match entre ${player1} et ${player2}`);
+        // Stock les alias pour l'affichage en match.
+        localStorage.setItem('player1Alias', player1);
+        localStorage.setItem('player2Alias', player2);
         try {
             // Créer les joueurs
             const player1Response = yield fetch('/api/players', {
@@ -55,6 +58,11 @@ export function fourPlayersMatchs(startButton) {
         const player3 = document.getElementById('playerAlias3').value;
         const player4 = document.getElementById('playerAlias4').value;
         console.log(`Match entre ${player1}, ${player2}, ${player3} et ${player4}`);
+        // Stock les alias pour l'affichage en match.
+        localStorage.setItem('player1Alias', player1);
+        localStorage.setItem('player2Alias', player2);
+        localStorage.setItem('player3Alias', player3);
+        localStorage.setItem('player4Alias', player4);
         try {
             const player1Response = yield fetch('/api/players', {
                 method: 'POST',
