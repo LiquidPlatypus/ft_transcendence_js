@@ -4,9 +4,9 @@ export function homePage() {
 	return `
 		<div class="fixed top-4 right-4 z-10">
 			<div class="flex gap-2">
-				<button class="btn border p-2 shadow" data-lang="fr">FR</button>
-				<button class="btn border p-2 shadow" data-lang="en">EN</button>
-				<button class="btn border p-2 shadow" data-lang="es">ES</button>
+				<button class="btn shadow" data-lang="fr"><img src="../static/fr.png" alt="fr_flag"></button>
+				<button class="btn shadow" data-lang="en"><img src="../static/en.png" alt="en_flag"></button>
+				<button class="btn shadow" data-lang="es"><img src="../static/es.png" alt="es_flag"></button>
 			</div>
 		</div>
 		
