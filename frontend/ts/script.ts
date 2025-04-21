@@ -20,13 +20,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 function attachLanguageListeners() {
 	document.querySelectorAll('[data-lang]').forEach((btn) => {
 		btn.addEventListener('click', async (e) => {
-			const lang = (e.target as HTMLElement).getAttribute('data-lang');
-			if (!lang) return;
+			const target = (e.target as HTMLElement).closest('button');
+			if (!target)
+				return ;
+			const lang = target.getAttribute('data-lang');
+			if (!lang)
+				return ;
 			await loadLanguage(lang as 'fr' | 'en' | 'es');
 			showHome();
 		});
 	});
 }
+
 
 function attachHomePageListeners() {
 	const match_btn = document.getElementById('match-button');

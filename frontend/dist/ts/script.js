@@ -26,7 +26,10 @@ document.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, vo
 function attachLanguageListeners() {
     document.querySelectorAll('[data-lang]').forEach((btn) => {
         btn.addEventListener('click', (e) => __awaiter(this, void 0, void 0, function* () {
-            const lang = e.target.getAttribute('data-lang');
+            const target = e.target.closest('button');
+            if (!target)
+                return;
+            const lang = target.getAttribute('data-lang');
             if (!lang)
                 return;
             yield loadLanguage(lang);

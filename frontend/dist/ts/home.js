@@ -3,11 +3,19 @@ export function homePage() {
     return `
 		<div class="fixed top-4 right-4 z-10">
 			<div class="flex gap-2">
-				<button class="btn shadow" data-lang="fr"><img src="../static/fr.png" alt="fr_flag"></button>
-				<button class="btn shadow" data-lang="en"><img src="../static/en.png" alt="en_flag"></button>
-				<button class="btn shadow" data-lang="es"><img src="../static/es.png" alt="es_flag"></button>
+				<button class="transition rounded hover:brightness-110 focus:outline-none" data-lang="fr">
+					<img src="../static/fr.png" alt="fr" class="w-8 h-6 rounded object-cover transition hover:ring-2 hover:ring-accent">
+				</button>
+				<button class="transition rounded hover:brightness-110 focus:outline-none" data-lang="en">
+					<img src="../static/en.png" alt="en" class="w-8 h-6 rounded object-cover transition hover:ring-2 hover:ring-accent">
+				</button>
+				<button class="transition rounded hover:brightness-110 focus:outline-none" data-lang="es">
+					<img src="../static/es.png" alt="es" class="w-8 h-6 rounded object-cover transition hover:ring-2 hover:ring-accent">
+				</button>
 			</div>
 		</div>
+
+
 		
 		<div class="flex items-center justify-center min-h-screen">
 			<div class="max-w-4xl mx-auto py-10 text-center">
