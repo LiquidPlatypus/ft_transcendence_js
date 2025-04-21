@@ -74,9 +74,9 @@ fastify.get('/', async (request, reply) => {
 	return reply.sendFile('index.html');
 });
 
-fastify.ready(() => {
-	console.log(fastify.printRoutes());
-});
+//fastify.ready(() => {
+//	console.log(fastify.printRoutes());
+//});
 
 const start = async () => {
 	try {
