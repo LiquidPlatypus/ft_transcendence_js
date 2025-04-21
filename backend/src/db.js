@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const db = new Database('pong.db', { verbose: console.log });
+const db = new Database('pong.db');
 
 export function setupDatabase() {
 	db.pragma('foreign_keys = ON');
