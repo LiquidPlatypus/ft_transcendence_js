@@ -303,6 +303,14 @@ export function startGame(playerCount: number) {
 	if (!container)
 		return;
 
+	console.log("Starting game with players:");
+	console.log("Player 1:", localStorage.getItem('player1Alias'));
+	console.log("Player 2:", localStorage.getItem('player2Alias'));
+	if (playerCount === 4) {
+		console.log("Player 3:", localStorage.getItem('player3Alias'));
+		console.log("Player 4:", localStorage.getItem('player4Alias'));
+	}
+
 	// Reset scores before starting a new game
 	Game.player1Score = 0;
 	Game.player2Score = 0;

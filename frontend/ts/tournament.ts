@@ -42,6 +42,11 @@ export async function startTournament(event: Event): Promise<void> {
 		}
 	}
 
+	localStorage.setItem("player1Alias", playerAliases[0] || "Joueur 1");
+	localStorage.setItem("player2Alias", playerAliases[1] || "Joueur 2");
+	localStorage.setItem("player3Alias", playerAliases[2] || "Joueur 3");
+	localStorage.setItem("player4Alias", playerAliases[3] || "Joueur 4");
+
 	try {
 		console.log("Création du tournoi...");
 		const tournamentResponse: Response = await fetch('/api/tournaments', {
@@ -77,6 +82,8 @@ export async function startTournament(event: Event): Promise<void> {
 			const playerData: PlayerResponse = await playerResponse.json();
 			const playerId: string = playerData.id;
 			playersIds.push(playerId);
+
+			localStorage.setItem(`player_${playerId}_name`, alias);
 
 			const addPlayerResponse: Response = await fetch(`/api/tournaments/${currentTournamentId}/players`, {
 				method: 'POST',

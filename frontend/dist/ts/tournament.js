@@ -35,6 +35,10 @@ export function startTournament(event) {
                 }
             }
         }
+        localStorage.setItem("player1Alias", playerAliases[0] || "Joueur 1");
+        localStorage.setItem("player2Alias", playerAliases[1] || "Joueur 2");
+        localStorage.setItem("player3Alias", playerAliases[2] || "Joueur 3");
+        localStorage.setItem("player4Alias", playerAliases[3] || "Joueur 4");
         try {
             console.log("Création du tournoi...");
             const tournamentResponse = yield fetch('/api/tournaments', {
@@ -63,6 +67,7 @@ export function startTournament(event) {
                 const playerData = yield playerResponse.json();
                 const playerId = playerData.id;
                 playersIds.push(playerId);
+                localStorage.setItem(`player_${playerId}_name`, alias);
                 const addPlayerResponse = yield fetch(`/api/tournaments/${currentTournamentId}/players`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
