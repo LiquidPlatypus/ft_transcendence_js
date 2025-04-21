@@ -1,5 +1,6 @@
 import { addPlayer, getPlayers, deletePlayer } from "../models/playerModel.js";
 import db from "../db.js"
+import * as repl from "node:repl";
 
 export default async function playerRoutes(fastify, options) {
 	// Validation des données d'entrée pour la sécurité
@@ -39,6 +40,28 @@ export default async function playerRoutes(fastify, options) {
 			});
 		}
 	});
+
+	fastify.get('/:id', async (request, reply) => {
+		const { id } = request.params;
+		try {
+			const player = db.prepare('SELECT * FROM players WHERE id = ?').get(id);
+
+			if (player)
+				return { success: true, player };
+			else {
+				return reply.status(404).send({
+					success: false,
+					message: `Joueur avec l'ID ${id} non trouvé.`
+				});
+			}
+		} catch (error) {
+			fastify.log.error(error);
+			return reply.status(500).send({
+				success: false,
+				message: 'Impossible de récupérer les informations du joueur.'
+			});
+		}
+	})
 
 	fastify.delete('/:id', async (request, reply) => {
 		const { id } = request.params;
