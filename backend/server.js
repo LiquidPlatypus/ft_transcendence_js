@@ -9,7 +9,6 @@ import { fileURLToPath } from 'url';
 import playerRoutes from "./src/routes/playerRoutes.js";
 import scoreRoutes from './src/routes/scoreRoutes.js';
 import tournamentRoutes from './src/routes/tournamentRoutes.js';
-// import gameRoutes from './src/routes/gameRoutes.ts';
 import setupWebsockets from './src/websockets/index.js';
 import fs from 'fs';
 import db, { setupDatabase } from './src/db.js';
@@ -60,23 +59,13 @@ fastify.register(fastifyStatic, {
 fastify.register(playerRoutes, { prefix: '/api/players' });
 fastify.register(scoreRoutes, { prefix: '/api/scores' });
 fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
-//fastify.register(gameRoutes, { prefix: '/api/games' });
 
 // Config WebSockets
 setupWebsockets(fastify);
 
-// Route par défaut SPA
-/*fastify.get('*', (request, reply) => {
-	reply.sendFile('index.html', path.join(__dirname, 'public'));
-});*/
-
 fastify.get('/', async (request, reply) => {
 	return reply.sendFile('index.html');
 });
-
-//fastify.ready(() => {
-//	console.log(fastify.printRoutes());
-//});
 
 const start = async () => {
 	try {
