@@ -87,6 +87,7 @@ export function startTournament(event) {
                 throw new Error(`Erreur lors de l'activation du tournoi: ${activateResponse.status}`);
             console.log("Tournoi activé avec succès.");
             // Création des matchs.
+            yield storePlayerNames(playersIds, playerAliases);
             yield createTournamentMatches(playersIds);
         }
         catch (error) {
@@ -267,6 +268,20 @@ function createMatch(player1Id, player2Id, round, matchNumber) {
         catch (error) {
             console.error("Erreur lors de la création du match:", error);
             return null;
+        }
+    });
+}
+function storePlayerNames(playerIds, playerAliases) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Stocker directement les IDs des joueurs
+        for (let i = 0; i < playerIds.length; i++) {
+            localStorage.setItem(`player${i + 1}Id`, playerIds[i]);
+            localStorage.setItem(`player${i + 1}Alias`, playerAliases[i] || `Joueur ${i + 1}`);
+        }
+        // Assurer que les enregistrements des joueurs sont corrects
+        console.log("Stockage des informations des joueurs:");
+        for (let i = 0; i < playerIds.length; i++) {
+            console.log(`Joueur ${i + 1}: ID=${playerIds[i]}, Nom=${playerAliases[i]}`);
         }
     });
 }

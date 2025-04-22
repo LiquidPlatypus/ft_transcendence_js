@@ -69,19 +69,19 @@ export class Game{
 
 		// Get match and player information
 		const currentMatchId = localStorage.getItem('currentMatchId');
+		const currentMatchType = localStorage.getItem('currentMatchType');
 		const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
 
 		// Get the correct player names for the current match
 		let player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
 		let player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
 
-		// If we're in the final match, make sure we're using the correct player names
-		if (tournamentMode) {
-			const matchType = localStorage.getItem('currentMatchType');
-			if (matchType === 'final') {
+		// Ensure correct display in tournament mode based on match type
+		if (tournamentMode && currentMatchType) {
+			if (currentMatchType === 'final') {
 				player1Alias = localStorage.getItem('finalPlayer1Alias') || player1Alias;
 				player2Alias = localStorage.getItem('finalPlayer2Alias') || player2Alias;
-			} else if (matchType === 'third-place') {
+			} else if (currentMatchType === 'third-place') {
 				player1Alias = localStorage.getItem('thirdPlacePlayer1Alias') || player1Alias;
 				player2Alias = localStorage.getItem('thirdPlacePlayer2Alias') || player2Alias;
 			}
@@ -89,6 +89,7 @@ export class Game{
 
 		// Debug info
 		console.log("Current match ID:", currentMatchId);
+		console.log("Current match type:", currentMatchType);
 		console.log("Tournament mode:", tournamentMode);
 		console.log("Player 1 name:", player1Alias);
 		console.log("Player 2 name:", player2Alias);
@@ -345,120 +346,130 @@ class Ball extends Entity{
 									localStorage.setItem('semifinal1Loser', winner === 'Joueur 1' ?
 										localStorage.getItem('player2Id') || '' :
 										localStorage.getItem('player1Id') || '');
-								}
 
-								// Set the pending match as current
-								localStorage.setItem('currentMatchId', pendingMatchId);
+									// Set the pending match as current
+									localStorage.setItem('currentMatchId', pendingMatchId);
 
-								// Set up final matches after second semifinal
-								if (matchId === semifinal2Id || pendingMatchId === semifinal2Id) {
+									// Update player names for the next match
+									localStorage.setItem('player1Alias', localStorage.getItem('player3Alias') || 'Joueur 3');
+									localStorage.setItem('player2Alias', localStorage.getItem('player4Alias') || 'Joueur 4');
+
+									// Reset game state
+									Game.player1Score = 0;
+									Game.player2Score = 0;
+									Game.setGameOver(false);
+
+									// Start the next match
+									startGame(2);
+								} else if (matchId === semifinal2Id) {
+									// Store winner of second semifinal
+									localStorage.setItem('semifinal2Winner', winner === 'Joueur 1' ?
+										localStorage.getItem('player3Id') || '' :
+										localStorage.getItem('player4Id') || '');
+									localStorage.setItem('semifinal2Loser', winner === 'Joueur 1' ?
+										localStorage.getItem('player4Id') || '' :
+										localStorage.getItem('player3Id') || '');
+
 									// Create final match after this one
 									const currentTournamentId = localStorage.getItem('currentTournamentId');
 									if (currentTournamentId) {
-										// Store winner of second semifinal
-										const semifinal2Winner = winner === 'Joueur 1' ?
-											localStorage.getItem('player3Id') || '' :
-											localStorage.getItem('player4Id') || '';
-										const semifinal2Loser = winner === 'Joueur 1' ?
-											localStorage.getItem('player4Id') || '' :
-											localStorage.getItem('player3Id') || '';
+										try {
+											// Get the winners of both semifinals
+											const semifinal1Winner = localStorage.getItem('semifinal1Winner') || '';
+											const semifinal2Winner = localStorage.getItem('semifinal2Winner') || '';
+											const semifinal1Loser = localStorage.getItem('semifinal1Loser') || '';
+											const semifinal2Loser = localStorage.getItem('semifinal2Loser') || '';
 
-										localStorage.setItem('semifinal2Winner', semifinal2Winner);
-										localStorage.setItem('semifinal2Loser', semifinal2Loser);
+											// Create final match (winners)
+											const finalMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
+												method: 'POST',
+												headers: {'Content-Type': 'application/json'},
+												body: JSON.stringify({
+													player1_id: semifinal1Winner,
+													player2_id: semifinal2Winner,
+													round: 'final',
+													match_number: 3,
+													gameType: 'pong'
+												})
+											});
 
-										// Create final match (winners)
-										const finalMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
-											method: 'POST',
-											headers: {'Content-Type': 'application/json'},
-											body: JSON.stringify({
-												player1_id: localStorage.getItem('semifinal1Winner'),
-												player2_id: semifinal2Winner,
-												round: 'final',
-												match_number: 3,
-												gameType: 'pong'
-											})
-										});
+											const finalMatchData = await finalMatchResponse.json();
 
-										const finalMatchData = await finalMatchResponse.json();
+											// Create 3rd place match (losers)
+											const thirdPlaceMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
+												method: 'POST',
+												headers: {'Content-Type': 'application/json'},
+												body: JSON.stringify({
+													player1_id: semifinal1Loser,
+													player2_id: semifinal2Loser,
+													round: 'third-place',
+													match_number: 4,
+													gameType: 'pong'
+												})
+											});
 
-										// Create 3rd place match (losers)
-										const thirdPlaceMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
-											method: 'POST',
-											headers: {'Content-Type': 'application/json'},
-											body: JSON.stringify({
-												player1_id: localStorage.getItem('semifinal1Loser'),
-												player2_id: semifinal2Loser,
-												round: 'third-place',
-												match_number: 4,
-												gameType: 'pong'
-											})
-										});
+											const thirdPlaceMatchData = await thirdPlaceMatchResponse.json();
 
-										const thirdPlaceMatchData = await thirdPlaceMatchResponse.json();
-
-										// IMPORTANT: Wait for aliases to be retrieved before starting game
-										const semifinal1Winner = localStorage.getItem('semifinal1Winner');
-										const semifinal1Loser = localStorage.getItem('semifinal1Loser');
-
-										// For final match: Get and store player names
-										if (finalMatchData && finalMatchData.matchId) {
+											// Get player names for both new matches
 											const winner1Name = await getAliasById(semifinal1Winner);
 											const winner2Name = await getAliasById(semifinal2Winner);
-
-											console.log(`Final match players: ${winner1Name} vs ${winner2Name}`);
-
-											// Store player names specifically for the final match
-											localStorage.setItem("finalPlayer1Alias", winner1Name);
-											localStorage.setItem("finalPlayer2Alias", winner2Name);
-											localStorage.setItem("currentMatchId", finalMatchData.matchId.toString());
-											localStorage.setItem("currentMatchType", "final");
-
-											// Also update the general player aliases (for backward compatibility)
-											localStorage.setItem("player1Alias", winner1Name);
-											localStorage.setItem("player2Alias", winner2Name);
-										}
-
-										// Similarly for the third-place match:
-										if (thirdPlaceMatchData && thirdPlaceMatchData.matchId) {
 											const loser1Name = await getAliasById(semifinal1Loser);
 											const loser2Name = await getAliasById(semifinal2Loser);
 
-											console.log(`Third place match players: ${loser1Name} vs ${loser2Name}`);
+											// Store player names for final match
+											localStorage.setItem("finalPlayer1Alias", winner1Name);
+											localStorage.setItem("finalPlayer2Alias", winner2Name);
 
-											// Store player names specifically for the third-place match
+											// Store player names for third-place match
 											localStorage.setItem("thirdPlacePlayer1Alias", loser1Name);
 											localStorage.setItem("thirdPlacePlayer2Alias", loser2Name);
+
+											// Setup for the final match
+											localStorage.setItem("currentMatchId", finalMatchData.matchId.toString());
 											localStorage.setItem("pendingMatchId", thirdPlaceMatchData.matchId.toString());
+											localStorage.setItem("currentMatchType", "final");
 											localStorage.setItem("pendingMatchType", "third-place");
 
-											// Don't update general player aliases yet - they'll be updated when this match starts
+											// Update current player names for the UI to display correctly
+											localStorage.setItem('player1Alias', winner1Name);
+											localStorage.setItem('player2Alias', winner2Name);
+
+											// Reset game state
+											Game.player1Score = 0;
+											Game.player2Score = 0;
+											Game.setGameOver(false);
+
+											// Start the final match
+											startGame(2);
+										} catch (error) {
+											console.error("Error creating final matches:", error);
 										}
 									}
-								} else {
-									localStorage.removeItem('pendingMatchId'); // Clear pending if not moving to the second semifinal
-								}
-
-								// Check if this is the third-place match or final match and update player names accordingly
-								if (localStorage.getItem('pendingMatchType') === 'third-place') {
+								} else if (localStorage.getItem('currentMatchType') === 'final') {
+									// After the final match, move to the third-place match
+									localStorage.setItem('currentMatchId', localStorage.getItem('pendingMatchId') || '');
+									localStorage.removeItem('pendingMatchId');
 									localStorage.setItem('currentMatchType', 'third-place');
+
+									// Update player names for the third-place match
 									localStorage.setItem('player1Alias', localStorage.getItem('thirdPlacePlayer1Alias') || 'Joueur 1');
 									localStorage.setItem('player2Alias', localStorage.getItem('thirdPlacePlayer2Alias') || 'Joueur 2');
-								} else if (localStorage.getItem('pendingMatchType') === 'final') {
-									localStorage.setItem('currentMatchType', 'final');
-									localStorage.setItem('player1Alias', localStorage.getItem('finalPlayer1Alias') || 'Joueur 1');
-									localStorage.setItem('player2Alias', localStorage.getItem('finalPlayer2Alias') || 'Joueur 2');
+
+									// Reset game state
+									Game.player1Score = 0;
+									Game.player2Score = 0;
+									Game.setGameOver(false);
+
+									// Start the third-place match
+									startGame(2);
+								} else {
+									// This was the last match of the tournament (third-place match)
+									localStorage.removeItem('pendingMatchId');
+									localStorage.removeItem('currentMatchType');
+									localStorage.removeItem('pendingMatchType');
+									localStorage.removeItem('currentMatchId');
+									startGame(2);
 								}
-
-								// Clean up after applying the pending match type
-								localStorage.removeItem('pendingMatchType');
-
-								// Reset game state
-								Game.player1Score = 0;
-								Game.player2Score = 0;
-								Game.setGameOver(false);
-
-								// Start the next match
-								startGame(2);
 							} catch (error) {
 								console.error("Error in tournament progression:", error);
 							}
