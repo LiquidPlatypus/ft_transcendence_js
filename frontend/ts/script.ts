@@ -4,6 +4,7 @@ import { Game } from './mypong.js';
 import { GameFour } from './fourpong.js';
 import { twoPlayersMatch, fourPlayersMatchs } from './matches.js'
 import {loadLanguage, t} from '../lang/i18n.js';
+import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const savedLang = localStorage.getItem('lang') || 'fr';
@@ -17,43 +18,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 })
 
-function attachLanguageListeners() {
-	document.querySelectorAll('[data-lang]').forEach((btn) => {
-		btn.addEventListener('click', async (e) => {
-			const target = (e.target as HTMLElement).closest('button');
-			if (!target)
-				return ;
-			const lang = target.getAttribute('data-lang');
-			if (!lang)
-				return ;
-			await loadLanguage(lang as 'fr' | 'en' | 'es');
-			showHome();
-		});
-	});
-}
-
-
-function attachHomePageListeners() {
-	const match_btn = document.getElementById('match-button');
-	if (match_btn)
-		match_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'match'));
-
-	const tournament_btn = document.getElementById("tournament-button");
-	if (tournament_btn)
-		tournament_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'tournoi'));
-
-	const pong_hist_btn = document.getElementById("pong-hist-btn");
-	if (pong_hist_btn)
-		pong_hist_btn.addEventListener("click", (event) => showHistory(event, 'pong'));
-
-	const pfc_hist_btn = document.getElementById("pfc-hist-btn");
-	if (pfc_hist_btn)
-		pfc_hist_btn.addEventListener("click", (event) => showHistory(event, 'pfc'));
-}
-
 type ButtonType = 'match' | 'tournoi'
 
-function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
+export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 	const container = document.getElementById("Pong");
 	if (!container)
 		return ;
@@ -175,7 +142,7 @@ interface Match {
 	playerCount?: number;
 }
 
-async function showHistory(event: Event, gameType: string) {
+export async function showHistory(event: Event, gameType: string) {
 	// On garde la référence au conteneur spécifique d'historique
 	const historyContainer = document.getElementById(`history-${gameType}`);
 	if (!historyContainer) return;
