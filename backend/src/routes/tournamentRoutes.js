@@ -278,6 +278,9 @@ export default async function tournamentRoutes(fastify) {
 		}
 	});
 
+	/**
+	 * @brief Recup le status du match
+	 */
 	fastify.get('/:id/matches/:matchId/status', async (request, reply) => {
 		const { matchId } = request.params;
 
@@ -300,6 +303,9 @@ export default async function tournamentRoutes(fastify) {
 		}
 	});
 
+	/**
+	 * @brief recupere le gagnant du match
+	 */
 	fastify.get('/:id/matches/:matchId/winner', async (request, reply) => {
 		const { matchId } = request.params;
 
