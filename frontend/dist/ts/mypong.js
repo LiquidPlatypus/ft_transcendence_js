@@ -51,7 +51,7 @@ export class Game {
         //draw center lines
         for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
             this.gameContext.fillStyle = "#fff";
-            this.gameContext.fillRect(this.gameCanvas.width / 2 - 10, i + 10, 15, 20);
+            this.gameContext.fillRect(this.gameCanvas.width / 2 - 10, i + 10, 5, 20);
         }
         // Get match and player information
         const currentMatchId = localStorage.getItem('currentMatchId');
