@@ -24,6 +24,12 @@ export function startTournament(event) {
         // Recupere les alias des joueurs (4 max).
         const playerAliases = [];
         let playerCount = 0;
+        // Nettoyage de localStorage
+        Object.keys(localStorage).forEach((key) => {
+            if (key.startsWith("player_") || key.endsWith("Alias")) {
+                localStorage.removeItem(key);
+            }
+        });
         // Récupérer les alias
         for (let i = 1; i <= 4; i++) {
             const input = document.getElementById(`playerAlias${i}`);
@@ -39,6 +45,7 @@ export function startTournament(event) {
         localStorage.setItem("player2Alias", playerAliases[1] || "Joueur 2");
         localStorage.setItem("player3Alias", playerAliases[2] || "Joueur 3");
         localStorage.setItem("player4Alias", playerAliases[3] || "Joueur 4");
+        console.log(localStorage);
         try {
             console.log("Création du tournoi...");
             const tournamentResponse = yield fetch('/api/tournaments', {

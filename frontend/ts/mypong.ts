@@ -75,6 +75,7 @@ export class Game{
 		// Get the correct player names for the current match
 		let player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
 		let player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
+		console.log(localStorage);
 
 		// Ensure correct display in tournament mode based on match type
 		if (tournamentMode && currentMatchType) {
