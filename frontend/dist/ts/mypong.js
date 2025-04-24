@@ -239,8 +239,9 @@ class Ball extends Entity {
             this.y + this.height > player2.y) {
             this.xVal = -1; // rebond vers la gauche
         }
-        this.x += this.xVal * this.speed;
-        this.y += this.yVal * this.speed;
+        const length = Math.sqrt(this.xVal * this.xVal + this.yVal * this.yVal);
+        this.x += (this.xVal / length) * this.speed;
+        this.y += (this.yVal / length) * this.speed;
     }
     resetPosition(canvas) {
         this.x = canvas.width / 2 - this.width / 2;

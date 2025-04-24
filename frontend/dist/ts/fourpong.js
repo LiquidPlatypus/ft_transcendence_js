@@ -385,8 +385,9 @@ class Ball extends Entity {
             this.xVal = normalizedX * 1.2;
         }
         // Mise à jour de la position de la balle
-        this.x += this.xVal * this.speed;
-        this.y += this.yVal * this.speed;
+        const length = Math.sqrt(this.xVal * this.xVal + this.yVal * this.yVal);
+        this.x += (this.xVal / length) * this.speed;
+        this.y += (this.yVal / length) * this.speed;
     }
     getWinnerAlias(winner) {
         if (winner === "Joueur 1")
