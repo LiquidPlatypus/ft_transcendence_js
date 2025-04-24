@@ -3,7 +3,7 @@ import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
 import { GameFour } from './fourpong.js';
 import { twoPlayersMatch, fourPlayersMatchs } from './matches.js'
-import {loadLanguage, t} from '../lang/i18n.js';
+import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -102,7 +102,7 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 		<div class="flex flex-col items-center w-full mb-2">
 			${inputsHTML}
 		</div>
-		<div class="felx justify-center">
+		<div class="flex justify-center">
 			<button id="start" class="btn rounded-lg border p-1 pe-1 shadow justify-center">${t("begin")}</button>
 		</div>
 	`;

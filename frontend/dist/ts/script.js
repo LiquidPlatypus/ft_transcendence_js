@@ -97,7 +97,7 @@ function showAliasInputs(playerCount, buttonType) {
 		<div class="flex flex-col items-center w-full mb-2">
 			${inputsHTML}
 		</div>
-		<div class="felx justify-center">
+		<div class="flex justify-center">
 			<button id="start" class="btn rounded-lg border p-1 pe-1 shadow justify-center">${t("begin")}</button>
 		</div>
 	`;
