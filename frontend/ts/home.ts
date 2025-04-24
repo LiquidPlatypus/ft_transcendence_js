@@ -35,7 +35,7 @@ export function homePage() {
 					</div>
 					<div class="rounded-lg border p-4 shadow">
 						<h2 class="mb-2 text-2xl font-semibold">${t("pfc")}</h2>
-						<div class="grid grid-cols-1 justify-center gap-0">
+						<div id="pfc" class="grid grid-cols-1 justify-center gap-0">
 							<div class="flex justify-center">
 								<button id="pfc-button" class="btn rounded-lg border p-4 shadow">${t("play")}</button>
 							</div>
