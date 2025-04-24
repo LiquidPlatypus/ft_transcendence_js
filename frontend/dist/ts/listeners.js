@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { loadLanguage } from "../lang/i18n.js";
 import { showPlayerCountSelection, showHistory, showHome } from "./script.js";
+import { start_pfc } from "./chifoumi.js";
 export function attachLanguageListeners() {
     document.querySelectorAll('[data-lang]').forEach((btn) => {
         btn.addEventListener('click', (e) => __awaiter(this, void 0, void 0, function* () {
@@ -30,6 +31,9 @@ export function attachHomePageListeners() {
     const tournament_btn = document.getElementById("tournament-button");
     if (tournament_btn)
         tournament_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'tournoi'));
+    const pfc_button = document.getElementById("pfc-button");
+    if (pfc_button)
+        pfc_button.addEventListener("click", (event) => start_pfc(event));
     const pong_hist_btn = document.getElementById("pong-hist-btn");
     if (pong_hist_btn)
         pong_hist_btn.addEventListener("click", (event) => showHistory(event, 'pong'));
