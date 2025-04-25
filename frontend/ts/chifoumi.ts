@@ -18,7 +18,7 @@ const symbols: Record<Choix, string> = {
 const touchesJ1: Record<string, Choix> = { a: 'pierre', z: 'feuille', e: 'ciseaux' };
 const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseaux' };
 
-export function start_pfc(event: Event) {
+export function config_pfc(event: Event) {
 	const container = document.getElementById("pfc");
 	if (!container)
 		return ;
@@ -55,7 +55,51 @@ export function start_pfc(event: Event) {
 
 	const startButton = document.getElementById("start")
 	if (startButton)
-		init();
+		start_pfc(startButton);
+}
+
+function start_pfc(startButton: HTMLElement) {
+	startButton.addEventListener("click", async () => {
+		const player1 = (document.getElementById("playerAlias1") as HTMLInputElement).value;
+		const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
+		console.log(`Match entre ${player1} et ${player2}`);
+
+		localStorage.setItem('player1Alias', player1);
+		localStorage.setItem('player2Alias', player2);
+
+		try {
+			const player1Response = await fetch('api/players', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({name: player1}),
+			}).then(res => res.json());
+
+			const player2Response = await fetch('api/players', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({name: player2}),
+			}).then(res => res.json());
+
+			if (player1Response.success && player2Response.success) {
+				const matchResponse = await fetch("api/players/match", {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						player1Id: player1Response.id,
+						player2Id: player2Response.id,
+						gameType: 'pfc'
+					}),
+				}).then(res => res.json());
+
+				if (matchResponse.success) {
+					localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
+					init();
+				}
+			}
+		} catch (error) {
+			console.error("Erreur lors de la création du match:", error);
+		}
+	});
 }
 
 function creerElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, textContent?: string): HTMLElementTagNameMap[K] {
@@ -66,8 +110,11 @@ function creerElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?:
 }
 
 function init() {
+	const container = document.getElementById("pfc");
+	if (!container)
+		return ;
 
-	const body = document.body;
+	container.innerHTML = "";
 
 	const title = creerElement("h1", "", "Chifoumi");
 	const instructions1 = creerElement("p", "", "Joueur 1 : A = 🗑 | Z = 📋 | E = ✂");
@@ -103,34 +150,45 @@ function init() {
 	const vainqueur = creerElement("div", "", "");
 	vainqueur.id = "vainqueur";
 
-	body.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
+	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
 
-	document.addEventListener("keydown", (e) => {
+	function handleKeydown(e: KeyboardEvent) {
 		const key = e.key.toLowerCase();
 
-		if (!choixJ1 && touchesJ1[key]) {
+		if (!choixJ1 && touchesJ1[key])
 			choixJ1 = touchesJ1[key];
-		} else if (!choixJ2 && touchesJ2[key]) {
+		else if (!choixJ2 && touchesJ2[key])
 			choixJ2 = touchesJ2[key];
-		}
 
 		if (choixJ1 && choixJ2) {
 			afficherCombat(fightZone, fightJ1, fightJ2, choixJ1, choixJ2);
 			setTimeout(() => {
-			const result = comparer(choixJ1!, choixJ2!);
-			resultat.textContent = `J1: ${choixJ1} | J2: ${choixJ2} => ${result}`;
-			scores.textContent = `Score J1: ${scoreJ1} | Score J2: ${scoreJ2}`;
-			verifierVainqueur(vainqueur);
-			setTimeout(() => {
-				fightZone.classList.remove("fight-in");
-				fightJ1.textContent = "";
-				fightJ2.textContent = "";
-			}, 1000);
-			choixJ1 = null;
-			choixJ2 = null;
+				const result = comparer(choixJ1!, choixJ2!);
+				resultat.textContent = `J1: ${choixJ1} | J2: ${choixJ2} => ${result}`;
+				scores.textContent = `Score J1: ${scoreJ1} | Score J2: ${scoreJ2}`;
+				verifierVainqueur(vainqueur);
+				setTimeout(() => {
+					fightZone.classList.remove("fight-in");
+					fightJ1.textContent = "";
+					fightJ2.textContent = "";
+				}, 1000);
+				choixJ1 = null;
+				choixJ2 = null;
 			}, 800);
 		}
-	});
+	}
+
+	document.addEventListener("keydown", handleKeydown);
+
+	function verifierVainqueur(div: HTMLElement) {
+		if (scoreJ1 >= 5) {
+			div.textContent = "Victoire du Joueur 1!";
+			document.removeEventListener("keydown", handleKeydown);
+		} else if (scoreJ2 >= 5) {
+			div.textContent = "Victoire du Joueur 2!";
+			document.removeEventListener("keydown", handleKeydown);
+		}
+	}
 }
 
 function afficherCombat(zone: HTMLElement, el1: HTMLElement, el2: HTMLElement, c1: Choix, c2: Choix) {
@@ -153,15 +211,3 @@ function comparer(c1: Choix, c2: Choix): string {
 		return "Joueur 2 gagne la manche !";
 	}
 }
-
-function verifierVainqueur(div: HTMLElement) {
-	if (scoreJ1 >= 5) {
-		div.textContent = "Victoire du Joueur 1!";
-		document.removeEventListener("keydown", handleKeydown);
-	} else if (scoreJ2 >= 5) {
-		div.textContent = "Victoire du Joueur 2!";
-		document.removeEventListener("keydown", handleKeydown);
-	}
-}
-
-function handleKeydown() {} // neutre pour suppression d'écouteur

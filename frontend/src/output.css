@@ -2388,6 +2388,53 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+#arena {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 40px;
+  height: 200px;
+}
+.player-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-size: 2em;
+}
+.fight-zone {
+  position: relative;
+  width: 200px;
+  height: 150px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.fight-symbol {
+  font-size: 3em;
+  width: 50px;
+  height: 50px;
+  transition: transform 0.5s ease, opacity 0.5s;
+  opacity: 0;
+}
+#fight-j1 {
+  transform: translateX(-100px);
+}
+#fight-j2 {
+  transform: translateX(100px);
+}
+.fight-in #fight-j1, .fight-in #fight-j2 {
+  opacity: 1;
+  transform: translateX(0);
+}
+#resultat, #vainqueur {
+  margin-top: 30px;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+#scores {
+  margin-top: 20px;
+  font-size: 1.2em;
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);
