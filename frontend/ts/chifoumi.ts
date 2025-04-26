@@ -1,6 +1,6 @@
 import { homePage } from "./home.js";
 import { showHome } from "./script.js";
-import { loadLanguage, t } from "../lang/i18n.js";
+import { loadLanguage, t, getCurrentLang } from "../lang/i18n.js";
 
 type Choix = 'pierre' | 'feuille' | 'ciseaux';
 
@@ -18,7 +18,11 @@ const symbols: Record<Choix, string> = {
 const touchesJ1: Record<string, Choix> = { a: 'pierre', z: 'feuille', e: 'ciseaux' };
 const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseaux' };
 
-export function config_pfc(event: Event) {
+export async function config_pfc(event: Event) {
+	const savedLang = localStorage.getItem('lang') as 'fr' | 'en' | 'es' || 'en';
+	if (getCurrentLang() !== savedLang)
+		await loadLanguage(savedLang);
+
 	const container = document.getElementById("pfc");
 	if (!container)
 		return ;
@@ -28,7 +32,7 @@ export function config_pfc(event: Event) {
 		inputsHTML += `
 			<div class="mt-2">
 				<label for="playerAlias${i}" class="block text-lg">${t("player")} ${i} :</label>
-				<input type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="Joueur ${i}">
+				<input type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="${t("player_alias_ph")} ${i}">
 			</div>
 		`;
 	}
@@ -97,7 +101,7 @@ function start_pfc(startButton: HTMLElement) {
 				}
 			}
 		} catch (error) {
-			console.error("Erreur lors de la création du match:", error);
+			console.error(`${t("error_match_creation")}`, error);
 		}
 	});
 }
@@ -116,9 +120,13 @@ function init() {
 
 	container.innerHTML = "";
 
-	const title = creerElement("h1", "", "Chifoumi");
-	const instructions1 = creerElement("p", "", "Joueur 1 : A = 🗑 | Z = 📋 | E = ✂");
-	const instructions2 = creerElement("p", "", "Joueur 2 : J = 🗑 | K = 📋 | L = ✂");
+	const title = creerElement("h1", "", t("pfc"));
+
+	const rockSymbol = symbols.pierre;
+	const paperSymbol = symbols.feuille;
+	const scissorSymbol = symbols.ciseaux;
+	const instructions1 = creerElement("p", "", `${t("player")} 1 : A = ${rockSymbol} | Z = ${paperSymbol} | E = ${scissorSymbol}`);
+	const instructions2 = creerElement("p", "", `${t("player")} 2 : J = ${rockSymbol} | K = ${paperSymbol} | L = ${scissorSymbol}`);
 
 	const arena = creerElement("div", "arena", "");
 	arena.id = "arena";
@@ -144,7 +152,7 @@ function init() {
 	const resultat = creerElement("div", "", "");
 	resultat.id = "resultat";
 
-	const scores = creerElement("div", "", "Score J1: 0 | Score J2: 0");
+	const scores = creerElement("div", "", `${t("score")} ${t("player")} 1: 0 | ${t("score")} ${t("player")} 2: 0`);
 	scores.id = "scores";
 
 	const vainqueur = creerElement("div", "", "");
@@ -164,8 +172,12 @@ function init() {
 			afficherCombat(fightZone, fightJ1, fightJ2, choixJ1, choixJ2);
 			setTimeout(() => {
 				const result = comparer(choixJ1!, choixJ2!);
-				resultat.textContent = `J1: ${choixJ1} | J2: ${choixJ2} => ${result}`;
-				scores.textContent = `Score J1: ${scoreJ1} | Score J2: ${scoreJ2}`;
+
+				const choixJ1Traduit = t(getChoixTranslationKey(choixJ1!));
+				const choixJ2Traduit = t(getChoixTranslationKey(choixJ2!));
+
+				resultat.textContent = `${t("player")} 1: ${choixJ1Traduit} | ${t("player")} 2: ${choixJ2Traduit} => ${result}`;
+				scores.textContent = `${t("score")} ${t("player")} 1: ${scoreJ1} | ${t("score")} ${t("player")} 2: ${scoreJ2}`;
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
 					verifierVainqueur(vainqueur);
 				setTimeout(() => {
@@ -182,11 +194,14 @@ function init() {
 	document.addEventListener("keydown", handleKeydown);
 
 	function verifierVainqueur(div: HTMLElement) {
-		if (scoreJ1 >= 5 && scoreJ2 >= 5) {
+		if (scoreJ1 >= 5 || scoreJ2 >= 5) {
+			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
+			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
+
 			if (scoreJ1 >= 5)
-				div.textContent = "Victoire du Joueur 1!";
-			else if (scoreJ2 >= 5)
-				div.textContent = "Victoire du Joueur 2!";
+				div.textContent = player1Alias + t("as_won");
+			else
+				div.textContent = player2Alias + t("as_won");
 		}
 		document.removeEventListener("keydown", handleKeydown);
 
@@ -209,7 +224,7 @@ function init() {
 					player2Score: scoreJ2
 				}),
 			}).catch(error => {
-				console.error("Erreur lors de l'enregistrement du score:", error);
+				console.error(`${t("error_score_save")}:`, error);
 			});
 		}
 
@@ -225,16 +240,25 @@ function afficherCombat(zone: HTMLElement, el1: HTMLElement, el2: HTMLElement, c
 }
 
 function comparer(c1: Choix, c2: Choix): string {
-	if (c1 === c2) return "Égalité !";
+	if (c1 === c2) return t("equality") || "Égalité !";
 	if (
 		(c1 === "pierre" && c2 === "ciseaux") ||
 		(c1 === "feuille" && c2 === "pierre") ||
 		(c1 === "ciseaux" && c2 === "feuille")
 	) {
 		scoreJ1++;
-		return "Joueur 1 gagne la manche !";
+		return t("player_wins_round", {player: "1"}) || t("player") + " 1 " + t("wins_round") || "Joueur 1 gagne la manche !";
 	} else {
 		scoreJ2++;
-		return "Joueur 2 gagne la manche !";
+		return t("player_wins_round", {player: "2"}) || t("player") + " 2 " + t("wins_round") || "Joueur 2 gagne la manche !";
+	}
+}
+
+function getChoixTranslationKey(choix: Choix): string {
+	switch(choix) {
+		case 'pierre': return 'rock';
+		case 'feuille': return 'paper';
+		case 'ciseaux': return 'scissor';
+		default: return choix;
 	}
 }

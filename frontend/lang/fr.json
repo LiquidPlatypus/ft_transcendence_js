@@ -26,5 +26,13 @@
   "?next_match": "Prêt pour le match suivant?",
   "next_match_btn": "Match suivant",
 
-  "tournament_win": "a gagné le tournoi!"
+  "tournament_win": "a gagné le tournoi!",
+
+  "equality": "Égalité !",
+  "score": "Score",
+  "between": "entre {{player1}} et {{player2}}",
+  "error_match_creation": "Erreur lors de la création du match",
+  "error_score_save": "Erreur lors de l'enregistrement du score",
+  "wins_round": "gagne la manche !",
+  "player_wins_round": "Joueur {{player}} gagne la manche !"
 }

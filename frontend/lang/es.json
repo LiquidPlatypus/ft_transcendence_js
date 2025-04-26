@@ -26,5 +26,13 @@
   "?next_match": "¿Listo para el próximo partido?",
   "next_match_btn": "Próximo partido",
 
-  "tournament_win": "¡Gana el torneo!"
+  "tournament_win": "¡Gana el torneo!",
+
+  "equality": "¡Igualdad!",
+  "score": "Puntaje",
+  "between": "Entre el jugador 1 y playerr 2",
+  "error_match_creation": "Error durante la creación de partidas",
+  "error_score_save": "Error durante el registro de partituras",
+  "wins_round": "¡gana la ronda!",
+  "player_wins_round": "El jugador  gana la ronda tje!"
 }

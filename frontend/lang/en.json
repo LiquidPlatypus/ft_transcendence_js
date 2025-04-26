@@ -26,5 +26,13 @@
   "?next_match": "Ready for the next match?",
   "next_match_btn": "Next match",
 
-  "tournament_win": "win the tournament!"
+  "tournament_win": "win the tournament!",
+
+  "equality": "Draw !",
+  "score": "Score",
+  "between": "between {{player1}} and {{player2}}",
+  "error_match_creation": "Error during match creation",
+  "error_score_save": "Error during score registration",
+  "wins_round": "win the round !",
+  "player_wins_round": "Player {{player}} win the round !"
 }
