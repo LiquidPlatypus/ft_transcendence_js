@@ -144,7 +144,8 @@ function init() {
                 const result = comparer(choixJ1, choixJ2);
                 resultat.textContent = `J1: ${choixJ1} | J2: ${choixJ2} => ${result}`;
                 scores.textContent = `Score J1: ${scoreJ1} | Score J2: ${scoreJ2}`;
-                verifierVainqueur(vainqueur);
+                if (scoreJ1 >= 5 || scoreJ2 >= 5)
+                    verifierVainqueur(vainqueur);
                 setTimeout(() => {
                     fightZone.classList.remove("fight-in");
                     fightJ1.textContent = "";
@@ -157,14 +158,35 @@ function init() {
     }
     document.addEventListener("keydown", handleKeydown);
     function verifierVainqueur(div) {
-        if (scoreJ1 >= 5) {
-            div.textContent = "Victoire du Joueur 1!";
-            document.removeEventListener("keydown", handleKeydown);
+        if (scoreJ1 >= 5 && scoreJ2 >= 5) {
+            if (scoreJ1 >= 5)
+                div.textContent = "Victoire du Joueur 1!";
+            else if (scoreJ2 >= 5)
+                div.textContent = "Victoire du Joueur 2!";
         }
-        else if (scoreJ2 >= 5) {
-            div.textContent = "Victoire du Joueur 2!";
-            document.removeEventListener("keydown", handleKeydown);
+        document.removeEventListener("keydown", handleKeydown);
+        const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
+        returnButton.id = "return-button";
+        div.appendChild(returnButton);
+        returnButton.addEventListener("click", () => {
+            showHome();
+        });
+        const matchId = localStorage.getItem('currentMatchId');
+        if (matchId) {
+            fetch('api/players/match/score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    matchId: parseInt(matchId),
+                    player1Score: scoreJ1,
+                    player2Score: scoreJ2
+                }),
+            }).catch(error => {
+                console.error("Erreur lors de l'enregistrement du score:", error);
+            });
         }
+        scoreJ1 = 0;
+        scoreJ2 = 0;
     }
 }
 function afficherCombat(zone, el1, el2, c1, c2) {
