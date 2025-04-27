@@ -116,13 +116,6 @@ function createTournamentMatches(playerIds) {
         try {
             // Gestion des différents cas en fonction du nombre de joueurs.
             switch (playerIds.length) {
-                case 3:
-                    // Trois joueurs.
-                    console.log("Matchs pour 3 joueurs.");
-                    yield createMatch(playerIds[0], playerIds[1], 'round1', 1);
-                    yield createMatch(playerIds[1], playerIds[2], 'round2', 2);
-                    yield createMatch(playerIds[0], playerIds[2], 'round3', 3);
-                    break;
                 case 4:
                     console.log("Matchs pour 4 joueurs");
                     // Create semifinals
@@ -157,62 +150,6 @@ function createTournamentMatches(playerIds) {
         catch (error) {
             console.error("Erreur lors de la création des matches :", error);
             throw error;
-        }
-        function waitMatchFinish(matchId) {
-            return __awaiter(this, void 0, void 0, function* () {
-                return new Promise((resolve) => {
-                    const checkMatchStatus = () => __awaiter(this, void 0, void 0, function* () {
-                        try {
-                            console.log(`Vérification du statut du match ${matchId}...`);
-                            const response = yield fetch(`/api/tournaments/${currentTournamentId}/matches/${matchId}/status`);
-                            if (!response.ok) {
-                                console.error(`Erreur HTTP: ${response.status}`);
-                                setTimeout(checkMatchStatus, 2000);
-                                return;
-                            }
-                            const data = yield response.json();
-                            console.log(`Statut actuel du match ${matchId}:`, data);
-                            if (data.success && data.match && data.match.status === 'completed') {
-                                console.log(`Match ${matchId} terminé!`);
-                                resolve();
-                            }
-                            else {
-                                console.log(`Match ${matchId} toujours en cours, nouvelle vérification dans 2 secondes`);
-                                setTimeout(checkMatchStatus, 2000);
-                            }
-                        }
-                        catch (error) {
-                            console.error(`Erreur lors de la vérification du statut du match ${matchId}:`, error);
-                            setTimeout(checkMatchStatus, 2000);
-                        }
-                    });
-                    // Démarrer la vérification
-                    checkMatchStatus();
-                });
-            });
-        }
-        function getMatchWinner(matchId) {
-            return __awaiter(this, void 0, void 0, function* () {
-                try {
-                    console.log(`Récupération du gagnant du match ${matchId}...`);
-                    const response = yield fetch(`/api/tournaments/${currentTournamentId}/matches/${matchId}/winner`);
-                    if (!response.ok) {
-                        throw new Error(`Erreur HTTP: ${response.status}`);
-                    }
-                    const data = yield response.json();
-                    console.log(`Données du gagnant:`, data);
-                    if (data.success && data.winner_id) {
-                        console.log(`Gagnant du match ${matchId}: ${data.winner_id}`);
-                        return String(data.winner_id);
-                    }
-                    else
-                        throw new Error(`Impossible de déterminer le gagnant du match ${matchId}`);
-                }
-                catch (error) {
-                    console.error(`Erreur lors de la récupération du gagnant du match ${matchId}:`, error);
-                    throw error;
-                }
-            });
         }
     });
 }

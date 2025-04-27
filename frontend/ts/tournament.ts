@@ -137,14 +137,6 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 	try {
 		// Gestion des différents cas en fonction du nombre de joueurs.
 		switch (playerIds.length) {
-			case 3:
-				// Trois joueurs.
-				console.log("Matchs pour 3 joueurs.");
-				await createMatch(playerIds[0], playerIds[1], 'round1', 1);
-				await createMatch(playerIds[1], playerIds[2], 'round2', 2);
-				await createMatch(playerIds[0], playerIds[2], 'round3', 3);
-				break;
-
 			case 4:
 				console.log("Matchs pour 4 joueurs");
 
@@ -187,64 +179,6 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 		console.error("Erreur lors de la création des matches :", error);
 		throw error;
 	}
-
-	async function waitMatchFinish(matchId: number): Promise<void> {
-		return new Promise((resolve) => {
-			const checkMatchStatus = async () => {
-				try {
-					console.log(`Vérification du statut du match ${matchId}...`);
-					const response = await fetch(`/api/tournaments/${currentTournamentId}/matches/${matchId}/status`);
-
-					if (!response.ok) {
-						console.error(`Erreur HTTP: ${response.status}`);
-						setTimeout(checkMatchStatus, 2000);
-						return;
-					}
-
-					const data = await response.json();
-					console.log(`Statut actuel du match ${matchId}:`, data);
-
-					if (data.success && data.match && data.match.status === 'completed') {
-						console.log(`Match ${matchId} terminé!`);
-						resolve();
-					} else {
-						console.log(`Match ${matchId} toujours en cours, nouvelle vérification dans 2 secondes`);
-						setTimeout(checkMatchStatus, 2000);
-					}
-				} catch (error) {
-					console.error(`Erreur lors de la vérification du statut du match ${matchId}:`, error);
-					setTimeout(checkMatchStatus, 2000);
-				}
-			};
-
-			// Démarrer la vérification
-			checkMatchStatus();
-		});
-	}
-
-	async function getMatchWinner(matchId: number): Promise<string> {
-		try {
-			console.log(`Récupération du gagnant du match ${matchId}...`);
-			const response = await fetch(`/api/tournaments/${currentTournamentId}/matches/${matchId}/winner`);
-
-			if (!response.ok) {
-				throw new Error(`Erreur HTTP: ${response.status}`);
-			}
-
-			const data = await response.json();
-			console.log(`Données du gagnant:`, data);
-
-			if (data.success && data.winner_id) {
-				console.log(`Gagnant du match ${matchId}: ${data.winner_id}`);
-				return String(data.winner_id);
-			} else
-				throw new Error(`Impossible de déterminer le gagnant du match ${matchId}`);
-		} catch (error) {
-			console.error(`Erreur lors de la récupération du gagnant du match ${matchId}:`, error);
-			throw error;
-		}
-	}
-
 }
 
 /**

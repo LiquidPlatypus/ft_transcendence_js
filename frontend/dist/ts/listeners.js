@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { loadLanguage } from "../lang/i18n.js";
-import { showPlayerCountSelection, showHistory, showHome } from "./script.js";
+import { showPlayerCountSelection, showAliasInputs, showHistory, showHome } from "./script.js";
 import { config_pfc } from "./chifoumi.js";
 export function attachLanguageListeners() {
     document.querySelectorAll('[data-lang]').forEach((btn) => {
@@ -30,7 +30,7 @@ export function attachHomePageListeners() {
         match_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'match'));
     const tournament_btn = document.getElementById("tournament-button");
     if (tournament_btn)
-        tournament_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'tournoi'));
+        tournament_btn.addEventListener("click", (event) => showAliasInputs(4, 'tournoi'));
     const pfc_button = document.getElementById("pfc-button");
     if (pfc_button)
         pfc_button.addEventListener("click", (event) => config_pfc(event));

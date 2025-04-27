@@ -36,29 +36,16 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 	container.classList.remove("grid-cols-2");
 	container.classList.add("grid-cols-1");
 
-	if (buttonType === 'match') {
-		container.innerHTML = `
-			<div class="flex flex-col items-center gap-4">
-				<button id="back-button" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
-				<h2 class="text-xl font-semibold">${t("how_many_players")}</h2>
-			</div>
-			<div class="flex justify-center gap-4 mt-4">
-				<button id="2p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="2">${t("players_count", { count: 2 })}</button>
-				<button id="4p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="4">${t("players_count", { count: 4 })}</button>
-			</div>
-		`;
-	} else if (buttonType === 'tournoi') {
-		container.innerHTML = `
-			<div class="flex flex-col items-center gap-4">
-				<button id="back-button" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
-				<h2 class="text-xl font-semibold">${t("how_many_players")}</h2>
-			</div>
-			<div class="flex justify-center gap-4 mt-4">
-				<button id="3p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="3">${t("players_count", { count: 3 })}</button>
-				<button id="4p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="4">${t("players_count", { count: 4 })}</button>
-			</div>
-		`;
-	}
+	container.innerHTML = `
+		<div class="flex flex-col items-center gap-4">
+			<button id="back-button" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
+			<h2 class="text-xl font-semibold">${t("how_many_players")}</h2>
+		</div>
+		<div class="flex justify-center gap-4 mt-4">
+			<button id="2p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="2">${t("players_count", { count: 2 })}</button>
+			<button id="4p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="4">${t("players_count", { count: 4 })}</button>
+		</div>
+	`;
 
 	const backButton = document.getElementById("back-button");
 	if (backButton) {
@@ -76,7 +63,7 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 	});
 }
 
-function showAliasInputs(playerCount: number, buttonType: ButtonType) {
+export function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 	const container = document.getElementById("Pong");
 	if (!container)
 		return ;
@@ -112,7 +99,7 @@ function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 		if (buttonType === 'match')
 			backButton.addEventListener("click", (event) => {showPlayerCountSelection(event, 'match')});
 		else if (buttonType === 'tournoi')
-			backButton.addEventListener("click", (event) => {showPlayerCountSelection(event, 'tournoi')});
+			backButton.addEventListener("click", (event) => {showHome()});
 	}
 
 	const startButton = document.getElementById("start");
