@@ -448,6 +448,9 @@ class Ball extends Entity{
 										}
 									}
 								} else if (localStorage.getItem('currentMatchType') === 'final') {
+									const tournamentWinnerAlias = this.getWinnerAlias(winner);
+									localStorage.setItem('tournamentWinnerAlias', tournamentWinnerAlias);
+
 									// After the final match, move to the third-place match
 									localStorage.setItem('currentMatchId', localStorage.getItem('pendingMatchId') || '');
 									localStorage.removeItem('pendingMatchId');
@@ -479,15 +482,18 @@ class Ball extends Entity{
 					}
 				}
 			} else if (tournamentMode && !pendingMatchId) {
-				// This was the final match of the tournament
+				// C'était le dernier match du tournoi (match pour la 3ème place)
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
+					// Utiliser le gagnant de la finale qui a été stocké précédemment
+					const tournamentWinner = localStorage.getItem('tournamentWinnerAlias') || 'Vainqueur du tournoi';
+
 					victoryMessageElement.innerHTML = `
-				<p class="font-extrabold">${winner} ${t("tournament_win")}</p>
-				<div class="flex justify-center mt-4">
-					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
-				</div>
-			`;
+							<p class="font-extrabold">${tournamentWinner} ${t("tournament_win")}</p>
+							<div class="flex justify-center mt-4">
+								<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+							</div>
+						`;
 
 					const menu_btn = document.getElementById("menu-btn");
 					if (menu_btn) {
@@ -505,6 +511,7 @@ class Ball extends Entity{
 							localStorage.removeItem('player3Id');
 							localStorage.removeItem('player4Id');
 							localStorage.removeItem('currentTournamentId');
+							localStorage.removeItem('tournamentWinnerAlias'); // Nettoyer aussi cette nouvelle variable
 							showHome();
 						});
 					}
