@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { showHome } from "./script.js";
 import { loadLanguage, t, getCurrentLang } from "../lang/i18n.js";
+import { disableUnrelatedButtons } from "./Utilities.js";
 let scoreJ1 = 0;
 let scoreJ2 = 0;
 let choixJ1 = null;
@@ -28,6 +29,7 @@ export function config_pfc(event) {
         const container = document.getElementById("pfc");
         if (!container)
             return;
+        disableUnrelatedButtons('pfc');
         let inputsHTML = "";
         for (let i = 1; i <= 2; i++) {
             inputsHTML += `

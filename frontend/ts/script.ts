@@ -5,6 +5,7 @@ import { GameFour } from './fourpong.js';
 import { twoPlayersMatch, fourPlayersMatchs } from './matches.js'
 import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
+import { disableUnrelatedButtons } from "./Utilities.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const savedLang = localStorage.getItem('lang') || 'fr';
@@ -46,6 +47,8 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 			<button id="4p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="4">${t("players_count", { count: 4 })}</button>
 		</div>
 	`;
+
+	disableUnrelatedButtons('pong');
 
 	const backButton = document.getElementById("back-button");
 	if (backButton) {
@@ -93,6 +96,8 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 			<button id="start" class="btn rounded-lg border p-1 pe-1 shadow justify-center">${t("begin")}</button>
 		</div>
 	`;
+
+	disableUnrelatedButtons('pong');
 
 	const backButton = document.getElementById("back-button");
 	if (backButton) {
@@ -225,10 +230,14 @@ export async function showHistory(event: Event, gameType: string) {
 
 		historyContainer.appendChild(tablesDiv);
 
+		disableUnrelatedButtons(gameType === 'pong' ? 'pfc' : 'pong');
+
 		// Ajouter l'écouteur d'événement pour le bouton retour
 		const backButton = document.getElementById(`back-button-${gameType}`);
 		if (backButton) {
 			backButton.addEventListener("click", () => {
+				disableUnrelatedButtons('home');
+
 				// Restaure le contenu original.
 				historyContainer.innerHTML = originalHTML;
 				// Enleve la classe d'alignement.
@@ -273,6 +282,8 @@ export function startGame(playerCount: number) {
 	if (playerCount === 2) {
 		container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
 
+		disableUnrelatedButtons('pong');
+
 		setTimeout(() => {
 			const game = new Game();
 			requestAnimationFrame(game.gameLoop.bind(game));
@@ -301,6 +312,8 @@ export function showHome() {
 			pongContainer.classList.remove("grid-cols-1");
 			pongContainer.classList.add("grid-cols-2");
 		}
+
+		disableUnrelatedButtons('home');
 
 		attachHomePageListeners();
 		attachLanguageListeners();

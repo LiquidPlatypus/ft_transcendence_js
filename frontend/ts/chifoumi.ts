@@ -1,6 +1,7 @@
 import { homePage } from "./home.js";
 import { showHome } from "./script.js";
 import { loadLanguage, t, getCurrentLang } from "../lang/i18n.js";
+import {disableUnrelatedButtons} from "./Utilities.js";
 
 type Choix = 'pierre' | 'feuille' | 'ciseaux';
 
@@ -26,6 +27,8 @@ export async function config_pfc(event: Event) {
 	const container = document.getElementById("pfc");
 	if (!container)
 		return ;
+
+	disableUnrelatedButtons('pfc');
 
 	let inputsHTML = "";
 	for (let i = 1; i <= 2; i++) {
