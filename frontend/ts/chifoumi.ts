@@ -19,17 +19,24 @@ const symbols: Record<Choix, string> = {
 const touchesJ1: Record<string, Choix> = { a: 'pierre', z: 'feuille', e: 'ciseaux' };
 const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseaux' };
 
+/**
+ * @brief Configuration du PFC avant de le lancer.
+ * @param event evenement qui appelle la fonction.
+ */
 export async function config_pfc(event: Event) {
 	const savedLang = localStorage.getItem('lang') as 'fr' | 'en' | 'es' || 'en';
 	if (getCurrentLang() !== savedLang)
 		await loadLanguage(savedLang);
 
+	// Recupere le contenu de la div "pfc".
 	const container = document.getElementById("pfc");
 	if (!container)
 		return ;
 
+	// Empeche d'appuyer sur les boutons en dehors de cette div.
 	disableUnrelatedButtons('pfc');
 
+	// Creer les champs pour rentrer les alias des joueurs.
 	let inputsHTML = "";
 	for (let i = 1; i <= 2; i++) {
 		inputsHTML += `
@@ -40,6 +47,7 @@ export async function config_pfc(event: Event) {
 		`;
 	}
 
+	// Affiche les champs pour rentrer les alias.
 	container.innerHTML = `
 		<div class="flex flex-col item-center gap-4">
 			<button id="back-button" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
@@ -53,6 +61,7 @@ export async function config_pfc(event: Event) {
 		</div>
 	`;
 
+	// Bouton retour.
 	const backButton = document.getElementById("back-button");
 	if (backButton) {
 		backButton.addEventListener("click", () => {
@@ -60,21 +69,28 @@ export async function config_pfc(event: Event) {
 		});
 	}
 
+	// Bouton commencer.
 	const startButton = document.getElementById("start")
 	if (startButton)
 		start_pfc(startButton);
 }
 
+/**
+ * @brief Lance le pfc et la logique du back.
+ * @param startButton bouton start.
+ */
 function start_pfc(startButton: HTMLElement) {
 	startButton.addEventListener("click", async () => {
 		const player1 = (document.getElementById("playerAlias1") as HTMLInputElement).value;
 		const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
 		console.log(`Match entre ${player1} et ${player2}`);
 
+		// Stock les alias dans le localStorage.
 		localStorage.setItem('player1Alias', player1);
 		localStorage.setItem('player2Alias', player2);
 
 		try {
+			// Creer les joueurs dans le back.
 			const player1Response = await fetch('api/players', {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
@@ -88,6 +104,7 @@ function start_pfc(startButton: HTMLElement) {
 			}).then(res => res.json());
 
 			if (player1Response.success && player2Response.success) {
+				// Creer le match dans le back.
 				const matchResponse = await fetch("api/players/match", {
 					method: 'POST',
 					headers: {'Content-Type': 'application/json'},
@@ -116,6 +133,9 @@ function creerElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?:
 	return el;
 }
 
+/**
+ * @brief Gere le pfc.
+ */
 function init() {
 	const container = document.getElementById("pfc");
 	if (!container)
@@ -218,6 +238,7 @@ function init() {
 
 		const matchId = localStorage.getItem('currentMatchId');
 		if (matchId) {
+			// Envoie le score dans le back.
 			fetch('api/players/match/score', {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},

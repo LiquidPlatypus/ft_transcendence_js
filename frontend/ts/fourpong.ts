@@ -64,12 +64,12 @@ export class GameFour {
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
-		//draw court outline
+		// Trace les contours du terrain.
 		this.gameContext.strokeStyle = "#fff";
 		this.gameContext.lineWidth = 5;
 		this.gameContext.strokeRect(10,10,this.gameCanvas.width - 20 ,this.gameCanvas.height - 20);
 
-		//draw color
+		// Affiche la couleur.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
 			this.gameContext.fillStyle = "#fff";
 		}
@@ -84,13 +84,13 @@ export class GameFour {
 		this.gameContext!.fillStyle = "#fff";
 		this.gameContext!.textAlign = "center";
 
-		// Position
+		// Position des noms des joueurs.
 		this.gameContext.fillText(player1Alias, this.gameCanvas.width / 3, (this.gameCanvas.height / 2) - 25);
 		this.gameContext.fillText(player2Alias, (3 * this.gameCanvas.width) / 4.60, (this.gameCanvas.height / 2) - 25);
 		this.gameContext.fillText(player3Alias, this.gameCanvas.width / 2, (this.gameCanvas.height / 4) - 25);
 		this.gameContext.fillText(player4Alias, this.gameCanvas.width / 2, ((3 * this.gameCanvas.height) / 4) - 25);
 
-		//draw scores
+		// Affiche les scores.
 		this.gameContext.textAlign = "center";
 		this.gameContext.fillText(GameFour.player1Score.toString(), this.gameCanvas.width / 3, this.gameCanvas.height / 2);
 		this.gameContext.fillText(GameFour.player2Score.toString(), (3 * this.gameCanvas.width) / 4.60, this.gameCanvas.height / 2);
@@ -290,7 +290,7 @@ class Ball extends Entity{
 		this.resetBallPosition(); // Positionne la balle au centre du terrain avec une direction aléatoire
 	}
 
-	// Fonction pour réinitialiser la position de la balle après un but
+	// Fonction pour reinitialiser la position de la balle apres un but.
 	resetBallPosition() {
 		let margin = 50;
 		this.x = this.canvasWidth / 2 - this.width / 2 + (Math.random() * margin - margin / 2);
@@ -310,14 +310,14 @@ class Ball extends Entity{
 		);
 
 		if (highestScore >= MAX_SCORE) {
-			// Déterminer le gagnant
+			// Determiner le gagnant.
 			let winner = "";
 			if (GameFour.player1Score >= MAX_SCORE) winner = "Joueur 1";
 			else if (GameFour.player2Score >= MAX_SCORE) winner = "Joueur 2";
 			else if (GameFour.player3Score >= MAX_SCORE) winner = "Joueur 3";
 			else if (GameFour.player4Score >= MAX_SCORE) winner = "Joueur 4";
 
-			// Enregistrer les scores
+			// Enregistrer les scores.
 			const matchId = localStorage.getItem('currentMatchId');
 			if (matchId) {
 				try {
@@ -335,7 +335,7 @@ class Ball extends Entity{
 					const result = await response.json();
 					console.log("Résultat sauvegardé:", result);
 
-					// Supprimer l'ID du match du localStorage
+					// Supprimer l'ID du match du localStorage.
 					localStorage.removeItem('currentMatchId');
 				} catch (error) {
 					console.error("Erreur lors de l'enregistrement des scores:", error);
@@ -351,7 +351,7 @@ class Ball extends Entity{
 					</div>
 				`;
 
-				// Import dynamique pour éviter les problèmes de référence circulaire
+				// Import dynamique pour eviter les problemes de reference circulaire.
 				import('./script.js').then(module => {
 					const menu_btn = document.getElementById("menu-btn");
 					if (menu_btn)
@@ -365,13 +365,13 @@ class Ball extends Entity{
 	}
 
 	update(player1: Paddle, player2: Paddle2, player3: Paddle3, player4: Paddle4, canvas: HTMLCanvasElement) {
-		// Si le jeu est en pause, on ne met pas à jour la position de la balle
+		// Si le jeu est en pause, on ne met pas a jour la position de la balle.
 		if (isPaused) return;
 
-		// Vérification des buts dans les camps respectifs
+		// Verification des buts dans les camps respectifs.
 		if (this.x <= 0) {
 			GameFour.player1Score += 1;
-			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
+			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
@@ -381,7 +381,7 @@ class Ball extends Entity{
 
 		if (this.x + this.width >= canvas.width) {
 			GameFour.player2Score += 1;
-			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
+			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
@@ -391,7 +391,7 @@ class Ball extends Entity{
 
 		if (this.y <= 0) {
 			GameFour.player3Score += 1;
-			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
+			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
@@ -401,7 +401,7 @@ class Ball extends Entity{
 
 		if (this.y + this.height >= canvas.height) {
 			GameFour.player4Score += 1;
-			this.resetBallPosition();  // Réinitialiser la position de la balle au centre
+			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
@@ -409,29 +409,29 @@ class Ball extends Entity{
 			}, pauseDuration);
 		}
 
-		// Collision avec player 1
+		// Collision avec joueur 1.
 		if (this.x <= player1.x + player1.width &&
 			this.x >= player1.x &&
 			this.y + this.height >= player1.y &&
 			this.y <= player1.y + player1.height) {
 			let relativeY = (this.y + this.height / 2) - (player1.y + player1.height / 2);
-			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale
+			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale.
 			this.xVal = 1;
-			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision
+			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
 		}
 
-		// Collision avec player 2
+		// Collision avec jooueur 2.
 		if (this.x + this.width >= player2.x &&
 			this.x <= player2.x + player2.width &&
 			this.y + this.height >= player2.y &&
 			this.y <= player2.y + player2.height) {
 			let relativeY = (this.y + this.height / 2) - (player2.y + player2.height / 2);
-			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale
+			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale.
 			this.xVal = -1;
-			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision
+			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
 		}
 
-		// Collision avec player 3 (paddle vertical)
+		// Collision avec joueur 3 (paddle vertical).
 		if (this.y <= player3.y + player3.height &&
 			this.y >= player3.y &&
 			this.x + this.width >= player3.x &&
@@ -442,7 +442,7 @@ class Ball extends Entity{
 			this.xVal = normalizedX * 1.2;
 		}
 
-		// Collision avec player 4 (paddle vertical)
+		// Collision avec joueur 4 (paddle vertical).
 		if (this.y + this.height >= player4.y &&
 			this.y <= player4.y + player4.height &&
 			this.x + this.width >= player4.x &&
@@ -453,7 +453,7 @@ class Ball extends Entity{
 			this.xVal = normalizedX * 1.2;
 		}
 
-		// Mise à jour de la position de la balle
+		// Mise a jour de la position de la balle.
 		const length = Math.sqrt(this.xVal * this.xVal + this.yVal * this.yVal);
 		this.x += (this.xVal / length) * this.speed;
 		this.y += (this.yVal / length) * this.speed;

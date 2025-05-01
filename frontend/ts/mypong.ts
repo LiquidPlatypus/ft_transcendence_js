@@ -282,11 +282,13 @@ class Ball extends Entity{
 			this.xVal = -1; // rebond vers la gauche.
 		}
 
+		// Fait en sorte que la balle se déplace a une vitesse constante meme en diagonale.
 		const length = Math.sqrt(this.xVal * this.xVal + this.yVal * this.yVal);
 		this.x += (this.xVal / length) * this.speed;
 		this.y += (this.yVal / length) * this.speed;
 	}
 
+	// Reset la position de la balle.
 	private resetPosition(canvas: HTMLCanvasElement) {
 		this.x = canvas.width / 2 - this.width / 2;
 		this.y = canvas.height / 2 - this.height / 2;
@@ -323,7 +325,7 @@ class Ball extends Entity{
 			const semifinal2Id = localStorage.getItem('semifinal2Id');
 
 			if (tournamentMode && pendingMatchId) {
-				// Autre match encore en attente.
+				// S'affiche lorse que un autre match est encore en attente.
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `
@@ -338,7 +340,7 @@ class Ball extends Entity{
 					if (nextMatchBtn) {
 						nextMatchBtn.addEventListener("click", async () => {
 							try {
-								// Sauvegarde le gagant du match actuel.
+								// Sauvegarde le gagnant du match actuel.
 								if (matchId === semifinal1Id) {
 									localStorage.setItem('semifinal1Winner', winner === 'Joueur 1' ?
 										localStorage.getItem('player1Id') || '' :
@@ -370,7 +372,6 @@ class Ball extends Entity{
 										localStorage.getItem('player4Id') || '' :
 										localStorage.getItem('player3Id') || '');
 
-									// Create final match after this one
 									// Creer le dernier match apres celui-ci.
 									const currentTournamentId = localStorage.getItem('currentTournamentId');
 									if (currentTournamentId) {
@@ -431,7 +432,6 @@ class Ball extends Entity{
 											localStorage.setItem("currentMatchType", "final");
 											localStorage.setItem("pendingMatchType", "third-place");
 
-											// Update current player names for the UI to display correctly
 											// Met a jour les noms des joueurs pour les afficher sur l'UI correctement.
 											localStorage.setItem('player1Alias', winner1Name);
 											localStorage.setItem('player2Alias', winner2Name);
@@ -451,7 +451,6 @@ class Ball extends Entity{
 									const tournamentWinnerAlias = this.getWinnerAlias(winner);
 									localStorage.setItem('tournamentWinnerAlias', tournamentWinnerAlias);
 
-									// After the final match, move to the third-place match
 									// Apres la finale. match pour la troisieme place.
 									localStorage.setItem('currentMatchId', localStorage.getItem('pendingMatchId') || '');
 									localStorage.removeItem('pendingMatchId');
@@ -461,13 +460,11 @@ class Ball extends Entity{
 									localStorage.setItem('player1Alias', localStorage.getItem('thirdPlacePlayer1Alias') || 'Joueur 1');
 									localStorage.setItem('player2Alias', localStorage.getItem('thirdPlacePlayer2Alias') || 'Joueur 2');
 
-									// Reset game state
 									// Reset l'etat du jeu.
 									Game.player1Score = 0;
 									Game.player2Score = 0;
 									Game.setGameOver(false);
 
-									// Start the third-place match
 									// Demarre le match pour la troisieme place.
 									startGame(2);
 								} else {
@@ -520,16 +517,17 @@ class Ball extends Entity{
 					}
 				}
 			} else {
-				// Fin de mathc normal (hors tournoi).
+				// Fin de match normal (hors tournoi).
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `
-				<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
-				<div class="flex justify-center">
-					<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
-				</div>
-			`;
+						<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
+						<div class="flex justify-center">
+							<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+						</div>
+					`;
 
+					// Nettoie le localStorage.
 					const menu_btn = document.getElementById("menu-btn");
 					if (menu_btn) {
 						menu_btn.addEventListener("click", () => {
