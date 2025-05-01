@@ -2,6 +2,9 @@ import { loadLanguage } from "../lang/i18n.js";
 import { showPlayerCountSelection, showAliasInputs, showHistory, showHome } from "./script.js";
 import { config_pfc } from "./chifoumi.js"
 
+/**
+ * @brief Boutons de changement de langues.
+ */
 export function attachLanguageListeners() {
 	document.querySelectorAll('[data-lang]').forEach((btn) => {
 		btn.addEventListener('click', async (e) => {
@@ -17,6 +20,9 @@ export function attachLanguageListeners() {
 	});
 }
 
+/**
+ * @brief Gere tout les boutons de la page d'acceuil.
+ */
 export function attachHomePageListeners() {
 	const match_btn = document.getElementById('match-button');
 	if (match_btn)

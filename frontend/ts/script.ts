@@ -7,6 +7,7 @@ import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
 import { disableUnrelatedButtons } from "./Utilities.js";
 
+// Ecouteur d'evenements.
 document.addEventListener('DOMContentLoaded', async () => {
 	const savedLang = localStorage.getItem('lang') || 'fr';
 	await loadLanguage(savedLang as 'fr' | 'en' | 'es');
@@ -21,11 +22,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 type ButtonType = 'match' | 'tournoi'
 
+/**
+ * @brief Affiche le selecteur du nombre de joueurs.
+ * @param event evenement appelant la foncton.
+ * @param buttonType type de match (simple/tournoi).
+ */
 export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
+	// Recupere le contenu de la div "Pong".
 	const container = document.getElementById("Pong");
 	if (!container)
 		return ;
 
+	// Cache les boutons d'historiques.
 	const pong_hist_btn = document.getElementById('history-pong');
 	if (pong_hist_btn)
 		pong_hist_btn.classList.add('hidden');
@@ -34,9 +42,11 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 	if (pfc_hist_btn)
 		pfc_hist_btn.classList.add('hidden');
 
+	// Fait en sorte que le bouton retour soit au dessus des boutons de selection du nombre de joueurs.
 	container.classList.remove("grid-cols-2");
 	container.classList.add("grid-cols-1");
 
+	// Creer les boutons de selection du nombre de joueurs.
 	container.innerHTML = `
 		<div class="flex flex-col items-center gap-4">
 			<button id="back-button" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
@@ -48,8 +58,10 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 		</div>
 	`;
 
+	// Empeche d'appuyer sur tout les autres boutons en dehors de la div de Pong.
 	disableUnrelatedButtons('pong');
 
+	// Bouton retour.
 	const backButton = document.getElementById("back-button");
 	if (backButton) {
 		backButton.addEventListener("click", () => {
@@ -57,6 +69,7 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 		});
 	}
 
+	// Boutons de selection du nombres de joueurs.
 	document.querySelectorAll(".player-count-btn").forEach((btn) => {
 		btn.addEventListener("click", (event) => {
 			const target = event.target as HTMLButtonElement;
@@ -66,14 +79,22 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 	});
 }
 
+/**
+ * @brief Affiche les champs pur rentrer les alias des joueurs.
+ * @param playerCount nombre de joueurs.
+ * @param buttonType type de match (simple/tournoi).
+ */
 export function showAliasInputs(playerCount: number, buttonType: ButtonType) {
+	// Recupere le contenu de la div "Pong".
 	const container = document.getElementById("Pong");
 	if (!container)
 		return ;
 
+	// Fait en sorte que le bouton retour soit au dessus des boutons de selection du nombre de joueurs.
 	container.classList.remove("grid-cols-2");
 	container.classList.add("grid-cols-1");
 
+	// Creer les champs pour rentrer les alias selon le nombre de joueurs.
 	let inputsHTML = "";
 	for (let i = 1; i <= playerCount; i++) {
 		inputsHTML += `
@@ -84,6 +105,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 		`;
 	}
 
+	// Creer la div complete.
 	container.innerHTML = `
 		<div class="flex flex-col item-center gap-4">
 			<button id="back-button" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
@@ -97,8 +119,11 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 		</div>
 	`;
 
+
+	// Empeche d'appuyer sur les autres boutons en dehors de la div Pong.
 	disableUnrelatedButtons('pong');
 
+	// Bouton retour.
 	const backButton = document.getElementById("back-button");
 	if (backButton) {
 		if (buttonType === 'match')
@@ -107,6 +132,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType) {
 			backButton.addEventListener("click", (event) => {showHome()});
 	}
 
+	// Lance le ou les matchs en fonction du mode de jeu.
 	const startButton = document.getElementById("start");
 	if (startButton)
 	{
@@ -134,14 +160,21 @@ interface Match {
 	playerCount?: number;
 }
 
+/**
+ * @brief Affiche les tableaux des historiques.
+ * @param event evenement appelant la fonction.
+ * @param gameType type de jeu (pong/pfc).
+ */
 export async function showHistory(event: Event, gameType: string) {
-	// On garde la référence au conteneur spécifique d'historique
+	// Recupere le contenu de la div "history" en fonction du type de jeu.
 	const historyContainer = document.getElementById(`history-${gameType}`);
-	if (!historyContainer) return;
+	if (!historyContainer)
+		return ;
 
 	// Sauvegarde du contenu original pour le restaurer plus tard.
 	const originalHTML = historyContainer.innerHTML;
 
+	// Check si des matchs existent dans la DB.
 	try {
 		const response = await fetch(`/api/scores/history/${gameType}`, {
 			method: "POST",
@@ -150,10 +183,10 @@ export async function showHistory(event: Event, gameType: string) {
 		});
 		const data = await response.json();
 
-		// On vide d'abord le conteneur d'historique
+		// On vide d'abord le conteneur d'historique.
 		historyContainer.innerHTML = "";
 
-		// On crée deux divs distinctes - une pour l'en-tête et une pour les tableaux
+		// Creation de deux div distinctes : une pour l'en-tete et une pour les tableaux.
 		const headerDiv = document.createElement('div');
 		headerDiv.className = 'flex items-center justify-center gap-2 mb-4 mt-2';
 		headerDiv.innerHTML = `
@@ -162,16 +195,16 @@ export async function showHistory(event: Event, gameType: string) {
 		`;
 		historyContainer.appendChild(headerDiv);
 
-		// Div pour les tableaux d'historique
+		// Div pour les tableaux d'historique.
 		const tablesDiv = document.createElement('div');
 		tablesDiv.className = 'w-full space-y-2';
 
 		if (data.success && data.matches && data.matches.length > 0) {
-			// Séparation des matchs 2 ou 4 joueurs.
+			// Separation des matchs 2 ou 4 joueurs.
 			const twoPlayerMatches = data.matches.filter((match: Match) => !match.player3);
 			const fourPlayerMatches = data.matches.filter((match: Match) => match.player3);
 
-			// Afficher les matchs à 2 joueurs
+			// Afficher les matchs a 2 joueurs.
 			if (twoPlayerMatches.length > 0) {
 				const twoPlayerTitle = document.createElement('h3');
 				twoPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
@@ -195,7 +228,7 @@ export async function showHistory(event: Event, gameType: string) {
 				});
 			}
 
-			// Afficher les matchs à 4 joueurs
+			// Afficher les matchs a 4 joueurs.
 			if (fourPlayerMatches.length > 0) {
 				const fourPlayerTitle = document.createElement('h3');
 				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
@@ -230,9 +263,10 @@ export async function showHistory(event: Event, gameType: string) {
 
 		historyContainer.appendChild(tablesDiv);
 
+		// Empeche d'appuyer sur les boutons en dehors des div d'historiques.
 		disableUnrelatedButtons(gameType === 'pong' ? 'pfc' : 'pong');
 
-		// Ajouter l'écouteur d'événement pour le bouton retour
+		// Bouton retour.
 		const backButton = document.getElementById(`back-button-${gameType}`);
 		if (backButton) {
 			backButton.addEventListener("click", () => {
@@ -261,7 +295,12 @@ export async function showHistory(event: Event, gameType: string) {
 	}
 }
 
+/**
+ * @brief Initialise les matchs.
+ * @param playerCount nombre de joueurs.
+ */
 export function startGame(playerCount: number) {
+	// Recupere le contenu de la div "Pong".
 	const container = document.getElementById("Pong");
 	if (!container)
 		return;
@@ -274,14 +313,16 @@ export function startGame(playerCount: number) {
 		console.log("Player 4:", localStorage.getItem('player4Alias'));
 	}
 
-	// Reset scores before starting a new game
+	// Reset les scores avant de commencer un match.
 	Game.player1Score = 0;
 	Game.player2Score = 0;
 	Game.setGameOver(false);
 
+	// Set-up l'esapce de jeu.
 	if (playerCount === 2) {
 		container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
 
+		// Empeche d'appuyer sur les autres boutons en dehors de la div "Pong".
 		disableUnrelatedButtons('pong');
 
 		setTimeout(() => {
@@ -302,6 +343,9 @@ export function startGame(playerCount: number) {
 	}
 }
 
+/**
+ * @brief Affiche la page d'acceuil.
+ */
 export function showHome() {
 	const appElement = document.getElementById('app');
 	if (appElement) {
@@ -313,6 +357,7 @@ export function showHome() {
 			pongContainer.classList.add("grid-cols-2");
 		}
 
+		// Reactive les boutons en dehors de divs specifiques.
 		disableUnrelatedButtons('home');
 
 		attachHomePageListeners();

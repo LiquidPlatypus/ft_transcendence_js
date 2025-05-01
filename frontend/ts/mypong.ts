@@ -56,28 +56,28 @@ export class Game{
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
-		//draw court outline
+		// Trace les contours du terrain.
 		this.gameContext.strokeStyle = "#fff";
 		this.gameContext.lineWidth = 5;
 		this.gameContext.strokeRect(10,10,this.gameCanvas.width - 20 ,this.gameCanvas.height - 20);
 
-		//draw center lines
+		// Trace la ligne au centre du terrain.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
 			this.gameContext.fillStyle = "#fff";
 			this.gameContext.fillRect(this.gameCanvas.width / 2 - 10, i + 10, 5, 20);
 		}
 
-		// Get match and player information
+		// Defini les informations du match et des joueurs.
 		const currentMatchId = localStorage.getItem('currentMatchId');
 		const currentMatchType = localStorage.getItem('currentMatchType');
 		const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
 
-		// Get the correct player names for the current match
+		// Recupere les bons noms de joueurs.
 		let player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
 		let player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
 		console.log(localStorage);
 
-		// Ensure correct display in tournament mode based on match type
+		// S'assure d'afficher les bons noms en fonction du match lors d'un tournoi.
 		if (tournamentMode && currentMatchType) {
 			if (currentMatchType === 'final') {
 				player1Alias = localStorage.getItem('finalPlayer1Alias') || player1Alias;
@@ -88,28 +88,26 @@ export class Game{
 			}
 		}
 
-		// Debug info
 		console.log("Current match ID:", currentMatchId);
 		console.log("Current match type:", currentMatchType);
 		console.log("Tournament mode:", tournamentMode);
 		console.log("Player 1 name:", player1Alias);
 		console.log("Player 2 name:", player2Alias);
 
-		// Set up display formatting
 		this.gameContext!.font = "20px Orbitron";
 		this.gameContext!.fillStyle = "#fff";
 		this.gameContext!.textAlign = "center";
 
-		// Display player names above scores
+		// Affiche le nom des joueurs au dessus du score.
 		this.gameContext!.fillText(player1Alias, this.gameCanvas!.width / 4, 25);
 		this.gameContext!.fillText(player2Alias, (3 * this.gameCanvas!.width) / 4, 25);
 
-		//draw scores
+		// Affiche les scores.
 		this.gameContext.textAlign = "center";
 		this.gameContext.fillText(Game.player1Score.toString(), this.gameCanvas.width / 4, 50);
 		this.gameContext.fillText(Game.player2Score.toString(), (3 * this.gameCanvas.width) / 4, 50);
 	}
-	draw(){
+	draw() {
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
@@ -121,7 +119,7 @@ export class Game{
 		this.player2.draw(this.gameContext);
 		this.ball.draw(this.gameContext);
 	}
-	update(){
+	update() {
 		if (!this.gameCanvas)
 			return ;
 
@@ -129,7 +127,7 @@ export class Game{
 		this.player2.update(this.gameCanvas);
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
 	}
-	gameLoop(){
+	gameLoop() {
 		if (gameOver) return ;
 		this.update();
 		this.draw();
@@ -238,18 +236,19 @@ class Ball extends Entity{
 
 	update(player1: Paddle, player2: Paddle2, canvas: HTMLCanvasElement){
 
-		 // Si le jeu est en pause, on ne met pas à jour la position de la balle
-		if (isPaused) return;
+		 // Si le jeu est en pause, on ne met pas à jour la position de la balle.
+		if (isPaused)
+			return ;
 
-		//check le haut
+		// check le haut.
 		if (this.y <= 10)
 			this.yVal = 1;
 
-		//check le bas
+		// check le bas.
 		if (this.y + this.height >= canvas.height - 10)
 			this.yVal = -1;
 
-		//check but player 2
+		// check but player 2.
 		if (this.x <= 0) {
 			Game.player2Score += 1;
 			this.resetPosition(canvas);
@@ -258,7 +257,7 @@ class Ball extends Entity{
 				return;
 		}
 
-		//check but player 1
+		// .check but player 1
 		if (this.x + this.width >= canvas.width) {
 			Game.player1Score += 1;
 			this.resetPosition(canvas);
@@ -267,20 +266,20 @@ class Ball extends Entity{
 				return;
 		}
 
-		//check player 1 collision
+		// check player 1 collision.
 		if (this.x <= player1.x + player1.width &&
-			this.x + this.width >= player1.x && // ← important aussi pour s'assurer qu'on touche bien horizontalement
+			this.x + this.width >= player1.x &&
 			this.y < player1.y + player1.height &&
 			this.y + this.height > player1.y) {
-			this.xVal = 1; // rebond vers la droite
+			this.xVal = 1; // rebond vers la droite.
 		}
 
-		//check player 2 collision
+		// check player 2 collision.
 		if (this.x + this.width >= player2.x &&
-			this.x <= player2.x + player2.width && // ← symétrique à la précédente
+			this.x <= player2.x + player2.width &&
 			this.y < player2.y + player2.height &&
 			this.y + this.height > player2.y) {
-			this.xVal = -1; // rebond vers la gauche
+			this.xVal = -1; // rebond vers la gauche.
 		}
 
 		const length = Math.sqrt(this.xVal * this.xVal + this.yVal * this.yVal);
@@ -297,7 +296,7 @@ class Ball extends Entity{
 
 	private async checkGameEnd(winner: string): Promise<boolean> {
 		if (Game.player1Score >= MAX_SCORE || Game.player2Score >= MAX_SCORE) {
-			// Save scores for the current match
+			// Sauvegarde les scores pour le match actuel.
 			const matchId = localStorage.getItem('currentMatchId');
 			if (matchId) {
 				try {
@@ -317,14 +316,14 @@ class Ball extends Entity{
 				}
 			}
 
-			// Check if we're in tournament mode and have a pending match
+			// Check si on est dans un tournoi et si un match est en attente.
 			const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
 			const pendingMatchId = localStorage.getItem('pendingMatchId');
 			const semifinal1Id = localStorage.getItem('semifinal1Id');
 			const semifinal2Id = localStorage.getItem('semifinal2Id');
 
 			if (tournamentMode && pendingMatchId) {
-				// We have another match to play in the tournament
+				// Autre match encore en attente.
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `
@@ -337,10 +336,9 @@ class Ball extends Entity{
 
 					const nextMatchBtn = document.getElementById("next-match-btn");
 					if (nextMatchBtn) {
-						// In mypong.ts, modify the clickHandler for next-match-btn:
 						nextMatchBtn.addEventListener("click", async () => {
 							try {
-								// Store winner of current match
+								// Sauvegarde le gagant du match actuel.
 								if (matchId === semifinal1Id) {
 									localStorage.setItem('semifinal1Winner', winner === 'Joueur 1' ?
 										localStorage.getItem('player1Id') || '' :
@@ -349,22 +347,22 @@ class Ball extends Entity{
 										localStorage.getItem('player2Id') || '' :
 										localStorage.getItem('player1Id') || '');
 
-									// Set the pending match as current
+									// Set le match en attente en tant que match actuel.
 									localStorage.setItem('currentMatchId', pendingMatchId);
 
-									// Update player names for the next match
+									// Met a jour les noms des joueurs pour le prochain mach.
 									localStorage.setItem('player1Alias', localStorage.getItem('player3Alias') || 'Joueur 3');
 									localStorage.setItem('player2Alias', localStorage.getItem('player4Alias') || 'Joueur 4');
 
-									// Reset game state
+									// Reset l'etat du jeu.
 									Game.player1Score = 0;
 									Game.player2Score = 0;
 									Game.setGameOver(false);
 
-									// Start the next match
+									// Demarre le prochain match.
 									startGame(2);
 								} else if (matchId === semifinal2Id) {
-									// Store winner of second semifinal
+									// Stock le gagant de la semi-final.
 									localStorage.setItem('semifinal2Winner', winner === 'Joueur 1' ?
 										localStorage.getItem('player3Id') || '' :
 										localStorage.getItem('player4Id') || '');
@@ -373,16 +371,17 @@ class Ball extends Entity{
 										localStorage.getItem('player3Id') || '');
 
 									// Create final match after this one
+									// Creer le dernier match apres celui-ci.
 									const currentTournamentId = localStorage.getItem('currentTournamentId');
 									if (currentTournamentId) {
 										try {
-											// Get the winners of both semifinals
+											// Recupere les gagnants des deux semi-finals.
 											const semifinal1Winner = localStorage.getItem('semifinal1Winner') || '';
 											const semifinal2Winner = localStorage.getItem('semifinal2Winner') || '';
 											const semifinal1Loser = localStorage.getItem('semifinal1Loser') || '';
 											const semifinal2Loser = localStorage.getItem('semifinal2Loser') || '';
 
-											// Create final match (winners)
+											// Creer la final (gagnants).
 											const finalMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
 												method: 'POST',
 												headers: {'Content-Type': 'application/json'},
@@ -397,7 +396,7 @@ class Ball extends Entity{
 
 											const finalMatchData = await finalMatchResponse.json();
 
-											// Create 3rd place match (losers)
+											// Creer le match de la troisieme place (perdants).
 											const thirdPlaceMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
 												method: 'POST',
 												headers: {'Content-Type': 'application/json'},
@@ -412,36 +411,37 @@ class Ball extends Entity{
 
 											const thirdPlaceMatchData = await thirdPlaceMatchResponse.json();
 
-											// Get player names for both new matches
+											// Recupere le nom des joueurs pour les deux nouveaux matchs.
 											const winner1Name = await getAliasById(semifinal1Winner);
 											const winner2Name = await getAliasById(semifinal2Winner);
 											const loser1Name = await getAliasById(semifinal1Loser);
 											const loser2Name = await getAliasById(semifinal2Loser);
 
-											// Store player names for final match
+											// Stock le nom des joueurs pour la final.
 											localStorage.setItem("finalPlayer1Alias", winner1Name);
 											localStorage.setItem("finalPlayer2Alias", winner2Name);
 
-											// Store player names for third-place match
+											// Stock le nom des joueurs pour le match de la troisieme place.
 											localStorage.setItem("thirdPlacePlayer1Alias", loser1Name);
 											localStorage.setItem("thirdPlacePlayer2Alias", loser2Name);
 
-											// Setup for the final match
+											// Setup du match final.
 											localStorage.setItem("currentMatchId", finalMatchData.matchId.toString());
 											localStorage.setItem("pendingMatchId", thirdPlaceMatchData.matchId.toString());
 											localStorage.setItem("currentMatchType", "final");
 											localStorage.setItem("pendingMatchType", "third-place");
 
 											// Update current player names for the UI to display correctly
+											// Met a jour les noms des joueurs pour les afficher sur l'UI correctement.
 											localStorage.setItem('player1Alias', winner1Name);
 											localStorage.setItem('player2Alias', winner2Name);
 
-											// Reset game state
+											// Reset l'etat du jeu.
 											Game.player1Score = 0;
 											Game.player2Score = 0;
 											Game.setGameOver(false);
 
-											// Start the final match
+											// Demarre la finale.
 											startGame(2);
 										} catch (error) {
 											console.error("Error creating final matches:", error);
@@ -452,23 +452,26 @@ class Ball extends Entity{
 									localStorage.setItem('tournamentWinnerAlias', tournamentWinnerAlias);
 
 									// After the final match, move to the third-place match
+									// Apres la finale. match pour la troisieme place.
 									localStorage.setItem('currentMatchId', localStorage.getItem('pendingMatchId') || '');
 									localStorage.removeItem('pendingMatchId');
 									localStorage.setItem('currentMatchType', 'third-place');
 
-									// Update player names for the third-place match
+									// Met a jour le nom des joueurs pour la troisieme place.
 									localStorage.setItem('player1Alias', localStorage.getItem('thirdPlacePlayer1Alias') || 'Joueur 1');
 									localStorage.setItem('player2Alias', localStorage.getItem('thirdPlacePlayer2Alias') || 'Joueur 2');
 
 									// Reset game state
+									// Reset l'etat du jeu.
 									Game.player1Score = 0;
 									Game.player2Score = 0;
 									Game.setGameOver(false);
 
 									// Start the third-place match
+									// Demarre le match pour la troisieme place.
 									startGame(2);
 								} else {
-									// This was the last match of the tournament (third-place match)
+									// Si c'etait le match pour la troisieme place (dernier match).
 									localStorage.removeItem('pendingMatchId');
 									localStorage.removeItem('currentMatchType');
 									localStorage.removeItem('pendingMatchType');
@@ -482,10 +485,10 @@ class Ball extends Entity{
 					}
 				}
 			} else if (tournamentMode && !pendingMatchId) {
-				// C'était le dernier match du tournoi (match pour la 3ème place)
+				// C'était le dernier match du tournoi (match pour la 3ème place).
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
-					// Utiliser le gagnant de la finale qui a été stocké précédemment
+					// Utiliser le gagnant de la finale qui a été stocké précédemment.
 					const tournamentWinner = localStorage.getItem('tournamentWinnerAlias') || 'Vainqueur du tournoi';
 
 					victoryMessageElement.innerHTML = `
@@ -498,7 +501,7 @@ class Ball extends Entity{
 					const menu_btn = document.getElementById("menu-btn");
 					if (menu_btn) {
 						menu_btn.addEventListener("click", () => {
-							// Clean up tournament mode
+							// Nettoyage du mode tournoi.
 							localStorage.removeItem('tournamentMode');
 							localStorage.removeItem('semifinal1Id');
 							localStorage.removeItem('semifinal2Id');
@@ -511,13 +514,13 @@ class Ball extends Entity{
 							localStorage.removeItem('player3Id');
 							localStorage.removeItem('player4Id');
 							localStorage.removeItem('currentTournamentId');
-							localStorage.removeItem('tournamentWinnerAlias'); // Nettoyer aussi cette nouvelle variable
+							localStorage.removeItem('tournamentWinnerAlias');
 							showHome();
 						});
 					}
 				}
 			} else {
-				// Regular non-tournament match end
+				// Fin de mathc normal (hors tournoi).
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `

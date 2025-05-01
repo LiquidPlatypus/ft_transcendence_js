@@ -1,7 +1,12 @@
 import { startGame } from "./script.js";
 
+/**
+ * @brief Creer les matchs a 2 joueurs.
+ * @param startButton bouton pour commencer le match.
+ */
 export function twoPlayersMatch(startButton: HTMLElement) {
 	startButton.addEventListener("click", async () => {
+		// Stock les alias des joueurs.
 		const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
 		const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;
 		console.log(`Match entre ${player1} et ${player2}`);
@@ -11,7 +16,7 @@ export function twoPlayersMatch(startButton: HTMLElement) {
 		localStorage.setItem('player2Alias', player2);
 
 		try {
-			// Créer les joueurs
+			// Creer les joueurs dans le back.
 			const player1Response = await fetch('/api/players', {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
@@ -24,7 +29,7 @@ export function twoPlayersMatch(startButton: HTMLElement) {
 				body: JSON.stringify({name: player2}),
 			}).then(res => res.json());
 
-			// Créer le match
+			// Creer le match dans le back.
 			if (player1Response.success && player2Response.success) {
 				const matchResponse = await fetch("/api/players/match", {
 					method: "POST",
@@ -48,8 +53,13 @@ export function twoPlayersMatch(startButton: HTMLElement) {
 	});
 }
 
+/**
+ * @brief Creer les matchs a 4 joueurs.
+ * @param startButton bouton pour commncer le match.
+ */
 export function fourPlayersMatchs(startButton: HTMLElement) {
 	startButton.addEventListener("click", async () => {
+		// Stock les alias des joueurs.
 		const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
 		const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;
 		const player3 = (document.getElementById('playerAlias3') as HTMLInputElement).value;
@@ -63,6 +73,7 @@ export function fourPlayersMatchs(startButton: HTMLElement) {
 		localStorage.setItem('player4Alias', player4);
 
 		try {
+			// Creer les jouurs dans le back.
 			const player1Response = await fetch('/api/players', {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
@@ -87,6 +98,7 @@ export function fourPlayersMatchs(startButton: HTMLElement) {
 				body: JSON.stringify({name: player4}),
 			}).then(res => res.json());
 
+			// Creer le match dans le back.
 			if (player1Response.success && player2Response.success && player3Response.success && player4Response.success) {
 				const matchResponse = await fetch("/api/players/match4", {
 					method : "POST",
