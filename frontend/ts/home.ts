@@ -4,16 +4,16 @@ export function homePage() {
 	// Page d'acceuil du site.
 	return `
 		<div class="fixed top-4 right-4 z-10">
-		<!-- Boutons pour choisir sa langue. -->
+			<!-- Boutons pour choisir sa langue. -->
 			<div class="flex gap-2">
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-lang="fr">
-					<img src="../static/fr.png" alt="fr" class="w-8 h-6 rounded object-cover transition hover:ring-2 hover:ring-accent">
+				<button class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="fr">
+					<img src="../static/fr.png" alt="fr" class="w-8 h-6 rounded object-cover">
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-lang="en">
-					<img src="../static/en.png" alt="en" class="w-8 h-6 rounded object-cover transition hover:ring-2 hover:ring-accent">
+				<button class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="en">
+					<img src="../static/en.png" alt="en" class="w-8 h-6 rounded object-cover">
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-lang="es">
-					<img src="../static/es.png" alt="es" class="w-8 h-6 rounded object-cover transition hover:ring-2 hover:ring-accent">
+				<button class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="es">
+					<img src="../static/es.png" alt="es" class="w-8 h-6 rounded object-cover">
 				</button>
 			</div>
 		</div>
