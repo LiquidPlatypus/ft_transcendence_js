@@ -145,6 +145,7 @@ function init() {
 
 	const title = creerElement("h1", "", t("pfc"));
 
+	let isWaiting = false;
 	const rockSymbol = symbols.pierre;
 	const paperSymbol = symbols.feuille;
 	const scissorSymbol = symbols.ciseaux;
@@ -184,6 +185,10 @@ function init() {
 	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
 
 	function handleKeydown(e: KeyboardEvent) {
+		// Ignore les entree pendant le delai.
+		if (isWaiting)
+			return ;
+
 		const key = e.key.toLowerCase();
 
 		if (!choixJ1 && touchesJ1[key])
@@ -192,6 +197,9 @@ function init() {
 			choixJ2 = touchesJ2[key];
 
 		if (choixJ1 && choixJ2) {
+			// Bloque les entrees.
+			isWaiting = true;
+
 			afficherCombat(fightZone, fightJ1, fightJ2, choixJ1, choixJ2);
 			setTimeout(() => {
 				const result = comparer(choixJ1!, choixJ2!);
@@ -207,6 +215,11 @@ function init() {
 					fightZone.classList.remove("fight-in");
 					fightJ1.textContent = "";
 					fightJ2.textContent = "";
+
+					// Reinitialisation des choix et deblocage.
+					choixJ1 = null;
+					choixJ2 = null;
+					isWaiting = false;
 				}, 1000);
 				choixJ1 = null;
 				choixJ2 = null;
