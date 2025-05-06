@@ -34,5 +34,9 @@
   "error_match_creation": "Error durante la creación de partidas",
   "error_score_save": "Error durante el registro de partituras",
   "wins_round": "¡gana la ronda!",
-  "player_wins_round": "El jugador  gana la ronda tje!"
+  "player_wins_round": "El jugador  gana la ronda tje!",
+
+  "select_game_mode": "Modo de juego",
+  "normal": "Normal",
+  "bonus": "Bonus"
 }

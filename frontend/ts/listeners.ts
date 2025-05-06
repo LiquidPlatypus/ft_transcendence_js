@@ -1,6 +1,6 @@
 import { loadLanguage } from "../lang/i18n.js";
-import { showPlayerCountSelection, showAliasInputs, showHistory, showHome } from "./script.js";
-import { config_pfc } from "./chifoumi.js"
+import { showAliasInputs, showHistory, showHome } from "./script.js";
+import {matchTypeChoice} from "./Utilities.js";
 
 /**
  * @brief Boutons de changement de langues.
@@ -26,15 +26,15 @@ export function attachLanguageListeners() {
 export function attachHomePageListeners() {
 	const match_btn = document.getElementById('match-button');
 	if (match_btn)
-		match_btn.addEventListener("click", (event) => showPlayerCountSelection(event, 'match'));
+		match_btn.addEventListener("click", (event) => matchTypeChoice(event, 'match', 'pong'));
 
 	const tournament_btn = document.getElementById("tournament-button");
 	if (tournament_btn)
-		tournament_btn.addEventListener("click", (event) => showAliasInputs(4, 'tournoi'));
+		tournament_btn.addEventListener("click", (event) => showAliasInputs(4, 'tournoi', 'pong'));
 
 	const pfc_button = document.getElementById("pfc-button");
 	if (pfc_button)
-		pfc_button.addEventListener("click", (event) => config_pfc(event));
+		pfc_button.addEventListener("click", (event) => matchTypeChoice(event, 'match', 'pfc'));
 
 	const pong_hist_btn = document.getElementById("pong-hist-btn");
 	if (pong_hist_btn)
