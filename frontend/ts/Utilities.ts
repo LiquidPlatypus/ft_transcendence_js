@@ -8,20 +8,24 @@ import {t} from "../lang/i18n.js";
 export function disableUnrelatedButtons(currentContext: 'pong' | 'pfc' | 'home') {
 	// Selectionne tout les types de boutons.
 	const langButtons = document.querySelectorAll('[data-lang]');
+	const themeButtons = document.querySelectorAll('[data-theme]');
 	const pongButtons = document.querySelectorAll('#match-button, #tournament-button, #pong-hist-btn');
 	const pfcButtons = document.querySelectorAll('#pfc-button, #pfc-hist-btn');
 
 	// Active ou desactive les boutons en fonction du contexte.
 	if (currentContext === 'home') {
 		enableElements(langButtons);
+		enableElements(themeButtons);
 		enableElements(pongButtons);
 		enableElements(pfcButtons);
 	} else if (currentContext === 'pong') {
 		disableElements(langButtons);
+		disableElements(themeButtons);
 		disableElements(pfcButtons);
 		disableElements(pongButtons);
 	} else if (currentContext === 'pfc') {
 		disableElements(langButtons);
+		disableElements(themeButtons);
 		disableElements(pongButtons);
 		disableElements(pfcButtons);
 	}

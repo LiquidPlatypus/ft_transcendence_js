@@ -1,6 +1,7 @@
 import { loadLanguage } from "../lang/i18n.js";
 import { showAliasInputs, showHistory, showHome } from "./script.js";
 import {matchTypeChoice} from "./Utilities.js";
+import {attachThemeListeners} from "./themeSwitcher.js";
 
 /**
  * @brief Boutons de changement de langues.
@@ -43,4 +44,6 @@ export function attachHomePageListeners() {
 	const pfc_hist_btn = document.getElementById("pfc-hist-btn");
 	if (pfc_hist_btn)
 		pfc_hist_btn.addEventListener("click", (event) => showHistory(event, 'pfc'));
+
+	attachThemeListeners();
 }

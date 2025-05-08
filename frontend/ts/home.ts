@@ -18,6 +18,23 @@ export function homePage() {
 			</div>
 		</div>
 
+		<div class="fiex top-4 left-4 z-10">
+		<!-- Boutons pour choisir son theme. -->
+			<div class="flex gap-2">
+				<button class="transition rounded hover:brightness-110 focus:outline-none" data-theme="CP">
+					<div class="w-8 h-6 bg-catpuccin border-2 border-black rounded transition hover:ring-2 hover:ring-accent"></div>
+				</button>
+				<button class="transition rounded hover:brightness-110 focus:outline-none" data-theme="HC">
+					<div class="w-8 h-6 bg-green-600 text-white rounded transition hover:ring-2 hover:ring-accent">HC</div>
+				</button>
+				<button class="transition rounded hover:brightness-110 focus:outline-none" data-theme="OLED">
+					<div class="w-8 h-6 bg-black rounded transition hover:ring-2 hover:ring-accent"></div>
+				</button>
+				<button class="transition rounded hover:brightness-110 focus:outline-none" data-theme="WHITE">
+					<div class="w-8 h-6 bg-gray-100 border border-gray-300 rounded transition hover:ring-2 hover:ring-accent"></div>
+				</button>
+			</div>
+		</div>
 
 		<!-- Div centrant les elements au centre. -->
 		<div class="flex items-center justify-center min-h-screen">

@@ -7,6 +7,7 @@ import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
 import {disableUnrelatedButtons, GameType, matchTypeChoice} from "./Utilities.js";
 import {start_pfc} from "./chifoumi.js";
+import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 
 // Ecouteur d'evenements.
 document.addEventListener('DOMContentLoaded', async () => {
@@ -18,6 +19,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 		appElement.innerHTML = homePage();
 		attachHomePageListeners();
 		attachLanguageListeners();
+		attachThemeListeners();
+		initTheme();
 	}
 })
 

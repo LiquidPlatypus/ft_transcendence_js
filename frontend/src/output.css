@@ -375,10 +375,11 @@
       --font-mono--font-variation-settings
     );
     --color-catpuccin: oklch(24.29% 0.0304 283.91);
-    --color-catpuccin_text: oklch(87.87% 0.0426 272.28);
+    --color-catpuccin-text: oklch(87.87% 0.0426 272.28);
     --color-button: oklch(47.65% 0.034 278.64);
-    --color-button_hover: oklch(87.87% 0.0426 272.28);
+    --color-button-hover: oklch(87.87% 0.0426 272.28);
     --color-hist: oklch(0.34 0.048 278.64);
+    --button-text-color: white;
   }
 }
 @layer base {
@@ -594,6 +595,9 @@
   }
   .right-4 {
     right: calc(var(--spacing) * 4);
+  }
+  .left-4 {
+    left: calc(var(--spacing) * 4);
   }
   .isolate {
     isolation: isolate;
@@ -1468,6 +1472,10 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
+  .border-2 {
+    border-style: var(--tw-border-style);
+    border-width: 2px;
+  }
   .border-x {
     border-inline-style: var(--tw-border-style);
     border-inline-width: 1px;
@@ -1524,6 +1532,12 @@
     --tw-border-style: solid;
     border-style: solid;
   }
+  .border-black {
+    border-color: var(--color-black);
+  }
+  .border-gray-300 {
+    border-color: var(--color-gray-300);
+  }
   .bg-\(--my_variable\) {
     background-color: var(--my_variable);
   }
@@ -1539,8 +1553,17 @@
   .bg-\[var\(--my_variable\)\] {
     background-color: var(--my_variable);
   }
+  .bg-black {
+    background-color: var(--color-black);
+  }
   .bg-catpuccin {
     background-color: var(--color-catpuccin);
+  }
+  .bg-gray-100 {
+    background-color: var(--color-gray-100);
+  }
+  .bg-green-600 {
+    background-color: var(--color-green-600);
   }
   .bg-hist {
     background-color: var(--color-hist);
@@ -1882,8 +1905,14 @@
   .\[color\:red\]\/50\! {
     color: color-mix(in oklab, red 50%, transparent) !important;
   }
-  .text-catpuccin_text {
-    color: var(--color-catpuccin_text);
+  .text-black {
+    color: var(--color-black);
+  }
+  .text-catpuccin-text {
+    color: var(--color-catpuccin-text);
+  }
+  .text-white {
+    color: var(--color-white);
   }
   .capitalize {
     text-transform: capitalize;
@@ -2362,20 +2391,20 @@
 }
 .btn {
   background-color: var(--color-button);
-  color: white;
+  color: var(--button-text-color);
   width: 100px;
 }
 .btn:hover {
-  background-color: var(--color-button_hover);
+  background-color: var(--color-button-hover);
 }
 .little_btn {
   background-color: var(--color-button);
-  color: white;
+  color: var(--button-text-color);
   width: 10px;
   height: 10px;
 }
 .little_btn:hover {
-  background-color: var(--color-button_hover);
+  background-color: var(--color-button-hover);
 }
 #history-pong, #history-pfc {
   flex-direction: column;

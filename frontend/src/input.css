@@ -1,33 +1,34 @@
 @import "tailwindcss";
 
 @theme {
+	/* Variables de base qui seront ecrasees par le programme. */
 	--color-catpuccin: oklch(24.29% 0.0304 283.91);
-	--color-catpuccin_text: oklch(87.87% 0.0426 272.28);
-
-	--color-button: oklch(47.65% 0.034 278.64);
-	--color-button_hover: oklch(87.87% 0.0426 272.28);
+	--color-catpuccin-text: oklch(87.87% 0.0426 272.28);
+	--color-button: oklch(47.65% 0.034 278.64); /* Valeur par défaut (catpuccin). */
+	--color-button-hover: oklch(87.87% 0.0426 272.28);
 	--color-hist: oklch(0.34 0.048 278.64);
+	--button-text-color: white;
 }
 
 .btn {
 	background-color: var(--color-button);
-	color: white;
+	color: var(--button-text-color);
 	width: 100px;
 }
 
 .btn:hover {
-	background-color: var(--color-button_hover);
+	background-color: var(--color-button-hover);
 }
 
 .little_btn {
 	background-color: var(--color-button);
-	color: white;
+	color: var(--button-text-color);
 	width: 10px;
 	height: 10px;
 }
 
 .little_btn:hover {
-	background-color: var(--color-button_hover);
+	background-color: var(--color-button-hover);
 }
 
 #history-pong, #history-pfc {
