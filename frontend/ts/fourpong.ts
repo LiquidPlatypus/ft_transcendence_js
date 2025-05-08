@@ -1,8 +1,5 @@
 import { t } from "../lang/i18n.js"
 
-
- boiudhyaiuhgfuiazefhi
- 
 enum KeyBindings{
 	UPONE = 65, //A
 	DOWNONE = 81, //Q
