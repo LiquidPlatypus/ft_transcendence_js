@@ -4,10 +4,13 @@
 	/* Variables de base qui seront ecrasees par le programme. */
 	--color-catpuccin: oklch(24.29% 0.0304 283.91);
 	--color-catpuccin-text: oklch(87.87% 0.0426 272.28);
-	--color-button: oklch(47.65% 0.034 278.64); /* Valeur par défaut (catpuccin). */
-	--color-button-hover: oklch(87.87% 0.0426 272.28);
+	--color-button: oklch(47.65% 0.034 278.64); /* Valeur par defaut (catpuccin). */
+	--color-button-hover: oklch(0.62 0.0426 272.28);
 	--color-hist: oklch(0.34 0.048 278.64);
-	--button-text-color: white;
+	--button-text-color: oklch(87.87% 0.0426 272.28);
+	--color-hist-text: oklch(87.87% 0.0426 272.28);
+	--disabled-button-color: oklch(47.65% 0.034 278.64);
+	--disabled-button-text-color: oklch(87.87% 0.0426 272.28);
 }
 
 .btn {
@@ -16,8 +19,13 @@
 	width: 100px;
 }
 
-.btn:hover {
+.btn:hover:not([disabled]) {
 	background-color: var(--color-button-hover);
+}
+
+.btn[disabled] {
+	background-color: var(--disabled-button-color);
+	color: var(--disabled-button-text-color);
 }
 
 .little_btn {
@@ -27,8 +35,13 @@
 	height: 10px;
 }
 
-.little_btn:hover {
+.little_btn:hover:not([disabled]) {
 	background-color: var(--color-button-hover);
+}
+
+.little_btn[disabled] {
+	background-color: var(--disabled-button-color);
+	color: var(--disabled-button-text-color);
 }
 
 #history-pong, #history-pfc {
@@ -49,6 +62,15 @@
 	width: 50%;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+/* Styles pour l'historique */
+.bg-hist {
+	background-color: var(--color-hist);
+}
+
+.bg-hist-text {
+	color: var(--color-hist-text);
 }
 
 /* PFC */

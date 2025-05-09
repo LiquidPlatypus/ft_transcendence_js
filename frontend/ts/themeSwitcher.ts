@@ -2,6 +2,14 @@
  * @brief Change le theme du site.
  * @param themeName nom du theme a utiliser.
  */
+/**
+ * @brief Change le theme du site.
+ * @param themeName nom du theme a utiliser.
+ */
+/**
+ * @brief Change le theme du site.
+ * @param themeName nom du theme a utiliser.
+ */
 export function changeTheme(themeName: string) {
 	// Recupere l'element body.
 	const body = document.body;
@@ -15,6 +23,10 @@ export function changeTheme(themeName: string) {
 		document.documentElement.style.setProperty('--color-button', '');
 		document.documentElement.style.setProperty('--color-button-hover', '');
 		document.documentElement.style.setProperty('--color-hist', '');
+		document.documentElement.style.setProperty('--color-hist-text', '');
+		document.documentElement.style.setProperty('--button-text-color', '');
+		document.documentElement.style.setProperty('--disabled-button-color', '');
+		document.documentElement.style.setProperty('--disabled-button-text-color', '');
 	};
 
 	resetCSSVars();
@@ -24,17 +36,23 @@ export function changeTheme(themeName: string) {
 		case 'CP': // Catpuccin
 			body.classList.add('bg-catpuccin', 'text-catpuccin-text');
 			document.documentElement.style.setProperty('--color-button', 'oklch(47.65% 0.034 278.64)');
-			document.documentElement.style.setProperty('--color-button-hover', 'oklch(87.87% 0.0426 272.28)');
+			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.62 0.0426 272.28)');
 			document.documentElement.style.setProperty('--color-hist', 'oklch(0.34 0.048 278.64)');
 			document.documentElement.style.setProperty('--button-text-color', 'oklch(87.87% 0.0426 272.28)');
+			document.documentElement.style.setProperty('--color-hist-text', 'oklch(87.87% 0.0426 272.28)');
+			document.documentElement.style.setProperty('--disabled-button-color', 'oklch(47.65% 0.034 278.64)');
+			document.documentElement.style.setProperty('--disabled-button-text-color', 'oklch(87.87% 0.0426 272.28)');
 			break;
 
 		case 'HC': // High contrast
-			body.classList.add('bg-green-600', 'text-white');
-			document.documentElement.style.setProperty('--color-button', 'oklch(0.7 0.2384 145.06)');
-			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.41 0.0929 145.06)');
-			document.documentElement.style.setProperty('--color-hist', 'oklch(0.56 0.2384 145.06)');
-			document.documentElement.style.setProperty('--button-text-color', 'white');
+			body.classList.add('bg-black', 'text-white');
+			document.documentElement.style.setProperty('--color-button', 'black');
+			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.27 0 17)');
+			document.documentElement.style.setProperty('--color-hist', 'oklch(0.7 0.2384 145.06)');
+			document.documentElement.style.setProperty('--button-text-color', 'oklch(0.7 0.2384 145.06)');
+			document.documentElement.style.setProperty('--color-hist-text', 'black');
+			document.documentElement.style.setProperty('--disabled-button-color', 'black');
+			document.documentElement.style.setProperty('--disabled-button-text-color', 'oklch(0.87 0.1842 87)');
 			break;
 
 		case 'OLED': // OLED
@@ -43,6 +61,9 @@ export function changeTheme(themeName: string) {
 			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.37 0 145.06)');
 			document.documentElement.style.setProperty('--color-hist', 'oklch(0.59 0 145.06)');
 			document.documentElement.style.setProperty('--button-text-color', 'white');
+			document.documentElement.style.setProperty('--color-hist-text', 'white');
+			document.documentElement.style.setProperty('--disabled-button-color', 'oklch(0.37 0 145.06)');
+			document.documentElement.style.setProperty('--disabled-button-text-color', 'oklch(0.7 0 145.06)');
 			break;
 
 		case 'WHITE': // White
@@ -51,6 +72,9 @@ export function changeTheme(themeName: string) {
 			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.82 0 266.82)');
 			document.documentElement.style.setProperty('--color-hist', '#e5e7eb');
 			document.documentElement.style.setProperty('--button-text-color', 'black');
+			document.documentElement.style.setProperty('--color-hist-text', 'black');
+			document.documentElement.style.setProperty('--disabled-button-color', '#e5e7eb');
+			document.documentElement.style.setProperty('--disabled-button-text-color', '#9ca3af');
 			break;
 	}
 
@@ -59,6 +83,9 @@ export function changeTheme(themeName: string) {
 
 	// Force la mise a jour des boutons.
 	updateButtonStyles();
+
+	// Met à jour le style des boutons désactivés
+	updateDisabledButtonStyles();
 }
 
 function updateButtonStyles() {
@@ -69,6 +96,16 @@ function updateButtonStyles() {
 		el.style.backgroundColor = '';
 		el.style.backgroundColor = 'var(-color-button)';
 		el.style.color = 'var(--button-text-color)';
+	});
+}
+
+function updateDisabledButtonStyles() {
+	const disabledButtons = document.querySelectorAll('button[disabled]');
+
+	disabledButtons.forEach(button => {
+		const el = button as HTMLElement;
+		el.style.backgroundColor = 'var(--disabled-button-color)';
+		el.style.color = 'var(--disabled-button-text-color)';
 	});
 }
 
