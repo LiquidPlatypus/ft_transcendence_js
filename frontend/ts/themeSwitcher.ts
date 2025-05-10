@@ -47,7 +47,7 @@ export function changeTheme(themeName: string) {
 		case 'HC': // High contrast
 			body.classList.add('bg-black', 'text-white');
 			document.documentElement.style.setProperty('--color-button', 'black');
-			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.27 0 17)');
+			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.74 0 0)');
 			document.documentElement.style.setProperty('--color-hist', 'oklch(0.7 0.2384 145.06)');
 			document.documentElement.style.setProperty('--button-text-color', 'oklch(0.7 0.2384 145.06)');
 			document.documentElement.style.setProperty('--color-hist-text', 'black');
@@ -99,7 +99,7 @@ function updateButtonStyles() {
 	});
 }
 
-function updateDisabledButtonStyles() {
+export function updateDisabledButtonStyles() {
 	const disabledButtons = document.querySelectorAll('button[disabled]');
 
 	disabledButtons.forEach(button => {
