@@ -18,7 +18,7 @@ export function homePage() {
 			</div>
 		</div>
 
-		<div class="fiex top-4 left-4 z-10">
+		<div class="fixed top-4 left-4 z-10">
 		<!-- Boutons pour choisir son theme. -->
 			<div class="flex gap-2">
 				<button class="transition rounded hover:brightness-110 focus:outline-none" data-theme="CP">
