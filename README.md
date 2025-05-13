@@ -14,3 +14,6 @@
 
 tournoi : route /matchs/$matchId/status : 404
  dans front/tournament.ts  |  back/tournamentRoutes.js
+
+docker fait par qulusche
+et c'est le seul et dernier truc
