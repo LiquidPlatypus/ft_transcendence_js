@@ -25,6 +25,7 @@ let gameOver = false;
 export class Game{
 	private gameCanvas: HTMLCanvasElement | null;
 	private gameContext: CanvasRenderingContext2D | null;
+	private gameStartTime: number = Date.now();
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
@@ -234,11 +235,20 @@ export class Game{
 
 	}
 	gameLoop() {
-		if (gameOver) return ;
-		this.update();
-		this.draw();
+	if (gameOver) return;
+
+	const currentTime = Date.now();
+	if (currentTime - this.gameStartTime < pauseDuration) {
+		this.draw(); 
 		requestAnimationFrame(() => this.gameLoop());
+		return;
 	}
+
+	this.update();
+	this.draw();
+	requestAnimationFrame(() => this.gameLoop());
+}
+
 
 	public static setGameOver(state: boolean): void {
 		gameOver = state;
