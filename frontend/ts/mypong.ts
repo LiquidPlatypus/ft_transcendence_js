@@ -23,11 +23,6 @@ export class Game{
 	private player1: Paddle;
 	private player2: Paddle2;
 
-	private bonuses: Bonus[] = [];
-	private lastBonusTime: number = 0;
-	private bonusStartTime: number = Date.now();
-
-
 	private ball: Ball;
 
 	constructor() {
@@ -55,12 +50,6 @@ export class Game{
 		this.player1 = new Paddle(paddleWidth, paddleHeight, wallOffset, this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.ball = new Ball(ballSize, ballSize, this.gameCanvas.width / 2 - ballSize / 2, this.gameCanvas.height / 2 - ballSize / 2);
-		this.ball.setOnGoalCallback(() => {
-			this.bonuses = []; // Supprime tous les bonus
-			this.bonusStartTime = Date.now(); // Redémarre le chrono
-			this.lastBonusTime = 0; // Réinitialise le timer de cooldown
-		})
-		
 	}
 
 	drawBoardDetails(){
@@ -129,7 +118,6 @@ export class Game{
 		this.player1.draw(this.gameContext);
 		this.player2.draw(this.gameContext);
 		this.ball.draw(this.gameContext);
-		this.bonuses.forEach(bonus => bonus.draw(this.gameContext!));
 	}
 	update() {
 		if (!this.gameCanvas)
@@ -138,39 +126,6 @@ export class Game{
 		this.player1.update(this.gameCanvas);
 		this.player2.update(this.gameCanvas);
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
-
-		//partie bonus
-		const now = Date.now();
-		const elapsed = now - this.bonusStartTime;
-
-		// Bonus à partir de 7 secondes
-		if (elapsed > 7000 && now - this.lastBonusTime >= 4000) {
-			if (this.bonuses.length >= 3)
-				this.bonuses.shift(); // Supprime le plus ancien
-
-		// Coordonnées aléatoires dans la moitié centrale
-		const bonusX = this.gameCanvas!.width / 4 + Math.random() * (this.gameCanvas!.width / 2);
-		const bonusY = 20 + Math.random() * (this.gameCanvas!.height - 40);
-
-		this.bonuses.push(new Bonus(bonusX, bonusY));
-		this.lastBonusTime = now;
-		}
-
-		this.bonuses = this.bonuses.filter(bonus => {
-			const collision =
-				this.ball.x < bonus.x + bonus.width &&
-				this.ball.x + this.ball.width > bonus.x &&
-				this.ball.y < bonus.y + bonus.height &&
-				this.ball.y + this.ball.height > bonus.y;
-
-		if (collision) {
-			// Ici tu actives l'effet du bonus
-			console.log("Bonus activé !");
-			return false; // Supprime ce bonus
-		}
-		return true; // Garde les autres
-		})
-
 	}
 	gameLoop() {
 		if (gameOver) return ;
@@ -265,28 +220,9 @@ class Paddle2 extends Entity{
 	}
 }
 
-class Bonus extends Entity {
-	constructor(x: number, y: number) {
-		super(15, 15, x, y); // Taille du bonus
-	}
-
-	draw(context: CanvasRenderingContext2D) {
-		context.fillStyle = "yellow"; // couleur différente pour les bonus
-		context.fillRect(this.x, this.y, this.width, this.height);
-	}
-}
-
-
 class Ball extends Entity{
 
 	private speed:number = 5;
-
-	private onGoalCallback: (() => void) | null = null; //Pour réinitialiser les bonus, appel dans Game
-
-	public setOnGoalCallback(callback: () => void) {
-		this.onGoalCallback = callback;
-	}
-
 
 	constructor(w: number, h: number, x: number, y: number){
 		super(w, h, x, y);
@@ -300,7 +236,7 @@ class Ball extends Entity{
 
 	update(player1: Paddle, player2: Paddle2, canvas: HTMLCanvasElement){
 
-		 // Si le jeu est en pause, on ne met pas à jour la position de la balle.
+		// Si le jeu est en pause, on ne met pas à jour la position de la balle.
 		if (isPaused)
 			return ;
 
@@ -316,9 +252,6 @@ class Ball extends Entity{
 		if (this.x <= 0) {
 			Game.player2Score += 1;
 			this.resetPosition(canvas);
-			if (this.onGoalCallback) {
-				this.onGoalCallback(); // Réinitialise bonus et minuteur
-			}
 			if (!this.checkGameEnd("Joueur 2")) {
 			} else
 				return;
@@ -328,34 +261,25 @@ class Ball extends Entity{
 		if (this.x + this.width >= canvas.width) {
 			Game.player1Score += 1;
 			this.resetPosition(canvas);
-			if (this.onGoalCallback) {
-				this.onGoalCallback(); // Réinitialise bonus et minuteur
-			}
 			if (!this.checkGameEnd("Joueur 1")) {
 			} else
 				return;
 		}
 
-		// Collision avec joueur 1.
+		// check player 1 collision.
 		if (this.x <= player1.x + player1.width &&
-			this.x >= player1.x &&
-			this.y + this.height >= player1.y &&
-			this.y <= player1.y + player1.height) {
-			let relativeY = (this.y + this.height / 2) - (player1.y + player1.height / 2);
-			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale.
-			this.xVal = 1;
-			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+			this.x + this.width >= player1.x &&
+			this.y < player1.y + player1.height &&
+			this.y + this.height > player1.y) {
+			this.xVal = 1; // rebond vers la droite.
 		}
 
-		// Collision avec joueur 2.
+		// check player 2 collision.
 		if (this.x + this.width >= player2.x &&
 			this.x <= player2.x + player2.width &&
-			this.y + this.height >= player2.y &&
-			this.y <= player2.y + player2.height) {
-			let relativeY = (this.y + this.height / 2) - (player2.y + player2.height / 2);
-			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale.
-			this.xVal = -1;
-			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+			this.y < player2.y + player2.height &&
+			this.y + this.height > player2.y) {
+			this.xVal = -1; // rebond vers la gauche.
 		}
 
 		// Fait en sorte que la balle se déplace a une vitesse constante meme en diagonale.
