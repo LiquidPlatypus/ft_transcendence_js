@@ -47,7 +47,7 @@ export class Game{
 
 		const paddleWidth:number = 20, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
 
-		this.player1 = new Paddle(paddleWidth, paddleHeight, wallOffset, this.gameCanvas.height / 2 - paddleWidth / 2);
+		this.player1 = new Paddle(paddleWidth, paddleHeight, wallOffset, this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.ball = new Ball(ballSize, ballSize, this.gameCanvas.width / 2 - ballSize / 2, this.gameCanvas.height / 2 - ballSize / 2);
 	}
@@ -64,7 +64,7 @@ export class Game{
 		// Trace la ligne au centre du terrain.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
 			this.gameContext.fillStyle = "#fff";
-			this.gameContext.fillRect(this.gameCanvas.width / 2 - 10, i + 10, 5, 20);
+			this.gameContext.fillRect(this.gameCanvas.width / 2 - 2, i + 10, 5, 20); // Cense etre 2.5 mais vu que pixel = entier, arrondi a 2.
 		}
 
 		// Defini les informations du match et des joueurs.
@@ -236,7 +236,7 @@ class Ball extends Entity{
 
 	update(player1: Paddle, player2: Paddle2, canvas: HTMLCanvasElement){
 
-		 // Si le jeu est en pause, on ne met pas à jour la position de la balle.
+		// Si le jeu est en pause, on ne met pas à jour la position de la balle.
 		if (isPaused)
 			return ;
 
