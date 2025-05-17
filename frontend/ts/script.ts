@@ -1,11 +1,12 @@
 import { homePage } from './home.js'
 import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
+import { GameBonus } from "./mypongBonus.js";
 import { GameFour } from './fourpong.js';
 import { twoPlayersMatch, fourPlayersMatchs } from './matches.js'
 import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
-import {disableUnrelatedButtons, GameType, matchTypeChoice} from "./Utilities.js";
+import {disableUnrelatedButtons, GameType, MatchType, matchTypeChoice} from "./Utilities.js";
 import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 
@@ -30,8 +31,9 @@ export type ButtonType = 'match' | 'tournoi'
  * @brief Affiche le selecteur du nombre de joueurs.
  * @param event evenement appelant la foncton.
  * @param buttonType type de match (simple/tournoi).
+ * @param matchType normal/bonus.
  */
-export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
+export function showPlayerCountSelection(event: Event, buttonType: ButtonType, matchType: MatchType) {
 	// Recupere le contenu de la div "Pong".
 	const container = document.getElementById("Pong");
 	if (!container)
@@ -78,7 +80,7 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
 		btn.addEventListener("click", (event) => {
 			const target = event.target as HTMLButtonElement;
 			const playerCount = parseInt(target.dataset.count || "2", 10);
-			showAliasInputs(playerCount, buttonType, 'pong');
+			showAliasInputs(playerCount, buttonType, matchType, 'pong');
 		});
 	});
 }
@@ -88,8 +90,9 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType) {
  * @param playerCount nombre de joueurs.
  * @param buttonType type de match (simple/tournoi).
  * @param gameType type de jeu (pong/pfc).
+ * @param matchType normal/bonus.
  */
-export function showAliasInputs(playerCount: number, buttonType: ButtonType, gameType: GameType) {
+export function showAliasInputs(playerCount: number, buttonType: ButtonType, matchType: MatchType, gameType: GameType) {
 	// Récupère le conteneur approprié en fonction du type de jeu
 	const containerID = gameType === 'pong' ? "Pong" : "pfc";
 	const container = document.getElementById(containerID);
@@ -148,9 +151,9 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, gam
 		if (gameType === 'pong') {
 			if (buttonType === 'match') {
 				if (playerCount == 2)
-					twoPlayersMatch(startButton);
+					twoPlayersMatch(startButton, matchType);
 				else if (playerCount == 4)
-					fourPlayersMatchs(startButton);
+					fourPlayersMatchs(startButton, matchType);
 			} else if (buttonType === 'tournoi')
 				startButton.addEventListener("click", startTournament);
 		} else if (gameType === 'pfc')
@@ -309,8 +312,9 @@ export async function showHistory(event: Event, gameType: string) {
 /**
  * @brief Initialise les matchs.
  * @param playerCount nombre de joueurs.
+ * @param matchType normal/bonus.
  */
-export function startGame(playerCount: number) {
+export function startGame(playerCount: number, matchType: MatchType) {
 	// Recupere le contenu de la div "Pong".
 	const container = document.getElementById("Pong");
 	if (!container)
@@ -336,10 +340,17 @@ export function startGame(playerCount: number) {
 		// Empeche d'appuyer sur les autres boutons en dehors de la div "Pong".
 		disableUnrelatedButtons('pong');
 
-		setTimeout(() => {
-			const game = new Game();
-			requestAnimationFrame(game.gameLoop.bind(game));
-		});
+		if (matchType === 'normal') {
+			setTimeout(() => {
+				const game = new Game();
+				requestAnimationFrame(game.gameLoop.bind(game));
+			});
+		} else if (matchType === 'bonus') {
+			setTimeout(() => {
+				const game = new GameBonus();
+				requestAnimationFrame(game.gameLoop.bind(game));
+			});
+		}
 	} else if (playerCount === 4) {
 		container.innerHTML = '<canvas id="game-canvas" width="600" height="600"></canvas>';
 		GameFour.player1Score = 0;

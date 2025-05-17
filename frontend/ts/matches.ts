@@ -1,10 +1,12 @@
 import { startGame } from "./script.js";
+import {MatchType} from "./Utilities.js";
 
 /**
  * @brief Creer les matchs a 2 joueurs.
  * @param startButton bouton pour commencer le match.
+ * @param matchType normal/bonus.
  */
-export function twoPlayersMatch(startButton: HTMLElement) {
+export function twoPlayersMatch(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
 		// Stock les alias des joueurs.
 		const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
@@ -44,7 +46,7 @@ export function twoPlayersMatch(startButton: HTMLElement) {
 				if (matchResponse.success) {
 					// Stocker l'ID du match pour l'utiliser à la fin de la partie
 					localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-					startGame(2);
+					startGame(2, matchType);
 				}
 			}
 		} catch (error) {
@@ -56,8 +58,9 @@ export function twoPlayersMatch(startButton: HTMLElement) {
 /**
  * @brief Creer les matchs a 4 joueurs.
  * @param startButton bouton pour commncer le match.
+ * @param matchType normal/bonus.
  */
-export function fourPlayersMatchs(startButton: HTMLElement) {
+export function fourPlayersMatchs(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
 		// Stock les alias des joueurs.
 		const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
@@ -114,7 +117,7 @@ export function fourPlayersMatchs(startButton: HTMLElement) {
 
 				if (matchResponse.success) {
 					localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-					startGame(4);
+					startGame(4, matchType);
 				}
 			}
 		} catch (error) {

@@ -22,7 +22,7 @@ let isPaused = false; // Variable pour gérer l'état de pause
 let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
 let gameOver = false;
 
-export class Game{
+export class GameBonus{
 	private gameCanvas: HTMLCanvasElement | null;
 	private gameContext: CanvasRenderingContext2D | null;
 	private gameStartTime: number = Date.now();
@@ -81,11 +81,11 @@ export class Game{
 		this.gameContext.font = "30px Orbitron";
 
 		window.addEventListener("keydown", function(e){
-			Game.keysPressed[e.which] = true;
+			GameBonus.keysPressed[e.which] = true;
 		});
 
 		window.addEventListener("keyup", function(e){
-			Game.keysPressed[e.which] = false;
+			GameBonus.keysPressed[e.which] = false;
 		});
 
 		const paddleWidth:number = 20, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
@@ -154,8 +154,8 @@ export class Game{
 
 		// Affiche les scores.
 		this.gameContext.textAlign = "center";
-		this.gameContext.fillText(Game.player1Score.toString(), this.gameCanvas.width / 4, 50);
-		this.gameContext.fillText(Game.player2Score.toString(), (3 * this.gameCanvas.width) / 4, 50);
+		this.gameContext.fillText(GameBonus.player1Score.toString(), this.gameCanvas.width / 4, 50);
+		this.gameContext.fillText(GameBonus.player2Score.toString(), (3 * this.gameCanvas.width) / 4, 50);
 	}
 	draw() {
 		if (!this.gameContext || !this.gameCanvas)
@@ -310,7 +310,7 @@ class Paddle extends Entity{
 
 		const isInverted = Date.now() < this.invertedUntil; // Lié au Bonus POTION
 
-		if (Game.keysPressed[KeyBindings.UP])
+		if (GameBonus.keysPressed[KeyBindings.UP])
 		{
 			this.yVal = isInverted ? 1 : -1;
 			if ((this.y <= 20 && !isInverted) || (this.y + this.height >= canvas.height - 20 && isInverted))
@@ -318,7 +318,7 @@ class Paddle extends Entity{
 				this.yVal = 0;
 			}
 		}
-		else if (Game.keysPressed[KeyBindings.DOWN])
+		else if (GameBonus.keysPressed[KeyBindings.DOWN])
 		{
 			this.yVal = isInverted ? -1 : 1;
 			if ((this.y + this.height >= canvas.height - 20 && !isInverted) || (this.y <= 20 && isInverted))
@@ -367,7 +367,7 @@ class Paddle2 extends Entity{
 		}
 		const isInverted = Date.now() < this.invertedUntil; // Lié au Bonus POTION
 
-		if (Game.keysPressed[KeyBindings.UP2])
+		if (GameBonus.keysPressed[KeyBindings.UP2])
 		{
 			this.yVal = isInverted ? 1 : -1;
 			if ((this.y <= 20 && !isInverted) || (this.y + this.height >= canvas.height - 20 && isInverted))
@@ -375,7 +375,7 @@ class Paddle2 extends Entity{
 				this.yVal = 0;
 			}
 		}
-		else if (Game.keysPressed[KeyBindings.DOWN2])
+		else if (GameBonus.keysPressed[KeyBindings.DOWN2])
 		{
 			this.yVal = isInverted ? -1 : 1;
 			if ((this.y + this.height >= canvas.height - 20 && !isInverted) || (this.y <= 20 && isInverted))
@@ -450,10 +450,10 @@ class StaticWall extends Entity {
 
 class Ball extends Entity{
 
-	private gameRef!: Game;
+	private gameRef!: GameBonus;
 	private lastTouchedBy: 'player1' | 'player2' | null = null;
 
-	public setGameRef(game: Game)
+	public setGameRef(game: GameBonus)
 	{
 		this.gameRef = game;
 	}
@@ -474,7 +474,7 @@ class Ball extends Entity{
 
 
 
-	private onGoalCallback: (() => void) | null = null; //Pour réinitialiser les bonus, appel dans Game
+	private onGoalCallback: (() => void) | null = null; //Pour réinitialiser les bonus, appel dans GameBonus
 
 	public setOnGoalCallback(callback: () => void) {
 		this.onGoalCallback = callback;
@@ -512,7 +512,7 @@ class Ball extends Entity{
 
 		// check but player 2.
 		if (this.x <= 0) {
-			Game.player2Score += 1;
+			GameBonus.player2Score += 1;
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -524,7 +524,7 @@ class Ball extends Entity{
 
 		// .check but player 1
 		if (this.x + this.width >= canvas.width) {
-			Game.player1Score += 1;
+			GameBonus.player1Score += 1;
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -596,7 +596,7 @@ class Ball extends Entity{
 
 
 	private async checkGameEnd(winner: string): Promise<boolean> {
-		if (Game.player1Score >= MAX_SCORE || Game.player2Score >= MAX_SCORE) {
+		if (GameBonus.player1Score >= MAX_SCORE || GameBonus.player2Score >= MAX_SCORE) {
 			// Sauvegarde les scores pour le match actuel.
 			const matchId = localStorage.getItem('currentMatchId');
 			if (matchId) {
@@ -606,8 +606,8 @@ class Ball extends Entity{
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
 							matchId: parseInt(matchId),
-							player1Score: Game.player1Score,
-							player2Score: Game.player2Score
+							player1Score: GameBonus.player1Score,
+							player2Score: GameBonus.player2Score
 						}),
 					});
 					const result = await response.json();
@@ -656,12 +656,12 @@ class Ball extends Entity{
 									localStorage.setItem('player2Alias', localStorage.getItem('player4Alias') || 'Joueur 4');
 
 									// Reset l'etat du jeu.
-									Game.player1Score = 0;
-									Game.player2Score = 0;
-									Game.setGameOver(false);
+									GameBonus.player1Score = 0;
+									GameBonus.player2Score = 0;
+									GameBonus.setGameOver(false);
 
 									// Demarre le prochain match.
-									startGame(2);
+									startGame(2, 'bonus');
 								} else if (matchId === semifinal2Id) {
 									// Stock le gagant de la semi-final.
 									localStorage.setItem('semifinal2Winner', winner === 'Joueur 1' ?
@@ -736,12 +736,12 @@ class Ball extends Entity{
 											localStorage.setItem('player2Alias', winner2Name);
 
 											// Reset l'etat du jeu.
-											Game.player1Score = 0;
-											Game.player2Score = 0;
-											Game.setGameOver(false);
+											GameBonus.player1Score = 0;
+											GameBonus.player2Score = 0;
+											GameBonus.setGameOver(false);
 
 											// Demarre la finale.
-											startGame(2);
+											startGame(2, 'bonus');
 										} catch (error) {
 											console.error("Error creating final matches:", error);
 										}
@@ -760,19 +760,19 @@ class Ball extends Entity{
 									localStorage.setItem('player2Alias', localStorage.getItem('thirdPlacePlayer2Alias') || 'Joueur 2');
 
 									// Reset l'etat du jeu.
-									Game.player1Score = 0;
-									Game.player2Score = 0;
-									Game.setGameOver(false);
+									GameBonus.player1Score = 0;
+									GameBonus.player2Score = 0;
+									GameBonus.setGameOver(false);
 
 									// Demarre le match pour la troisieme place.
-									startGame(2);
+									startGame(2, 'bonus');
 								} else {
 									// Si c'etait le match pour la troisieme place (dernier match).
 									localStorage.removeItem('pendingMatchId');
 									localStorage.removeItem('currentMatchType');
 									localStorage.removeItem('pendingMatchType');
 									localStorage.removeItem('currentMatchId');
-									startGame(2);
+									startGame(2, 'bonus');
 								}
 							} catch (error) {
 								console.error("Error in tournament progression:", error);

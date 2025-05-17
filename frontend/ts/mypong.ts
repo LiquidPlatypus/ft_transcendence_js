@@ -362,7 +362,7 @@ class Ball extends Entity{
 									Game.setGameOver(false);
 
 									// Demarre le prochain match.
-									startGame(2);
+									startGame(2, 'normal');
 								} else if (matchId === semifinal2Id) {
 									// Stock le gagant de la semi-final.
 									localStorage.setItem('semifinal2Winner', winner === 'Joueur 1' ?
@@ -442,7 +442,7 @@ class Ball extends Entity{
 											Game.setGameOver(false);
 
 											// Demarre la finale.
-											startGame(2);
+											startGame(2, 'normal');
 										} catch (error) {
 											console.error("Error creating final matches:", error);
 										}
@@ -466,14 +466,14 @@ class Ball extends Entity{
 									Game.setGameOver(false);
 
 									// Demarre le match pour la troisieme place.
-									startGame(2);
+									startGame(2, 'normal');
 								} else {
 									// Si c'etait le match pour la troisieme place (dernier match).
 									localStorage.removeItem('pendingMatchId');
 									localStorage.removeItem('currentMatchType');
 									localStorage.removeItem('pendingMatchType');
 									localStorage.removeItem('currentMatchId');
-									startGame(2);
+									startGame(2, 'normal');
 								}
 							} catch (error) {
 								console.error("Error in tournament progression:", error);
