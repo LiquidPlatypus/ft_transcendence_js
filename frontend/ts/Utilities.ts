@@ -1,4 +1,5 @@
 import {ButtonType, showPlayerCountSelection, showAliasInputs} from "./script.js";
+import {updateDisabledButtonStyles} from "./themeSwitcher.js";
 import {t} from "../lang/i18n.js";
 
 /**
@@ -49,13 +50,32 @@ function enableElements(elements: NodeListOf<Element>) {
  * @param elements boutons a desactiver.
  */
 function disableElements(elements: NodeListOf<Element>) {
+	const currentTheme = localStorage.getItem('theme') || 'CP';
+
 	elements.forEach(element => {
 		if (element instanceof HTMLButtonElement) {
 			element.disabled = true;
-			element.classList.add('opacity-50', 'cursor-not-allowed');
+
+			// Verifie si le bouton appartient aux divs centrales.
+			const isCentralButton = element.closest('#Pong, #pfc, #history-pong, #history-pfc') !== null;
+
+			if (currentTheme === 'HC') {
+				element.classList.add('cursor-not-allowed');
+
+				// Applique la couleur jaune uniquement aux boutons des divs centrales.
+				if (isCentralButton) {
+					element.style.backgroundColor = 'yellow';
+					element.style.color = 'black';
+				} else
+					// Opacite pour les boutons de themes et de langues.
+					element.classList.add('opacity-50', 'cursor-not-allowed');
+			} else
+				// Opacite pour les autres themes.
+				element.classList.add('opacity-50', 'cursor-not-allowed');
 		}
 	});
 }
+
 
 export type MatchType = 'normal' | 'bonus'
 export type GameType = 'pong' | 'pfc'

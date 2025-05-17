@@ -377,9 +377,12 @@
     --color-catpuccin: oklch(24.29% 0.0304 283.91);
     --color-catpuccin-text: oklch(87.87% 0.0426 272.28);
     --color-button: oklch(47.65% 0.034 278.64);
-    --color-button-hover: oklch(87.87% 0.0426 272.28);
+    --color-button-hover: oklch(0.62 0.0426 272.28);
     --color-hist: oklch(0.34 0.048 278.64);
-    --button-text-color: white;
+    --button-text-color: oklch(87.87% 0.0426 272.28);
+    --color-hist-text: oklch(87.87% 0.0426 272.28);
+    --disabled-button-color: oklch(47.65% 0.034 278.64);
+    --disabled-button-text-color: oklch(87.87% 0.0426 272.28);
   }
 }
 @layer base {
@@ -592,6 +595,9 @@
   }
   .top-4 {
     top: calc(var(--spacing) * 4);
+  }
+  .top-11 {
+    top: calc(var(--spacing) * 11);
   }
   .right-4 {
     right: calc(var(--spacing) * 4);
@@ -1568,6 +1574,9 @@
   .bg-hist {
     background-color: var(--color-hist);
   }
+  .bg-hist-text {
+    background-color: var(--color-hist-text);
+  }
   .bg-red-500 {
     background-color: var(--color-red-500);
   }
@@ -1811,6 +1820,10 @@
   .text-lg {
     font-size: var(--text-lg);
     line-height: var(--tw-leading, var(--text-lg--line-height));
+  }
+  .text-sm {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
   }
   .text-xl {
     font-size: var(--text-xl);
@@ -2382,6 +2395,12 @@
       }
     }
   }
+  .focus\:ring-2 {
+    &:focus {
+      --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentColor);
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+  }
   .focus\:outline-none {
     &:focus {
       --tw-outline-style: none;
@@ -2394,8 +2413,12 @@
   color: var(--button-text-color);
   width: 100px;
 }
-.btn:hover {
+.btn:hover:not([disabled]) {
   background-color: var(--color-button-hover);
+}
+.btn[disabled] {
+  background-color: var(--disabled-button-color);
+  color: var(--disabled-button-text-color);
 }
 .little_btn {
   background-color: var(--color-button);
@@ -2403,8 +2426,12 @@
   width: 10px;
   height: 10px;
 }
-.little_btn:hover {
+.little_btn:hover:not([disabled]) {
   background-color: var(--color-button-hover);
+}
+.little_btn[disabled] {
+  background-color: var(--disabled-button-color);
+  color: var(--disabled-button-text-color);
 }
 #history-pong, #history-pfc {
   flex-direction: column;
@@ -2422,6 +2449,12 @@
   width: 50%;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.bg-hist {
+  background-color: var(--color-hist);
+}
+.bg-hist-text {
+  color: var(--color-hist-text);
 }
 #arena {
   display: flex;

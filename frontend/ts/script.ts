@@ -226,9 +226,9 @@ export async function showHistory(event: Event, gameType: string) {
 					const tableEl = document.createElement('table');
 					tableEl.className = 'border-collapse border w-full text-center table-fixed';
 					tableEl.innerHTML = `
-						<tr class="bg-hist">
-							<th class="border p-2 w-1/2">${match.player1}</th>
-							<th class="border p-2 w-1/2">${match.player2}</th>
+						<tr>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player1}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player2}</th>
 						</tr>
 						<tr>
 							<td class="border p-2">${match.player1_score}</td>
