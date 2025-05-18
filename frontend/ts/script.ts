@@ -157,7 +157,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			} else if (buttonType === 'tournoi')
 				startButton.addEventListener("click", startTournament);
 		} else if (gameType === 'pfc')
-			start_pfc(startButton);
+			start_pfc(startButton, matchType);
 	}
 }
 
