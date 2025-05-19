@@ -31,7 +31,7 @@ export function attachHomePageListeners() {
 
 	const tournament_btn = document.getElementById("tournament-button");
 	if (tournament_btn)
-		tournament_btn.addEventListener("click", (event) => showAliasInputs(4, 'tournoi', 'pong'));
+		tournament_btn.addEventListener("click", (event) => showAliasInputs(4, 'tournoi', 'normal', 'pong'));
 
 	const pfc_button = document.getElementById("pfc-button");
 	if (pfc_button)

@@ -1,7 +1,6 @@
-import { homePage } from "./home.js";
 import { showHome } from "./script.js";
-import { loadLanguage, t, getCurrentLang } from "../lang/i18n.js";
-import {disableUnrelatedButtons} from "./Utilities.js";
+import {t} from "../lang/i18n.js";
+import {MatchType} from "./Utilities.js";
 
 type Choix = 'pierre' | 'feuille' | 'ciseaux';
 
@@ -22,8 +21,9 @@ const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseau
 /**
  * @brief Lance le pfc et la logique du back.
  * @param startButton bouton start.
+ * @param matchType normal/bonus.
  */
-export function start_pfc(startButton: HTMLElement) {
+export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
 		const player1 = (document.getElementById("playerAlias1") as HTMLInputElement).value;
 		const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
@@ -61,10 +61,9 @@ export function start_pfc(startButton: HTMLElement) {
 
 				if (matchResponse.success) {
 					localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-					const gameMode = localStorage.getItem('gameMode') || 'normal';
-					if (gameMode === 'normal')
+					if (matchType === 'normal')
 						init();
-					else if (gameMode === 'bonus')
+					else if (matchType === 'bonus')
 						init_bonus();
 				}
 			}
@@ -247,6 +246,12 @@ function getChoixTranslationKey(choix: Choix): string {
 		default: return choix;
 	}
 }
+
+
+
+//////////////////////////////////////////////// BONUS ///////////////////////////////////////////
+
+
 
 function init_bonus() {
 	const container = document.getElementById("pfc");

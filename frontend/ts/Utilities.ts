@@ -87,7 +87,7 @@ export type GameType = 'pong' | 'pfc'
  * @param gameType type de jeu (pong/pfc).
  */
 export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: GameType) {
-	// Sélectionner le bon conteneur en fonction du type de jeu
+	// Seectionne le bon conteneur en fonction du type de jeu
 	const containerID = gameType === 'pong' ? "Pong" : "pfc";
 	const container = document.getElementById(containerID);
 
@@ -140,16 +140,17 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 	document.querySelectorAll(".mode-btn").forEach(btn => {
 		btn.addEventListener("click", (event) => {
 			const target = event.currentTarget as HTMLButtonElement;
-			const mode = target.dataset.mode as MatchType;
+			const matchType = target.dataset.mode as MatchType;
 			const game = target.dataset.game as GameType;
 
-			// Stocker le mode de jeu dans localStorage pour pouvoir y accéder plus tard
-			localStorage.setItem('gameMode', mode);
-
 			if (game === 'pong') {
-				showPlayerCountSelection(event, buttonType);
+				import('./script.js').then(module => {
+					module.showPlayerCountSelection(event, buttonType, matchType);
+				});
 			} else if (game === 'pfc') {
-				showAliasInputs(2, buttonType, game);
+				import('./script.js').then(module => {
+					module.showAliasInputs(2, buttonType, matchType, game);
+				});
 			}
 		});
 	});
