@@ -168,7 +168,7 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 				localStorage.setItem('player4Id', playerIds[3]);
 
 				// Start the first semifinal
-				startGame(2);
+				startGame(2, 'normal');
 				break;
 
 			default:

@@ -34,5 +34,9 @@
   "error_match_creation": "Error during match creation",
   "error_score_save": "Error during score registration",
   "wins_round": "win the round !",
-  "player_wins_round": "Player {{player}} win the round !"
+  "player_wins_round": "Player {{player}} win the round !",
+
+  "select_game_mode": "Game mode",
+  "normal": "Normal",
+  "bonus": "Bonus"
 }
