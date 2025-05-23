@@ -2,14 +2,6 @@
  * @brief Change le theme du site.
  * @param themeName nom du theme a utiliser.
  */
-/**
- * @brief Change le theme du site.
- * @param themeName nom du theme a utiliser.
- */
-/**
- * @brief Change le theme du site.
- * @param themeName nom du theme a utiliser.
- */
 export function changeTheme(themeName: string) {
 	// Recupere l'element body.
 	const body = document.body;

@@ -9,6 +9,7 @@ import { attachLanguageListeners, attachHomePageListeners } from './listeners.js
 import {disableUnrelatedButtons, GameType, MatchType, matchTypeChoice} from "./Utilities.js";
 import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
+import {attachTextListeners, initText} from "./textSwitcher.js";
 
 // Ecouteur d'evenements.
 document.addEventListener('DOMContentLoaded', async () => {
@@ -22,6 +23,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 		attachLanguageListeners();
 		attachThemeListeners();
 		initTheme();
+		attachTextListeners();
+		initText()
 	}
 })
 
