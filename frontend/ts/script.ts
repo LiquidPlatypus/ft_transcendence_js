@@ -338,7 +338,12 @@ export function startGame(playerCount: number, matchType: MatchType) {
 
 	// Set-up l'esapce de jeu.
 	if (playerCount === 2) {
-		container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
+		container.innerHTML = `
+			<div class="flex justify-center w-full">
+				<canvas id="game-canvas" width="600" height="400" 
+						class="max-w-full border border-gray-300 rounded"></canvas>
+			</div>
+		`;
 
 		// Empeche d'appuyer sur les autres boutons en dehors de la div "Pong".
 		disableUnrelatedButtons('pong');
@@ -355,7 +360,13 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			});
 		}
 	} else if (playerCount === 4) {
-		container.innerHTML = '<canvas id="game-canvas" width="600" height="600"></canvas>';
+		container.innerHTML = `
+			<div class="flex justify-center w-full">
+				<canvas id="game-canvas" width="500" height="500" 
+						class="max-w-full border border-gray-300 rounded"></canvas>
+			</div>
+		`;
+
 		GameFour.player1Score = 0;
 		GameFour.player2Score = 0;
 		GameFour.player3Score = 0;

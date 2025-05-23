@@ -890,8 +890,11 @@
   .w-screen {
     width: 100vw;
   }
-  .max-w-4xl {
-    max-width: var(--container-4xl);
+  .max-w-6xl {
+    max-width: var(--container-6xl);
+  }
+  .max-w-full {
+    max-width: 100%;
   }
   .max-w-none {
     max-width: none;
@@ -1411,6 +1414,9 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .overflow-hidden {
+    overflow: hidden;
+  }
   .overflow-y-auto {
     overflow-y: auto;
   }
@@ -1760,6 +1766,9 @@
   }
   .p-4 {
     padding: calc(var(--spacing) * 4);
+  }
+  .px-4 {
+    padding-inline: calc(var(--spacing) * 4);
   }
   .py-10 {
     padding-block: calc(var(--spacing) * 10);
@@ -2409,6 +2418,11 @@
     &:focus {
       --tw-outline-style: none;
       outline-style: none;
+    }
+  }
+  .lg\:grid-cols-2 {
+    @media (width >= 64rem) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 }
