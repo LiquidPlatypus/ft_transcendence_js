@@ -1,5 +1,33 @@
 @import "tailwindcss";
 
+body.theme-CP {
+	--canvas-line-color: oklch(87.87% 0.0426 272.28);
+	--canvas-bg-color: oklch(24.29% 0.0304 283.91);
+	--canvas-text-color: oklch(87.87% 0.0426 272.28);
+	--canvas-entity-color: #fff;
+}
+
+body.theme-HC {
+	--canvas-line-color: oklch(0.7 0.2384 145.06);
+	--canvas-bg-color: #000;
+	--canvas-text-color: oklch(0.87 0.1842 87);
+	--canvas-entity-color: yellow;
+}
+
+body.theme-OLED {
+	--canvas-line-color: #fff;
+	--canvas-bg-color: #000;
+	--canvas-text-color: #fff;
+	--canvas-entity-color: #fff;
+}
+
+body.theme-WHITE {
+	--canvas-line-color: #000;
+	--canvas-bg-color: oklch(0.967 0.003 264.542);
+	--canvas-text-color: #000;
+	--canvas-entity-color: #000;
+}
+
 @theme {
 	/* Variables de base qui seront ecrasees par le programme. */
 	--color-catpuccin: oklch(24.29% 0.0304 283.91);
