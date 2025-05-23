@@ -42,8 +42,11 @@ export function homePage() {
 				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="normal">
 					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent text-sm flex items-center justify-center">Tx</div>
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="normal">
-					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent font-bold flex items-center justify-center">Tx</div>
+				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="large">
+					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent text-base flex items-center justify-center">Lg</div>
+				</button>
+				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="bold">
+					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent font-bold flex items-center justify-center">Bl</div>
 				</button>
 			</div>
 		</div>
