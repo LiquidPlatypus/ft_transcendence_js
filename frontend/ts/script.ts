@@ -387,6 +387,7 @@ export function showHome() {
 
 		attachHomePageListeners();
 		attachLanguageListeners();
+		attachTextListeners();
 	}
 }
 
