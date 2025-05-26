@@ -20,6 +20,7 @@ let gameOver = false;
 export class Game{
 	private gameCanvas: HTMLCanvasElement | null;
 	private gameContext: CanvasRenderingContext2D | null;
+	private gameStartTime: number = Date.now();
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
@@ -145,7 +146,15 @@ export class Game{
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
 	}
 	gameLoop() {
-		if (gameOver) return ;
+		if (gameOver) return;
+
+		const currentTime = Date.now();
+		if (currentTime - this.gameStartTime < pauseDuration) {
+			this.draw();
+			requestAnimationFrame(() => this.gameLoop());
+			return;
+		}
+
 		this.update();
 		this.draw();
 		requestAnimationFrame(() => this.gameLoop());
@@ -249,6 +258,12 @@ class Paddle2 extends Entity{
 class Ball extends Entity{
 
 	private speed:number = 5;
+	private lastTouchedBy: 'player1' | 'player2' | null = null;
+
+	public getLastTouchedBy(): 'player1' | 'player2' | null
+	{
+		return this.lastTouchedBy;
+	}
 
 	constructor(w: number, h: number, x: number, y: number){
 		super(w, h, x, y);
@@ -283,29 +298,28 @@ class Ball extends Entity{
 				return;
 		}
 
-		// .check but player 1
-		if (this.x + this.width >= canvas.width) {
-			Game.player1Score += 1;
-			this.resetPosition(canvas);
-			if (!this.checkGameEnd("Joueur 1")) {
-			} else
-				return;
-		}
-
-		// check player 1 collision.
+		// Collision avec joueur 1.
 		if (this.x <= player1.x + player1.width &&
-			this.x + this.width >= player1.x &&
-			this.y < player1.y + player1.height &&
-			this.y + this.height > player1.y) {
-			this.xVal = 1; // rebond vers la droite.
+			this.x >= player1.x &&
+			this.y + this.height >= player1.y &&
+			this.y <= player1.y + player1.height) {
+			let relativeY = (this.y + this.height / 2) - (player1.y + player1.height / 2);
+			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale.
+			this.xVal = 1;
+			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+			this.lastTouchedBy = 'player1';
 		}
 
-		// check player 2 collision.
+		// Collision avec joueur 2.
 		if (this.x + this.width >= player2.x &&
 			this.x <= player2.x + player2.width &&
-			this.y < player2.y + player2.height &&
-			this.y + this.height > player2.y) {
-			this.xVal = -1; // rebond vers la gauche.
+			this.y + this.height >= player2.y &&
+			this.y <= player2.y + player2.height) {
+			let relativeY = (this.y + this.height / 2) - (player2.y + player2.height / 2);
+			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale.
+			this.xVal = -1;
+			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+			this.lastTouchedBy = 'player2';
 		}
 
 		// Fait en sorte que la balle se déplace a une vitesse constante meme en diagonale.
