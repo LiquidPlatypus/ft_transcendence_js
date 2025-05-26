@@ -1,5 +1,8 @@
 import { showHome, startGame } from "./script.js";
 import { t } from "../lang/i18n.js"
+import {erase} from "sisteransi";
+import line = erase.line;
+import {bgColor} from "ansi-styles";
 
 enum KeyBindings{
 	UP = 90,
@@ -52,18 +55,30 @@ export class Game{
 		this.ball = new Ball(ballSize, ballSize, this.gameCanvas.width / 2 - ballSize / 2, this.gameCanvas.height / 2 - ballSize / 2);
 	}
 
+	getCanvasColors() {
+		const styles = getComputedStyle(document.body);
+		return {
+			bgColor: styles.getPropertyValue('--canvas-bg-color').trim() || '#000',
+			lineColor: styles.getPropertyValue('--canvas-line-color').trim() || '#fff',
+			textColor: styles.getPropertyValue('--canvas-text-color').trim() || '#fff',
+			entityColor: styles.getPropertyValue('--canvas-entity-color').trim() || '#fff',
+		};
+	}
+
 	drawBoardDetails(){
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
+		const { lineColor, textColor } = this.getCanvasColors();
+
 		// Trace les contours du terrain.
-		this.gameContext.strokeStyle = "#fff";
+		this.gameContext.strokeStyle = lineColor;
 		this.gameContext.lineWidth = 5;
 		this.gameContext.strokeRect(10,10,this.gameCanvas.width - 20 ,this.gameCanvas.height - 20);
 
 		// Trace la ligne au centre du terrain.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
-			this.gameContext.fillStyle = "#fff";
+			this.gameContext.fillStyle = lineColor;
 			this.gameContext.fillRect(this.gameCanvas.width / 2 - 2, i + 10, 5, 20); // Cense etre 2.5 mais vu que pixel = entier, arrondi a 2.
 		}
 
@@ -95,23 +110,25 @@ export class Game{
 		console.log("Player 2 name:", player2Alias);
 
 		this.gameContext!.font = "20px Orbitron";
-		this.gameContext!.fillStyle = "#fff";
+		this.gameContext!.fillStyle = textColor;
 		this.gameContext!.textAlign = "center";
 
 		// Affiche le nom des joueurs au dessus du score.
-		this.gameContext!.fillText(player1Alias, this.gameCanvas!.width / 4, 25);
-		this.gameContext!.fillText(player2Alias, (3 * this.gameCanvas!.width) / 4, 25);
+		this.gameContext!.fillText(player1Alias, this.gameCanvas!.width / 4, 30);
+		this.gameContext!.fillText(player2Alias, (3 * this.gameCanvas!.width) / 4, 30);
 
 		// Affiche les scores.
 		this.gameContext.textAlign = "center";
-		this.gameContext.fillText(Game.player1Score.toString(), this.gameCanvas.width / 4, 50);
-		this.gameContext.fillText(Game.player2Score.toString(), (3 * this.gameCanvas.width) / 4, 50);
+		this.gameContext.fillText(Game.player1Score.toString(), this.gameCanvas.width / 4, 55);
+		this.gameContext.fillText(Game.player2Score.toString(), (3 * this.gameCanvas.width) / 4, 55);
 	}
 	draw() {
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
-		this.gameContext.fillStyle = "#000";
+		const { bgColor } = this.getCanvasColors();
+
+		this.gameContext.fillStyle = bgColor;
 		this.gameContext.fillRect(0,0,this.gameCanvas.width,this.gameCanvas.height);
 
 		this.drawBoardDetails();
@@ -156,8 +173,17 @@ class Entity{
 		this.x = x;
 		this.y =y;
 	}
+
+	private getCanvasColors() {
+		const styles = getComputedStyle(document.body);
+		return {
+			entityColor: styles.getPropertyValue('--canvas-entity-color').trim() || '#fff',
+		}
+	}
+
 	draw(context: CanvasRenderingContext2D){
-		context.fillStyle = "#fff";
+		const { entityColor } = this.getCanvasColors();
+		context.fillStyle = entityColor;
 		context.fillRect(this.x,this.y,this.width,this.height);
 	}
 }
