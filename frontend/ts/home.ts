@@ -82,6 +82,7 @@ export function homePage() {
 				<div class="mt-4 grid grid-cols-1 lg:grid-cols-2 justify-center gap-10 flex-shrink-0">
 					<div id="history-pong" class="flex flex-cols items-center max-h-60 overflow-y-auto">
 						<button id="pong-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">${t("history")}</button>
+						<button id="4pong-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">${t("history-4")}</button>
 					</div>
 					<div id="history-pfc" class="flex flex-cols items-center max-h-60 overflow-y-auto">
 						<button id="pfc-hist-btn" class="btn rounded-lg border p-1 pe-1 shadow">${t("history")}</button>
