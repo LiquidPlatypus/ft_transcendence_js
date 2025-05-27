@@ -39,11 +39,15 @@ export function attachHomePageListeners() {
 
 	const pong_hist_btn = document.getElementById("pong-hist-btn");
 	if (pong_hist_btn)
-		pong_hist_btn.addEventListener("click", (event) => showHistory(event, 'pong'));
+		pong_hist_btn.addEventListener("click", (event) => showHistory(event, 'pong', '2'));
+
+	const fourpong_hist_btn = document.getElementById("4pong-hist-btn");
+	if (fourpong_hist_btn)
+		fourpong_hist_btn.addEventListener("click", (event) => showHistory(event, 'pong', '4'));
 
 	const pfc_hist_btn = document.getElementById("pfc-hist-btn");
 	if (pfc_hist_btn)
-		pfc_hist_btn.addEventListener("click", (event) => showHistory(event, 'pfc'));
+		pfc_hist_btn.addEventListener("click", (event) => showHistory(event, 'pfc', '2'));
 
 	attachThemeListeners();
 }

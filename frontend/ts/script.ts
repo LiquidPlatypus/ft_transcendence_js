@@ -181,8 +181,9 @@ interface Match {
  * @brief Affiche les tableaux des historiques.
  * @param event evenement appelant la fonction.
  * @param gameType type de jeu (pong/pfc).
+ * @param playerCount nombre de joueurs.
  */
-export async function showHistory(event: Event, gameType: string) {
+export async function showHistory(event: Event, gameType: string, playerCount: string) {
 	// Recupere le contenu de la div "history" en fonction du type de jeu.
 	const historyContainer = document.getElementById(`history-${gameType}`);
 	if (!historyContainer)
@@ -190,6 +191,8 @@ export async function showHistory(event: Event, gameType: string) {
 
 	// Sauvegarde du contenu original pour le restaurer plus tard.
 	const originalHTML = historyContainer.innerHTML;
+	// Sauvegarde des classes CSS originales
+	const originalClasses = historyContainer.className;
 
 	// Check si des matchs existent dans la DB.
 	try {
@@ -199,6 +202,11 @@ export async function showHistory(event: Event, gameType: string) {
 			body: JSON.stringify({})
 		});
 		const data = await response.json();
+
+		// Modifier les classes CSS pour adopter le style de history-pfc
+		if (gameType === 'pong') {
+			historyContainer.className = 'flex flex-col items-center max-h-60 overflow-y-auto';
+		}
 
 		// On vide d'abord le conteneur d'historique.
 		historyContainer.innerHTML = "";
@@ -217,12 +225,11 @@ export async function showHistory(event: Event, gameType: string) {
 		tablesDiv.className = 'w-full space-y-2';
 
 		if (data.success && data.matches && data.matches.length > 0) {
-			// Separation des matchs 2 ou 4 joueurs.
-			const twoPlayerMatches = data.matches.filter((match: Match) => !match.player3);
+			const twoPlayerMatches = data.matches.filter((match: Match) => !match.player3)
 			const fourPlayerMatches = data.matches.filter((match: Match) => match.player3);
 
 			// Afficher les matchs a 2 joueurs.
-			if (twoPlayerMatches.length > 0) {
+			if (playerCount === '2') {
 				const twoPlayerTitle = document.createElement('h3');
 				twoPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
 				twoPlayerTitle.textContent = `${t("2_players_matches")}`;
@@ -246,7 +253,7 @@ export async function showHistory(event: Event, gameType: string) {
 			}
 
 			// Afficher les matchs a 4 joueurs.
-			if (fourPlayerMatches.length > 0) {
+			if (playerCount === '4') {
 				const fourPlayerTitle = document.createElement('h3');
 				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
 				fourPlayerTitle.textContent = `${t("4_players_matches")}`;
@@ -256,11 +263,11 @@ export async function showHistory(event: Event, gameType: string) {
 					const tableEl = document.createElement('table');
 					tableEl.className = 'border-collapse border w-full text-center table-fixed';
 					tableEl.innerHTML = `
-						<tr class="bg-hist">
-							<th class="border p-2 w-1/4">${match.player1}</th>
-							<th class="border p-2 w-1/4">${match.player2}</th>
-							<th class="border p-2 w-1/4">${match.player3}</th>
-							<th class="border p-2 w-1/4">${match.player4}</th>
+						<tr>
+							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player1}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player2}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player3}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player4}</th>
 						</tr>
 						<tr>
 							<td class="border p-2">${match.player1_score}</td>
@@ -291,13 +298,13 @@ export async function showHistory(event: Event, gameType: string) {
 
 				// Restaure le contenu original.
 				historyContainer.innerHTML = originalHTML;
-				// Enleve la classe d'alignement.
-				historyContainer.classList.remove('self-start');
+				// Restaure les classes CSS originales
+				historyContainer.className = originalClasses;
 
 				// Reattache l'ecouteur pour le bouton hist.
 				const histBtn = document.getElementById(`${gameType}-hist-btn`);
 				if (histBtn)
-					histBtn.addEventListener("click", (e) => showHistory(e, gameType));
+					histBtn.addEventListener("click", (e) => showHistory(e, gameType, ''));
 			});
 		}
 	} catch (error) {
