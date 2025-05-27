@@ -298,6 +298,15 @@ class Ball extends Entity{
 				return;
 		}
 
+		// .check but player 1
+		if (this.x + this.width >= canvas.width) {
+			Game.player1Score += 1;
+			this.resetPosition(canvas);
+			if (!this.checkGameEnd("Joueur 1")) {
+			} else
+				return;
+		}
+
 		// Collision avec joueur 1.
 		if (this.x <= player1.x + player1.width &&
 			this.x >= player1.x &&
