@@ -3,6 +3,7 @@ import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
 import { GameBonus } from "./mypongBonus.js";
 import { GameFour } from './fourpong.js';
+import { GameFourBonus } from "./fourpongBonus.js";
 import { twoPlayersMatch, fourPlayersMatchs } from './matches.js'
 import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
@@ -411,10 +412,17 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		GameFour.player3Score = 0;
 		GameFour.player4Score = 0;
 
-		setTimeout(() => {
-			const game = new GameFour();
-			requestAnimationFrame(game.gameLoop.bind(game));
-		});
+		if (matchType === 'normal') {
+			setTimeout(() => {
+				const game = new GameFour();
+				requestAnimationFrame(game.gameLoop.bind(game));
+			});
+		} else if (matchType === 'bonus') {
+			setTimeout(() => {
+				const game = new GameFourBonus();
+				requestAnimationFrame(game.gameLoop.bind(game));
+			});
+		}
 	}
 }
 
