@@ -185,9 +185,11 @@ interface Match {
  */
 export async function showHistory(event: Event, gameType: string) {
 	// Recupere le contenu de la div "history" en fonction du type de jeu.
-	const historyContainer = document.getElementById(`history-${gameType}`);
+	const historyContainer = document.getElementById(`history-${gameType === 'fourpong' ? 'pong' : gameType}`);
 	if (!historyContainer)
 		return ;
+
+	console.log(gameType);
 
 	// Sauvegarde du contenu original pour le restaurer plus tard.
 	const originalHTML = historyContainer.innerHTML;
@@ -203,10 +205,8 @@ export async function showHistory(event: Event, gameType: string) {
 		});
 		const data = await response.json();
 
-		// Modifier les classes CSS pour adopter le style de history-pfc
-		if (gameType === 'pong') {
+		if (gameType === 'pong' || gameType === 'fourpong')
 			historyContainer.className = 'flex flex-col items-center max-h-60 overflow-y-auto';
-		}
 
 		// On vide d'abord le conteneur d'historique.
 		historyContainer.innerHTML = "";
@@ -229,13 +229,64 @@ export async function showHistory(event: Event, gameType: string) {
 			const twoPlayerMatches = data.matches.filter((match: Match) => !match.player3);
 			const fourPlayerMatches = data.matches.filter((match: Match) => match.player3);
 
-			// Afficher les matchs a 2 joueurs.
-			if (twoPlayerMatches.length > 0) {
+			// Afficher les matchs a 2 joueurs pour 'pong'
+			if (gameType === 'pong' && twoPlayerMatches.length > 0) {
 				const twoPlayerTitle = document.createElement('h3');
 				twoPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
 				twoPlayerTitle.textContent = `${t("2_players_matches")}`;
 				tablesDiv.appendChild(twoPlayerTitle);
 
+				twoPlayerMatches.forEach((match: Match) => {
+					const tableEl = document.createElement('table');
+					tableEl.className = 'mt-10 border-collapse border w-full text-center table-fixed';
+					tableEl.innerHTML = `
+						<tr>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player1}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player2}</th>
+						</tr>
+						<tr>
+							<td class="border p-2">${match.player1_score}</td>
+							<td class="border p-2">${match.player2_score}</td>
+						</tr>
+					`;
+					tablesDiv.appendChild(tableEl);
+				});
+			}
+
+			// Afficher les matchs a 4 joueurs pour 'fourpong'
+			if (gameType === 'fourpong' && fourPlayerMatches.length > 0) {
+				const fourPlayerTitle = document.createElement('h3');
+				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
+				fourPlayerTitle.textContent = `${t("4_players_matches")}`;
+				tablesDiv.appendChild(fourPlayerTitle);
+
+				fourPlayerMatches.forEach((match: Match) => {
+					const tableEl = document.createElement('table');
+					tableEl.innerHTML = `
+						<tr class="mt-10">
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player1}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player2}</th>
+						</tr>
+						<tr>
+							<td class="border p-2">${match.player1_score}</td>
+							<td class="border p-2">${match.player2_score}</td>
+						</tr>
+						<tr>
+							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player3}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player4}</th>
+						</tr>
+						<tr>
+							<td class="border p-2">${match.player3_score}</td>
+							<td class="border p-2">${match.player4_score}</td>
+						</tr>
+					`;
+					tableEl.className = 'border-collapse border w-full text-center table-fixed';
+					tablesDiv.appendChild(tableEl);
+				});
+			}
+
+			// Pour PFC.
+			if (gameType === 'pfc') {
 				twoPlayerMatches.forEach((match: Match) => {
 					const tableEl = document.createElement('table');
 					tableEl.className = 'border-collapse border w-full text-center table-fixed';
@@ -252,34 +303,6 @@ export async function showHistory(event: Event, gameType: string) {
 					tablesDiv.appendChild(tableEl);
 				});
 			}
-
-			// Afficher les matchs a 4 joueurs.
-			if (fourPlayerMatches.length > 0) {
-				const fourPlayerTitle = document.createElement('h3');
-				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
-				fourPlayerTitle.textContent = `${t("4_players_matches")}`;
-				tablesDiv.appendChild(fourPlayerTitle);
-
-				fourPlayerMatches.forEach((match: Match) => {
-					const tableEl = document.createElement('table');
-					tableEl.className = 'border-collapse border w-full text-center table-fixed';
-					tableEl.innerHTML = `
-						<tr>
-							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player1}</th>
-							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player2}</th>
-							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player3}</th>
-							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player4}</th>
-						</tr>
-						<tr>
-							<td class="border p-2">${match.player1_score}</td>
-							<td class="border p-2">${match.player2_score}</td>
-							<td class="border p-2">${match.player3_score}</td>
-							<td class="border p-2">${match.player4_score}</td>
-						</tr>
-					`;
-					tablesDiv.appendChild(tableEl);
-				});
-			}
 		} else {
 			const noMatchesEl = document.createElement('p');
 			noMatchesEl.textContent = `${t("no_matches")}`;
@@ -289,7 +312,7 @@ export async function showHistory(event: Event, gameType: string) {
 		historyContainer.appendChild(tablesDiv);
 
 		// Empeche d'appuyer sur les boutons en dehors des div d'historiques.
-		disableUnrelatedButtons(gameType === 'pong' ? 'pfc' : 'pong');
+		disableUnrelatedButtons(gameType === 'pong' || gameType === 'fourpong' ? 'pfc' : 'pong');
 
 		// Bouton retour.
 		const backButton = document.getElementById(`back-button-${gameType}`);
@@ -303,9 +326,17 @@ export async function showHistory(event: Event, gameType: string) {
 				historyContainer.className = originalClasses;
 
 				// Reattache l'ecouteur pour le bouton hist.
-				const histBtn = document.getElementById(`${gameType}-hist-btn`);
-				if (histBtn)
+				const histBtn = document.getElementById(`${gameType === 'fourpong' ? 'pong' : gameType}-hist-btn`);
+				if (histBtn && gameType !== 'fourpong')
 					histBtn.addEventListener("click", (e) => showHistory(e, gameType));
+
+				const pongHistBtn = document.getElementById(`pong-hist-btn`);
+				if (pongHistBtn)
+					pongHistBtn.addEventListener("click", (e) => showHistory(e, 'pong'));
+
+				const fourhistBtn = document.getElementById(`fourpong-hist-btn`);
+				if (fourhistBtn)
+					fourhistBtn.addEventListener("click", (e) => showHistory(e, 'fourpong'));
 			});
 		}
 	} catch (error) {
@@ -348,7 +379,7 @@ export function startGame(playerCount: number, matchType: MatchType) {
 	if (playerCount === 2) {
 		container.innerHTML = `
 			<div class="flex justify-center w-full">
-				<canvas id="game-canvas" width="600" height="400" 
+				<canvas id="game-canvas" width="600" height="400"
 						class="max-w-full border border-gray-300 rounded"></canvas>
 			</div>
 		`;

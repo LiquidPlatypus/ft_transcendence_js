@@ -41,6 +41,10 @@ export function attachHomePageListeners() {
 	if (pong_hist_btn)
 		pong_hist_btn.addEventListener("click", (event) => showHistory(event, 'pong'));
 
+	const fourpong_hist_btn = document.getElementById("fourpong-hist-btn");
+	if (fourpong_hist_btn)
+		fourpong_hist_btn.addEventListener("click", (event) => showHistory(event, 'fourpong'));
+
 	const pfc_hist_btn = document.getElementById("pfc-hist-btn");
 	if (pfc_hist_btn)
 		pfc_hist_btn.addEventListener("click", (event) => showHistory(event, 'pfc'));
