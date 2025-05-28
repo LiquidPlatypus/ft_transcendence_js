@@ -59,7 +59,7 @@ export class GameFour {
 
 		private freezePlayers(except: 'player1' | 'player2' | 'player3' | 'player4' | null)  //Bonus ICE
 	{
-		const freezeDuration = 1250;
+		const freezeDuration = 500;
 
 		if (except !== 'player1') this.player1.freeze(freezeDuration);
 		if (except !== 'player2') this.player2.freeze(freezeDuration);
@@ -68,7 +68,7 @@ export class GameFour {
 	}
 
 	private invertPlayersControls(except: 'player1' | 'player2' | 'player3' | 'player4'| null) {
-	const invertDuration = 4000; // 4 secondes
+	const invertDuration = 2000; // 4 secondes
 
 	if (except !== 'player1') this.player1.invertControls(invertDuration);
 	if (except !== 'player2') this.player2.invertControls(invertDuration);
