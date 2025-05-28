@@ -183,7 +183,7 @@ interface Match {
  * @param gameType type de jeu (pong/pfc).
  * @param playerCount nombre de joueurs.
  */
-export async function showHistory(event: Event, gameType: string, playerCount: string) {
+export async function showHistory(event: Event, gameType: string) {
 	// Recupere le contenu de la div "history" en fonction du type de jeu.
 	const historyContainer = document.getElementById(`history-${gameType}`);
 	if (!historyContainer)
@@ -225,11 +225,12 @@ export async function showHistory(event: Event, gameType: string, playerCount: s
 		tablesDiv.className = 'w-full space-y-2';
 
 		if (data.success && data.matches && data.matches.length > 0) {
-			const twoPlayerMatches = data.matches.filter((match: Match) => !match.player3)
+			// Separation des matchs 2 ou 4 joueurs.
+			const twoPlayerMatches = data.matches.filter((match: Match) => !match.player3);
 			const fourPlayerMatches = data.matches.filter((match: Match) => match.player3);
 
 			// Afficher les matchs a 2 joueurs.
-			if (playerCount === '2') {
+			if (twoPlayerMatches.length > 0) {
 				const twoPlayerTitle = document.createElement('h3');
 				twoPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
 				twoPlayerTitle.textContent = `${t("2_players_matches")}`;
@@ -253,7 +254,7 @@ export async function showHistory(event: Event, gameType: string, playerCount: s
 			}
 
 			// Afficher les matchs a 4 joueurs.
-			if (playerCount === '4') {
+			if (fourPlayerMatches.length > 0) {
 				const fourPlayerTitle = document.createElement('h3');
 				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
 				fourPlayerTitle.textContent = `${t("4_players_matches")}`;
@@ -304,7 +305,7 @@ export async function showHistory(event: Event, gameType: string, playerCount: s
 				// Reattache l'ecouteur pour le bouton hist.
 				const histBtn = document.getElementById(`${gameType}-hist-btn`);
 				if (histBtn)
-					histBtn.addEventListener("click", (e) => showHistory(e, gameType, ''));
+					histBtn.addEventListener("click", (e) => showHistory(e, gameType));
 			});
 		}
 	} catch (error) {
