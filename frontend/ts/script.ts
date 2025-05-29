@@ -139,10 +139,14 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	// Bouton retour avec ID spécifique au type de jeu.
 	const backButton = document.getElementById(`back-button-${gameType}`);
 	if (backButton) {
-		if (buttonType === 'match')
+		if (buttonType === 'match' && gameType === 'pong')
 			backButton.addEventListener("click", (event) => {
-				matchTypeChoice(event, 'match', gameType);
+				showPlayerCountSelection(event, buttonType, matchType);
 			});
+		else if (buttonType === 'match' && gameType === 'pfc')
+			backButton.addEventListener("click", (event) => {
+				matchTypeChoice(event, buttonType, 'pfc');
+			})
 		else if (buttonType === 'tournoi')
 			backButton.addEventListener("click", (event) => {showHome()});
 	}
