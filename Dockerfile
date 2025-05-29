@@ -1,40 +1,15 @@
-# Utiliser l'image de Node.js
-FROM node:20.19
-
-# Définir le répertoire de travail
-WORKDIR /app
-
-# Copier d'abord le package.json du backend dans le répertoire de travail
-COPY ./backend/package*.json ./backend/
-
-# Installer les dépendances du backend
-WORKDIR /app/backend
-RUN npm install
-
-RUN audit fix
+FROM node:20.19-alpine
 
 WORKDIR /app
-# Copier le reste des fichiers du backend
-COPY ./backend/ ./backend/
 
-# Copier le frontend dans le répertoire du conteneur
-COPY ./frontend/ ./frontend/
+COPY . .
 
-# Assurez-vous que le fichier frontend/package.json est bien présent
-RUN ls -l /app/frontend
+RUN chmod +x ./install.sh
 
-# Installer les dépendances du frontend
-WORKDIR /app/frontend
-RUN npm install
+RUN ./install.sh
 
-# Compiler les fichiers TypeScript sans passer par le script "tsc"
-RUN npx tsc
+RUN npm cache clean --force
 
-RUN audit fix
-
-# Exposer le port 3000
 EXPOSE 3000
 
-# Retourner au répertoire principal et démarrer l'application
-WORKDIR /app/backend
-CMD ["npm", "start"]
+CMD ["npm", "start", "--prefix", "./backend"]
