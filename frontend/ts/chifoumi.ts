@@ -1,6 +1,7 @@
 import { showHome } from "./script.js";
 import {t} from "../lang/i18n.js";
 import {MatchType} from "./Utilities.js";
+import {isValidString} from "./sanitize.js";
 
 type Choix = 'pierre' | 'feuille' | 'ciseaux';
 
@@ -29,11 +30,17 @@ export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 		const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
 		console.log(`Match entre ${player1} et ${player2}`);
 
+		if (!isValidString(player1) || !isValidString(player2)) {
+			alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
+			return ;
+		}
+
 		// Stock les alias dans le localStorage.
 		localStorage.setItem('player1Alias', player1);
 		localStorage.setItem('player2Alias', player2);
 
 		try {
+
 			// Creer les joueurs dans le back.
 			const player1Response = await fetch('api/players', {
 				method: 'POST',
