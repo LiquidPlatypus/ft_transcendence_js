@@ -104,6 +104,19 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	if (!container)
 		return;
 
+	// Cache les boutons d'historiques.
+	const pong_hist_btn = document.getElementById('pong-hist-btn');
+	if (pong_hist_btn)
+		pong_hist_btn.classList.add('hidden');
+
+	const fourpong_hist_btn = document.getElementById('fourpong-hist-btn');
+	if (fourpong_hist_btn)
+		fourpong_hist_btn.classList.add('hidden');
+
+	const pfc_hist_btn = document.getElementById('pfc-hist-btn');
+	if (pfc_hist_btn)
+		pfc_hist_btn.classList.add('hidden');
+
 	// Fait en sorte que le bouton retour soit au dessus des boutons de selection du nombre de joueurs.
 	container.classList.remove("grid-cols-2");
 	container.classList.add("grid-cols-1");
@@ -194,7 +207,18 @@ export async function showHistory(event: Event, gameType: string) {
 	if (!historyContainer)
 		return ;
 
-	console.log(gameType);
+	// Cache les boutons d'historiques.
+	const pong_hist_btn = document.getElementById('pong-hist-btn');
+	if (pong_hist_btn)
+		pong_hist_btn.classList.add('hidden');
+
+	const fourpong_hist_btn = document.getElementById('fourpong-hist-btn');
+	if (fourpong_hist_btn)
+		fourpong_hist_btn.classList.add('hidden');
+
+	const pfc_hist_btn = document.getElementById('pfc-hist-btn');
+	if (pfc_hist_btn)
+		pfc_hist_btn.classList.add('hidden');
 
 	// Sauvegarde du contenu original pour le restaurer plus tard.
 	const originalHTML = historyContainer.innerHTML;
@@ -330,18 +354,35 @@ export async function showHistory(event: Event, gameType: string) {
 				// Restaure les classes CSS originales
 				historyContainer.className = originalClasses;
 
+				// Reaffiche les boutons d'historiques.
+				if (pong_hist_btn)
+					pong_hist_btn.classList.remove('hidden');
+
+				if (fourpong_hist_btn)
+					fourpong_hist_btn.classList.remove('hidden');
+
+				if (pfc_hist_btn)
+					pfc_hist_btn.classList.remove('hidden');
+
 				// Reattache l'ecouteur pour le bouton hist.
-				const histBtn = document.getElementById(`${gameType === 'fourpong' ? 'pong' : gameType}-hist-btn`);
-				if (histBtn && gameType !== 'fourpong')
-					histBtn.addEventListener("click", (e) => showHistory(e, gameType));
-
-				const pongHistBtn = document.getElementById(`pong-hist-btn`);
-				if (pongHistBtn)
+				const pongHistBtn = document.getElementById('pong-hist-btn');
+				if (pongHistBtn) {
 					pongHistBtn.addEventListener("click", (e) => showHistory(e, 'pong'));
+					pongHistBtn.classList.remove('hidden');
+				}
 
-				const fourhistBtn = document.getElementById(`fourpong-hist-btn`);
-				if (fourhistBtn)
-					fourhistBtn.addEventListener("click", (e) => showHistory(e, 'fourpong'));
+				const fourpongHistBtn = document.getElementById('fourpong-hist-btn');
+				if (fourpongHistBtn) {
+					fourpongHistBtn.addEventListener("click", (e) => showHistory(e, 'fourpong'));
+					fourpongHistBtn.classList.remove('hidden');
+				}
+
+				const pfcHistBtn = document.getElementById('pfc-hist-btn');
+				if (pfcHistBtn) {
+					pfcHistBtn.addEventListener("click", (e) => showHistory(e, 'pfc'));
+					pfcHistBtn.classList.remove('hidden');
+				}
+
 			});
 		}
 	} catch (error) {

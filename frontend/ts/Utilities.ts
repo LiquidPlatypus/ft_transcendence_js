@@ -99,6 +99,10 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 	if (pong_hist_btn)
 		pong_hist_btn.classList.add('hidden');
 
+	const fourpong_hist_btn = document.getElementById('fourpong-hist-btn');
+	if (fourpong_hist_btn)
+		fourpong_hist_btn.classList.add('hidden');
+
 	const pfc_hist_btn = document.getElementById('pfc-hist-btn');
 	if (pfc_hist_btn)
 		pfc_hist_btn.classList.add('hidden');
