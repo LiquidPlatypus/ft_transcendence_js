@@ -131,6 +131,7 @@ function init() {
 
 	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
 
+
 	function handleKeydown(e: KeyboardEvent) {
 		// Ignore les entree pendant le delai.
 		if (isWaiting)
@@ -154,8 +155,12 @@ function init() {
 				const choixJ1Traduit = t(getChoixTranslationKey(choixJ1!));
 				const choixJ2Traduit = t(getChoixTranslationKey(choixJ2!));
 
-				resultat.textContent = `${t("player")} 1: ${choixJ1Traduit} | ${t("player")} 2: ${choixJ2Traduit} => ${result}`;
-				scores.textContent = `${t("score")} ${t("player")} 1: ${scoreJ1} | ${t("score")} ${t("player")} 2: ${scoreJ2}`;
+				// Recuperation des alias des joueurs.
+				const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
+				const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
+
+				resultat.textContent = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} => ${result}`;
+				scores.textContent = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
 					verifierVainqueur(vainqueur);
 				setTimeout(() => {
@@ -224,6 +229,10 @@ function afficherCombat(zone: HTMLElement, el1: HTMLElement, el2: HTMLElement, c
 }
 
 function comparer(c1: Choix, c2: Choix): string {
+	// Récupération des alias des joueurs.
+	const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
+	const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
+
 	if (c1 === c2) return t("equality") || "Égalité !";
 	if (
 		(c1 === "pierre" && c2 === "ciseaux") ||
@@ -231,10 +240,10 @@ function comparer(c1: Choix, c2: Choix): string {
 		(c1 === "ciseaux" && c2 === "feuille")
 	) {
 		scoreJ1++;
-		return t("player_wins_round", {player: "1"}) || t("player") + " 1 " + t("wins_round") || "Joueur 1 gagne la manche !";
+		return `${player1Alias} ${t("wins_round")}` || `${player1Alias} gagne la manche !`;
 	} else {
 		scoreJ2++;
-		return t("player_wins_round", {player: "2"}) || t("player") + " 2 " + t("wins_round") || "Joueur 2 gagne la manche !";
+		return `${player2Alias} ${t("wins_round")}` || `${player2Alias} gagne la manche !`;
 	}
 }
 
@@ -322,8 +331,12 @@ function init_bonus() {
 				const choixJ1Traduit = t(getChoixTranslationKey(choixJ1!));
 				const choixJ2Traduit = t(getChoixTranslationKey(choixJ2!));
 
-				resultat.textContent = `${t("player")} 1: ${choixJ1Traduit} | ${t("player")} 2: ${choixJ2Traduit} => ${result}`;
-				scores.textContent = `${t("score")} ${t("player")} 1: ${scoreJ1} | ${t("score")} ${t("player")} 2: ${scoreJ2}`;
+				// Recuperation des alias des joueurs.
+				const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
+				const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
+
+				resultat.textContent = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} => ${result}`;
+				scores.textContent = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
 					verifierVainqueur(vainqueur);
@@ -385,15 +398,19 @@ function init_bonus() {
 }
 
 function comparer_bonus(c1: Choix, c2: Choix): string {
+	// Récupération des alias des joueurs.
+	const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
+	const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
+
 	if (c1 === c2) {
 		let bonusText = "";
 
 		if (scoreJ1 + 2 <= scoreJ2) {
 			scoreJ1++;
-			bonusText = ` (${t("bonus_equalizer", {player: "1"}) || t("bonus_player")} 1!)`;
+			bonusText = ` (${t("bonus_equalizer", {player: player1Alias}) || `Bonus ${player1Alias}`}!)`;
 		} else if (scoreJ2 + 2 <= scoreJ1) {
 			scoreJ2++;
-			bonusText = ` (${t("bonus_equalizer", {player: "2"}) || t("bonus_player")} 2!)`;
+			bonusText = ` (${t("bonus_equalizer", {player: player2Alias}) || `Bonus ${player2Alias}`}!)`;
 		} else {
 			return t("equality") || "Égalité !";
 		}
@@ -407,9 +424,9 @@ function comparer_bonus(c1: Choix, c2: Choix): string {
 		(c1 === "ciseaux" && c2 === "feuille")
 	) {
 		scoreJ1++;
-		return t("player_wins_round", {player: "1"}) || `${t("player")} 1 ${t("wins_round")}` || "Joueur 1 gagne la manche !";
+		return `${player1Alias} ${t("wins_round")}` || `${player1Alias} gagne la manche !`;
 	} else {
 		scoreJ2++;
-		return t("player_wins_round", {player: "2"}) || `${t("player")} 2 ${t("wins_round")}` || "Joueur 2 gagne la manche !";
+		return `${player2Alias} ${t("wins_round")}` || `${player2Alias} gagne la manche !`;
 	}
 }
