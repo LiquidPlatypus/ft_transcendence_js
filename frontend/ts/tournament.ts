@@ -70,7 +70,7 @@ export async function startTournament(event: Event): Promise<void> {
 		currentTournamentId = tournamentData.id;
 		console.log("Tournoi créé : ", currentTournamentId);
 
-		// Save tournament ID to localStorage for access in other functions
+		// Sauvegarde l'ID du tournoi dans le localStorage our y accéder dans les autres fonctions.
 		localStorage.setItem('currentTournamentId', currentTournamentId);
 
 		// Creation et ajout des joueurs.
@@ -119,7 +119,7 @@ export async function startTournament(event: Event): Promise<void> {
 
 		// Création des matchs.
 		await storePlayerNames(playersIds, playerAliases);
-		await createTournamentMatches(playersIds);
+		await createTournamentMatches(playersIds, playerAliases);
 	} catch (error: any) {
 		console.error("Erreur :", error);
 		alert(`Une erreur est survenue : ${error.message}`);
@@ -129,9 +129,171 @@ export async function startTournament(event: Event): Promise<void> {
 }
 
 /**
+ * @brief Affiche l'ordre des matchs du tournoi.
+ * @param playerAliases noms des joueurs.
+ */
+function displayTournamentAnnouncement(playerAliases: string[]): Promise<void> {
+	return new Promise((resolve) => {
+		// Creer l'overlay d'annonce.
+		const overlay = document.createElement('div');
+		overlay.id = 'tournament-announcement';
+		overlay.className = 'tournament-overlay';
+
+		const currentTheme = document.body.className;
+		overlay.style.cssText = `
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.85);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			z-index: 10000;
+			font-size: var(--font-size-base, 1rem);
+			font-weight: var(--font-weight-base, 400);
+			line-height: var(--line-height-base, 1.5);
+		`;
+
+		// Container principal
+		const mainContainer = document.createElement('div');
+		mainContainer.style.cssText = `
+			background: var(--color-hist, #333);
+			color: var(--color-hist-text, white);
+			padding: 2rem;
+			border-radius: 8px;
+			max-width: 600px;
+			width: 90%;
+			text-align: center;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+		`;
+
+		// Titre principal.
+		const title = document.createElement('h1');
+		title.textContent = 'Ordre des matchs';
+		title.style.cssText = `
+			margin-bottom: 1.5rem;
+			font-size: calc(var(--font-size-base, 1rem) * 1.8);
+			font-weight: var(--font-weight-base, 400);
+		`;
+
+		// Demi-finales.
+		const semifinalsSection = document.createElement('div');
+		semifinalsSection.style.cssText = `margin-bottom: 1.5rem;`;
+
+		const semifinalsTitle = document.createElement('h2');
+		semifinalsTitle.textContent = 'Demi-finales';
+		semifinalsTitle.style.cssText = `
+			margin-bottom: 1rem;
+			font-size: calc(var(--font-size-base, 1rem) * 1.3);
+			font-weight: var(--font-weight-base, 400);
+		`;
+
+		const match1 = document.createElement('p');
+		match1.textContent = `Match 1: ${playerAliases[0]} vs ${playerAliases[1]}`;
+		match1.style.cssText = `
+			margin: 0.5rem 0;
+			padding: 0.5rem;
+			background: var(--color-button, #555);
+			color: var(--button-text-color, white);
+			border-radius: 4px;
+		`;
+
+		const match2 = document.createElement('p');
+		match2.textContent = `Match 2: ${playerAliases[2]} vs ${playerAliases[3]}`;
+		match2.style.cssText = `
+			margin: 0.5rem 0;
+			padding: 0.5rem;
+			background: var(--color-button, #555);
+			color: var(--button-text-color, white);
+			border-radius: 4px;
+		`;
+
+		// Finales.
+		const finalsSection = document.createElement('div');
+		finalsSection.style.cssText = `margin-bottom: 1.5rem;`;
+
+		const finalsTitle = document.createElement('h2');
+		finalsTitle.textContent = 'Finales';
+		finalsTitle.style.cssText = `
+			margin-bottom: 1rem;
+			font-size: calc(var(--font-size-base, 1rem) * 1.3);
+			font-weight: var(--font-weight-base, 400);
+		`;
+
+		const finalMatch = document.createElement('p');
+		finalMatch.textContent = 'Finale: Gagnant Match 1 vs Gagnant Match 2';
+		finalMatch.style.cssText = `
+			margin: 0.5rem 0;
+			padding: 0.5rem;
+			background: var(--color-button, #555);
+			color: var(--button-text-color, white);
+			border-radius: 4px;
+		`;
+
+		const thirdPlaceMatch = document.createElement('p');
+		thirdPlaceMatch.textContent = '3ème place: Perdant Match 1 vs Perdant Match 2';
+		thirdPlaceMatch.style.cssText = `
+			margin: 0.5rem 0;
+			padding: 0.5rem;
+			background: var(--color-button, #555);
+			color: var(--button-text-color, white);
+			border-radius: 4px;
+		`;
+
+		// Compteur.
+		const countdown = document.createElement('div');
+		countdown.style.cssText = `
+			margin-top: 1.5rem;
+			font-size: calc(var(--font-size-base, 1rem) * 1.2);
+			font-weight: var(--font-weight-base, 400);
+		`;
+
+		// Assemble l'annonce.
+		semifinalsSection.appendChild(semifinalsTitle);
+		semifinalsSection.appendChild(match1);
+		semifinalsSection.appendChild(match2);
+
+		finalsSection.appendChild(finalsTitle);
+		finalsSection.appendChild(finalMatch);
+		finalsSection.appendChild(thirdPlaceMatch);
+
+		mainContainer.appendChild(title);
+		mainContainer.appendChild(semifinalsSection);
+		mainContainer.appendChild(finalsSection);
+		mainContainer.appendChild(countdown);
+
+		overlay.appendChild(mainContainer);
+		document.body.appendChild(overlay);
+
+		// Compteur de 3 secondes.
+		let count = 3;
+		countdown.textContent = `Le tournoi commence dans ${count} secondes...`;
+
+		const timer = setInterval(() => {
+			count--;
+			if (count > 0) {
+				countdown.textContent = `Le tournoi commence dans ${count} secondes...`;
+			} else {
+				countdown.textContent = "Le tournoi commence !";
+				clearInterval(timer);
+
+				// Supprime l'overlay après une courte pause.
+				setTimeout(() => {
+					document.body.removeChild(overlay);
+					resolve();
+				}, 500);
+			}
+		}, 1000);
+	});
+}
+
+/**
  * @brief Crée les matchs du tournoi en fonction du nombre de joueurs.
  */
-async function createTournamentMatches(playerIds: string[]): Promise<void> {
+async function createTournamentMatches(playerIds: string[], playerAliases: string[]): Promise<void> {
 	if (!currentTournamentId) return;
 
 	try {
@@ -139,6 +301,9 @@ async function createTournamentMatches(playerIds: string[]): Promise<void> {
 		switch (playerIds.length) {
 			case 4:
 				console.log("Matchs pour 4 joueurs");
+
+				// Afficher l'annonce de l'ordre des matchs
+				await displayTournamentAnnouncement(playerAliases);
 
 				// Create semifinals
 				console.log(`Demi-finale 1: ${playerIds[0]} vs ${playerIds[1]}`);
