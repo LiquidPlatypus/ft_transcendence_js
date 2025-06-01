@@ -15,7 +15,7 @@ const symbols: Record<Choix, string> = {
 	ciseaux: "✂"
 };
 
-const touchesJ1: Record<string, Choix> = { a: 'pierre', z: 'feuille', e: 'ciseaux' };
+const touchesJ1: Record<string, Choix> = { q: 'pierre', z: 'feuille', e: 'ciseaux' };
 const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseaux' };
 
 /**
@@ -96,7 +96,7 @@ function init() {
 	const rockSymbol = symbols.pierre;
 	const paperSymbol = symbols.feuille;
 	const scissorSymbol = symbols.ciseaux;
-	const instructions1 = creerElement("p", "", `${t("player")} 1 : A = ${rockSymbol} | Z = ${paperSymbol} | E = ${scissorSymbol}`);
+	const instructions1 = creerElement("p", "", `${t("player")} 1 : Q = ${rockSymbol} | Z = ${paperSymbol} | E = ${scissorSymbol}`);
 	const instructions2 = creerElement("p", "", `${t("player")} 2 : J = ${rockSymbol} | K = ${paperSymbol} | L = ${scissorSymbol}`);
 
 	const arena = creerElement("div", "arena", "");
@@ -275,7 +275,7 @@ function init_bonus() {
 	const rockSymbol = symbols.pierre;
 	const paperSymbol = symbols.feuille;
 	const scissorSymbol = symbols.ciseaux;
-	const instructions1 = creerElement("p", "", `${t("player")} 1 : A = ${rockSymbol} | Z = ${paperSymbol} | E = ${scissorSymbol}`);
+	const instructions1 = creerElement("p", "", `${t("player")} 1 : Q = ${rockSymbol} | Z = ${paperSymbol} | E = ${scissorSymbol}`);
 	const instructions2 = creerElement("p", "", `${t("player")} 2 : J = ${rockSymbol} | K = ${paperSymbol} | L = ${scissorSymbol}`);
 
 	const arena = creerElement("div", "arena", "");
