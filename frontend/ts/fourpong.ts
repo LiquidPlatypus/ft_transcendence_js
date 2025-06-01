@@ -1,7 +1,9 @@
 import { t } from "../lang/i18n.js"
+import {erase} from "sisteransi";
+import line = erase.line;
 
 enum KeyBindings{
-	UPONE = 65, //A
+	UPONE = 87, //A
 	DOWNONE = 81, //Q
 	UPTWO = 38, //fleche haut
 	DOWNTWO = 40, //fleche bas
@@ -20,6 +22,7 @@ let gameOver = false;
 export class GameFour {
 	private gameCanvas: HTMLCanvasElement | null;
 	private gameContext: CanvasRenderingContext2D | null;
+	private gameStartTime: number = Date.now();
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
@@ -60,18 +63,30 @@ export class GameFour {
 		this.ball = new Ball(ballSize, ballSize, 0, 0, this.gameCanvas.width, this.gameCanvas.height);
 	}
 
+	getCanvasColors() {
+		const styles = getComputedStyle(document.body);
+		return {
+			bgColor: styles.getPropertyValue('--canvas-bg-color').trim() || '#000',
+			lineColor: styles.getPropertyValue('--canvas-line-color').trim() || '#fff',
+			textColor: styles.getPropertyValue('--canvas-text-color').trim() || '#fff',
+			entityColor: styles.getPropertyValue('--canvas-entity-color').trim() || '#fff',
+		};
+	}
+
 	drawBoardDetails(){
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
+		const { lineColor, textColor } = this.getCanvasColors();
+
 		// Trace les contours du terrain.
-		this.gameContext.strokeStyle = "#fff";
+		this.gameContext.strokeStyle = lineColor;
 		this.gameContext.lineWidth = 5;
 		this.gameContext.strokeRect(10,10,this.gameCanvas.width - 20 ,this.gameCanvas.height - 20);
 
 		// Affiche la couleur.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
-			this.gameContext.fillStyle = "#fff";
+			this.gameContext.fillStyle = lineColor;
 		}
 
 		// Affiche noms des joueurs.
@@ -81,7 +96,7 @@ export class GameFour {
 		const player4Alias = localStorage.getItem('player4Alias') || 'Joueur 4';
 
 		this.gameContext!.font = "20px Orbitron";
-		this.gameContext!.fillStyle = "#fff";
+		this.gameContext!.fillStyle = textColor;
 		this.gameContext!.textAlign = "center";
 
 		// Position des noms des joueurs.
@@ -104,7 +119,9 @@ export class GameFour {
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
-		this.gameContext.fillStyle = "#000";
+		const { bgColor } = this.getCanvasColors();
+
+		this.gameContext.fillStyle = bgColor;
 		this.gameContext.fillRect(0,0,this.gameCanvas.width,this.gameCanvas.height);
 
 		this.drawBoardDetails();
@@ -128,6 +145,13 @@ export class GameFour {
 
 	gameLoop = () => {
 		if (gameOver) return;
+
+		const currentTime = Date.now();
+		if (currentTime - this.gameStartTime < pauseDuration) {
+			this.draw();
+			requestAnimationFrame(() => this.gameLoop());
+			return;
+		}
 		this.update();
 		this.draw();
 		requestAnimationFrame(this.gameLoop);
@@ -155,8 +179,17 @@ class Entity{
 		this.x = x;
 		this.y =y;
 	}
+
+	private getCanvasColors() {
+		const styles = getComputedStyle(document.body);
+		return {
+			entityColor: styles.getPropertyValue('--canvas-entity-color').trim() || '#fff',
+		}
+	}
+
 	draw(context: CanvasRenderingContext2D){
-		context.fillStyle = "#fff";
+		const { entityColor } = this.getCanvasColors();
+		context.fillStyle = entityColor;
 		context.fillRect(this.x,this.y,this.width,this.height);
 	}
 }

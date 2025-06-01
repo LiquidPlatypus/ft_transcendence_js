@@ -1,8 +1,11 @@
 import { showHome, startGame } from "./script.js";
 import { t } from "../lang/i18n.js"
+import {erase} from "sisteransi";
+import line = erase.line;
+import {bgColor} from "ansi-styles";
 
 enum KeyBindings{
-	UP = 90,
+	UP = 87,
 	DOWN = 83,
 	UP2 = 38,
 	DOWN2 = 40
@@ -17,6 +20,7 @@ let gameOver = false;
 export class Game{
 	private gameCanvas: HTMLCanvasElement | null;
 	private gameContext: CanvasRenderingContext2D | null;
+	private gameStartTime: number = Date.now();
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
@@ -52,18 +56,30 @@ export class Game{
 		this.ball = new Ball(ballSize, ballSize, this.gameCanvas.width / 2 - ballSize / 2, this.gameCanvas.height / 2 - ballSize / 2);
 	}
 
+	getCanvasColors() {
+		const styles = getComputedStyle(document.body);
+		return {
+			bgColor: styles.getPropertyValue('--canvas-bg-color').trim() || '#000',
+			lineColor: styles.getPropertyValue('--canvas-line-color').trim() || '#fff',
+			textColor: styles.getPropertyValue('--canvas-text-color').trim() || '#fff',
+			entityColor: styles.getPropertyValue('--canvas-entity-color').trim() || '#fff',
+		};
+	}
+
 	drawBoardDetails(){
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
+		const { lineColor, textColor } = this.getCanvasColors();
+
 		// Trace les contours du terrain.
-		this.gameContext.strokeStyle = "#fff";
+		this.gameContext.strokeStyle = lineColor;
 		this.gameContext.lineWidth = 5;
 		this.gameContext.strokeRect(10,10,this.gameCanvas.width - 20 ,this.gameCanvas.height - 20);
 
 		// Trace la ligne au centre du terrain.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
-			this.gameContext.fillStyle = "#fff";
+			this.gameContext.fillStyle = lineColor;
 			this.gameContext.fillRect(this.gameCanvas.width / 2 - 2, i + 10, 5, 20); // Cense etre 2.5 mais vu que pixel = entier, arrondi a 2.
 		}
 
@@ -95,23 +111,25 @@ export class Game{
 		console.log("Player 2 name:", player2Alias);
 
 		this.gameContext!.font = "20px Orbitron";
-		this.gameContext!.fillStyle = "#fff";
+		this.gameContext!.fillStyle = textColor;
 		this.gameContext!.textAlign = "center";
 
 		// Affiche le nom des joueurs au dessus du score.
-		this.gameContext!.fillText(player1Alias, this.gameCanvas!.width / 4, 25);
-		this.gameContext!.fillText(player2Alias, (3 * this.gameCanvas!.width) / 4, 25);
+		this.gameContext!.fillText(player1Alias, this.gameCanvas!.width / 4, 30);
+		this.gameContext!.fillText(player2Alias, (3 * this.gameCanvas!.width) / 4, 30);
 
 		// Affiche les scores.
 		this.gameContext.textAlign = "center";
-		this.gameContext.fillText(Game.player1Score.toString(), this.gameCanvas.width / 4, 50);
-		this.gameContext.fillText(Game.player2Score.toString(), (3 * this.gameCanvas.width) / 4, 50);
+		this.gameContext.fillText(Game.player1Score.toString(), this.gameCanvas.width / 4, 55);
+		this.gameContext.fillText(Game.player2Score.toString(), (3 * this.gameCanvas.width) / 4, 55);
 	}
 	draw() {
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
-		this.gameContext.fillStyle = "#000";
+		const { bgColor } = this.getCanvasColors();
+
+		this.gameContext.fillStyle = bgColor;
 		this.gameContext.fillRect(0,0,this.gameCanvas.width,this.gameCanvas.height);
 
 		this.drawBoardDetails();
@@ -128,7 +146,15 @@ export class Game{
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
 	}
 	gameLoop() {
-		if (gameOver) return ;
+		if (gameOver) return;
+
+		const currentTime = Date.now();
+		if (currentTime - this.gameStartTime < pauseDuration) {
+			this.draw();
+			requestAnimationFrame(() => this.gameLoop());
+			return;
+		}
+
 		this.update();
 		this.draw();
 		requestAnimationFrame(() => this.gameLoop());
@@ -156,8 +182,17 @@ class Entity{
 		this.x = x;
 		this.y =y;
 	}
+
+	private getCanvasColors() {
+		const styles = getComputedStyle(document.body);
+		return {
+			entityColor: styles.getPropertyValue('--canvas-entity-color').trim() || '#fff',
+		}
+	}
+
 	draw(context: CanvasRenderingContext2D){
-		context.fillStyle = "#fff";
+		const { entityColor } = this.getCanvasColors();
+		context.fillStyle = entityColor;
 		context.fillRect(this.x,this.y,this.width,this.height);
 	}
 }
@@ -223,6 +258,12 @@ class Paddle2 extends Entity{
 class Ball extends Entity{
 
 	private speed:number = 5;
+	private lastTouchedBy: 'player1' | 'player2' | null = null;
+
+	public getLastTouchedBy(): 'player1' | 'player2' | null
+	{
+		return this.lastTouchedBy;
+	}
 
 	constructor(w: number, h: number, x: number, y: number){
 		super(w, h, x, y);
@@ -266,20 +307,28 @@ class Ball extends Entity{
 				return;
 		}
 
-		// check player 1 collision.
+		// Collision avec joueur 1.
 		if (this.x <= player1.x + player1.width &&
-			this.x + this.width >= player1.x &&
-			this.y < player1.y + player1.height &&
-			this.y + this.height > player1.y) {
-			this.xVal = 1; // rebond vers la droite.
+			this.x >= player1.x &&
+			this.y + this.height >= player1.y &&
+			this.y <= player1.y + player1.height) {
+			let relativeY = (this.y + this.height / 2) - (player1.y + player1.height / 2);
+			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale.
+			this.xVal = 1;
+			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+			this.lastTouchedBy = 'player1';
 		}
 
-		// check player 2 collision.
+		// Collision avec joueur 2.
 		if (this.x + this.width >= player2.x &&
 			this.x <= player2.x + player2.width &&
-			this.y < player2.y + player2.height &&
-			this.y + this.height > player2.y) {
-			this.xVal = -1; // rebond vers la gauche.
+			this.y + this.height >= player2.y &&
+			this.y <= player2.y + player2.height) {
+			let relativeY = (this.y + this.height / 2) - (player2.y + player2.height / 2);
+			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale.
+			this.xVal = -1;
+			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+			this.lastTouchedBy = 'player2';
 		}
 
 		// Fait en sorte que la balle se déplace a une vitesse constante meme en diagonale.

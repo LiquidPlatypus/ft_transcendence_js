@@ -3,6 +3,7 @@ import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
 import { GameBonus } from "./mypongBonus.js";
 import { GameFour } from './fourpong.js';
+import { GameFourBonus } from "./fourpongBonus.js";
 import { twoPlayersMatch, fourPlayersMatchs } from './matches.js'
 import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
@@ -103,6 +104,19 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	if (!container)
 		return;
 
+	// Cache les boutons d'historiques.
+	const pong_hist_btn = document.getElementById('pong-hist-btn');
+	if (pong_hist_btn)
+		pong_hist_btn.classList.add('hidden');
+
+	const fourpong_hist_btn = document.getElementById('fourpong-hist-btn');
+	if (fourpong_hist_btn)
+		fourpong_hist_btn.classList.add('hidden');
+
+	const pfc_hist_btn = document.getElementById('pfc-hist-btn');
+	if (pfc_hist_btn)
+		pfc_hist_btn.classList.add('hidden');
+
 	// Fait en sorte que le bouton retour soit au dessus des boutons de selection du nombre de joueurs.
 	container.classList.remove("grid-cols-2");
 	container.classList.add("grid-cols-1");
@@ -138,10 +152,14 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	// Bouton retour avec ID spécifique au type de jeu.
 	const backButton = document.getElementById(`back-button-${gameType}`);
 	if (backButton) {
-		if (buttonType === 'match')
+		if (buttonType === 'match' && gameType === 'pong')
 			backButton.addEventListener("click", (event) => {
-				matchTypeChoice(event, 'match', gameType);
+				showPlayerCountSelection(event, buttonType, matchType);
 			});
+		else if (buttonType === 'match' && gameType === 'pfc')
+			backButton.addEventListener("click", (event) => {
+				matchTypeChoice(event, buttonType, 'pfc');
+			})
 		else if (buttonType === 'tournoi')
 			backButton.addEventListener("click", (event) => {showHome()});
 	}
@@ -181,15 +199,31 @@ interface Match {
  * @brief Affiche les tableaux des historiques.
  * @param event evenement appelant la fonction.
  * @param gameType type de jeu (pong/pfc).
+ * @param playerCount nombre de joueurs.
  */
 export async function showHistory(event: Event, gameType: string) {
 	// Recupere le contenu de la div "history" en fonction du type de jeu.
-	const historyContainer = document.getElementById(`history-${gameType}`);
+	const historyContainer = document.getElementById(`history-${gameType === 'fourpong' ? 'pong' : gameType}`);
 	if (!historyContainer)
 		return ;
 
+	// Cache les boutons d'historiques.
+	const pong_hist_btn = document.getElementById('pong-hist-btn');
+	if (pong_hist_btn)
+		pong_hist_btn.classList.add('hidden');
+
+	const fourpong_hist_btn = document.getElementById('fourpong-hist-btn');
+	if (fourpong_hist_btn)
+		fourpong_hist_btn.classList.add('hidden');
+
+	const pfc_hist_btn = document.getElementById('pfc-hist-btn');
+	if (pfc_hist_btn)
+		pfc_hist_btn.classList.add('hidden');
+
 	// Sauvegarde du contenu original pour le restaurer plus tard.
 	const originalHTML = historyContainer.innerHTML;
+	// Sauvegarde des classes CSS originales
+	const originalClasses = historyContainer.className;
 
 	// Check si des matchs existent dans la DB.
 	try {
@@ -199,6 +233,9 @@ export async function showHistory(event: Event, gameType: string) {
 			body: JSON.stringify({})
 		});
 		const data = await response.json();
+
+		if (gameType === 'pong' || gameType === 'fourpong')
+			historyContainer.className = 'flex flex-col items-center max-h-60 overflow-y-auto';
 
 		// On vide d'abord le conteneur d'historique.
 		historyContainer.innerHTML = "";
@@ -221,13 +258,64 @@ export async function showHistory(event: Event, gameType: string) {
 			const twoPlayerMatches = data.matches.filter((match: Match) => !match.player3);
 			const fourPlayerMatches = data.matches.filter((match: Match) => match.player3);
 
-			// Afficher les matchs a 2 joueurs.
-			if (twoPlayerMatches.length > 0) {
+			// Afficher les matchs a 2 joueurs pour 'pong'
+			if (gameType === 'pong' && twoPlayerMatches.length > 0) {
 				const twoPlayerTitle = document.createElement('h3');
 				twoPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
 				twoPlayerTitle.textContent = `${t("2_players_matches")}`;
 				tablesDiv.appendChild(twoPlayerTitle);
 
+				twoPlayerMatches.forEach((match: Match) => {
+					const tableEl = document.createElement('table');
+					tableEl.className = 'mt-10 border-collapse border w-full text-center table-fixed';
+					tableEl.innerHTML = `
+						<tr>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player1}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player2}</th>
+						</tr>
+						<tr>
+							<td class="border p-2">${match.player1_score}</td>
+							<td class="border p-2">${match.player2_score}</td>
+						</tr>
+					`;
+					tablesDiv.appendChild(tableEl);
+				});
+			}
+
+			// Afficher les matchs a 4 joueurs pour 'fourpong'
+			if (gameType === 'fourpong' && fourPlayerMatches.length > 0) {
+				const fourPlayerTitle = document.createElement('h3');
+				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
+				fourPlayerTitle.textContent = `${t("4_players_matches")}`;
+				tablesDiv.appendChild(fourPlayerTitle);
+
+				fourPlayerMatches.forEach((match: Match) => {
+					const tableEl = document.createElement('table');
+					tableEl.innerHTML = `
+						<tr class="mt-10">
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player1}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player2}</th>
+						</tr>
+						<tr>
+							<td class="border p-2">${match.player1_score}</td>
+							<td class="border p-2">${match.player2_score}</td>
+						</tr>
+						<tr>
+							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player3}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/4">${match.player4}</th>
+						</tr>
+						<tr>
+							<td class="border p-2">${match.player3_score}</td>
+							<td class="border p-2">${match.player4_score}</td>
+						</tr>
+					`;
+					tableEl.className = 'border-collapse border w-full text-center table-fixed';
+					tablesDiv.appendChild(tableEl);
+				});
+			}
+
+			// Pour PFC.
+			if (gameType === 'pfc') {
 				twoPlayerMatches.forEach((match: Match) => {
 					const tableEl = document.createElement('table');
 					tableEl.className = 'border-collapse border w-full text-center table-fixed';
@@ -244,34 +332,6 @@ export async function showHistory(event: Event, gameType: string) {
 					tablesDiv.appendChild(tableEl);
 				});
 			}
-
-			// Afficher les matchs a 4 joueurs.
-			if (fourPlayerMatches.length > 0) {
-				const fourPlayerTitle = document.createElement('h3');
-				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
-				fourPlayerTitle.textContent = `${t("4_players_matches")}`;
-				tablesDiv.appendChild(fourPlayerTitle);
-
-				fourPlayerMatches.forEach((match: Match) => {
-					const tableEl = document.createElement('table');
-					tableEl.className = 'border-collapse border w-full text-center table-fixed';
-					tableEl.innerHTML = `
-						<tr class="bg-hist">
-							<th class="border p-2 w-1/4">${match.player1}</th>
-							<th class="border p-2 w-1/4">${match.player2}</th>
-							<th class="border p-2 w-1/4">${match.player3}</th>
-							<th class="border p-2 w-1/4">${match.player4}</th>
-						</tr>
-						<tr>
-							<td class="border p-2">${match.player1_score}</td>
-							<td class="border p-2">${match.player2_score}</td>
-							<td class="border p-2">${match.player3_score}</td>
-							<td class="border p-2">${match.player4_score}</td>
-						</tr>
-					`;
-					tablesDiv.appendChild(tableEl);
-				});
-			}
 		} else {
 			const noMatchesEl = document.createElement('p');
 			noMatchesEl.textContent = `${t("no_matches")}`;
@@ -281,7 +341,7 @@ export async function showHistory(event: Event, gameType: string) {
 		historyContainer.appendChild(tablesDiv);
 
 		// Empeche d'appuyer sur les boutons en dehors des div d'historiques.
-		disableUnrelatedButtons(gameType === 'pong' ? 'pfc' : 'pong');
+		disableUnrelatedButtons(gameType === 'pong' || gameType === 'fourpong' ? 'pfc' : 'pong');
 
 		// Bouton retour.
 		const backButton = document.getElementById(`back-button-${gameType}`);
@@ -291,13 +351,38 @@ export async function showHistory(event: Event, gameType: string) {
 
 				// Restaure le contenu original.
 				historyContainer.innerHTML = originalHTML;
-				// Enleve la classe d'alignement.
-				historyContainer.classList.remove('self-start');
+				// Restaure les classes CSS originales
+				historyContainer.className = originalClasses;
+
+				// Reaffiche les boutons d'historiques.
+				if (pong_hist_btn)
+					pong_hist_btn.classList.remove('hidden');
+
+				if (fourpong_hist_btn)
+					fourpong_hist_btn.classList.remove('hidden');
+
+				if (pfc_hist_btn)
+					pfc_hist_btn.classList.remove('hidden');
 
 				// Reattache l'ecouteur pour le bouton hist.
-				const histBtn = document.getElementById(`${gameType}-hist-btn`);
-				if (histBtn)
-					histBtn.addEventListener("click", (e) => showHistory(e, gameType));
+				const pongHistBtn = document.getElementById('pong-hist-btn');
+				if (pongHistBtn) {
+					pongHistBtn.addEventListener("click", (e) => showHistory(e, 'pong'));
+					pongHistBtn.classList.remove('hidden');
+				}
+
+				const fourpongHistBtn = document.getElementById('fourpong-hist-btn');
+				if (fourpongHistBtn) {
+					fourpongHistBtn.addEventListener("click", (e) => showHistory(e, 'fourpong'));
+					fourpongHistBtn.classList.remove('hidden');
+				}
+
+				const pfcHistBtn = document.getElementById('pfc-hist-btn');
+				if (pfcHistBtn) {
+					pfcHistBtn.addEventListener("click", (e) => showHistory(e, 'pfc'));
+					pfcHistBtn.classList.remove('hidden');
+				}
+
 			});
 		}
 	} catch (error) {
@@ -338,7 +423,12 @@ export function startGame(playerCount: number, matchType: MatchType) {
 
 	// Set-up l'esapce de jeu.
 	if (playerCount === 2) {
-		container.innerHTML = '<canvas id="game-canvas" width="600" height="400"></canvas>';
+		container.innerHTML = `
+			<div class="flex justify-center w-full">
+				<canvas id="game-canvas" width="600" height="400"
+						class="max-w-full border border-gray-300 rounded"></canvas>
+			</div>
+		`;
 
 		// Empeche d'appuyer sur les autres boutons en dehors de la div "Pong".
 		disableUnrelatedButtons('pong');
@@ -355,16 +445,29 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			});
 		}
 	} else if (playerCount === 4) {
-		container.innerHTML = '<canvas id="game-canvas" width="600" height="600"></canvas>';
+		container.innerHTML = `
+			<div class="flex justify-center w-full">
+				<canvas id="game-canvas" width="500" height="500" 
+						class="max-w-full border border-gray-300 rounded"></canvas>
+			</div>
+		`;
+
 		GameFour.player1Score = 0;
 		GameFour.player2Score = 0;
 		GameFour.player3Score = 0;
 		GameFour.player4Score = 0;
 
-		setTimeout(() => {
-			const game = new GameFour();
-			requestAnimationFrame(game.gameLoop.bind(game));
-		});
+		if (matchType === 'normal') {
+			setTimeout(() => {
+				const game = new GameFour();
+				requestAnimationFrame(game.gameLoop.bind(game));
+			});
+		} else if (matchType === 'bonus') {
+			setTimeout(() => {
+				const game = new GameFourBonus();
+				requestAnimationFrame(game.gameLoop.bind(game));
+			});
+		}
 	}
 }
 
@@ -387,6 +490,7 @@ export function showHome() {
 
 		attachHomePageListeners();
 		attachLanguageListeners();
+		attachTextListeners();
 	}
 }
 

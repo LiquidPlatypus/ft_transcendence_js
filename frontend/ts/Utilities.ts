@@ -10,6 +10,7 @@ export function disableUnrelatedButtons(currentContext: 'pong' | 'pfc' | 'home')
 	// Selectionne tout les types de boutons.
 	const langButtons = document.querySelectorAll('[data-lang]');
 	const themeButtons = document.querySelectorAll('[data-theme]');
+	const textButtons = document.querySelectorAll('[data-text]');
 	const pongButtons = document.querySelectorAll('#match-button, #tournament-button, #pong-hist-btn');
 	const pfcButtons = document.querySelectorAll('#pfc-button, #pfc-hist-btn');
 
@@ -17,16 +18,19 @@ export function disableUnrelatedButtons(currentContext: 'pong' | 'pfc' | 'home')
 	if (currentContext === 'home') {
 		enableElements(langButtons);
 		enableElements(themeButtons);
+		enableElements(textButtons);
 		enableElements(pongButtons);
 		enableElements(pfcButtons);
 	} else if (currentContext === 'pong') {
 		disableElements(langButtons);
 		disableElements(themeButtons);
+		disableElements(textButtons);
 		disableElements(pfcButtons);
 		disableElements(pongButtons);
 	} else if (currentContext === 'pfc') {
 		disableElements(langButtons);
 		disableElements(themeButtons);
+		disableElements(textButtons);
 		disableElements(pongButtons);
 		disableElements(pfcButtons);
 	}
@@ -98,6 +102,10 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 	const pong_hist_btn = document.getElementById('pong-hist-btn');
 	if (pong_hist_btn)
 		pong_hist_btn.classList.add('hidden');
+
+	const fourpong_hist_btn = document.getElementById('fourpong-hist-btn');
+	if (fourpong_hist_btn)
+		fourpong_hist_btn.classList.add('hidden');
 
 	const pfc_hist_btn = document.getElementById('pfc-hist-btn');
 	if (pfc_hist_btn)

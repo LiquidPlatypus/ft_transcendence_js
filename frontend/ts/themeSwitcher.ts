@@ -8,6 +8,7 @@ export function changeTheme(themeName: string) {
 
 	// Supprime les classes de theme actuelles.
 	body.classList.remove('bg-catpuccin', 'text-catpuccin-text', 'bg-green-600', 'text-white', 'bg-black', 'bg-gray-100', 'text-black');
+	body.classList.remove('theme-CP', 'theme-HC', 'theme-OLED', 'theme-WHITE');
 
 	// Reinitialise toutes les variables CSS de theme a leurs valeurs par défaut
 	// pour eviter qu'elles ne persistent entre les changements de theme.
@@ -27,6 +28,7 @@ export function changeTheme(themeName: string) {
 	switch(themeName) {
 		case 'CP': // Catpuccin
 			body.classList.add('bg-catpuccin', 'text-catpuccin-text');
+			body.classList.add('theme-CP');
 			document.documentElement.style.setProperty('--color-button', 'oklch(47.65% 0.034 278.64)');
 			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.62 0.0426 272.28)');
 			document.documentElement.style.setProperty('--color-hist', 'oklch(0.34 0.048 278.64)');
@@ -38,6 +40,7 @@ export function changeTheme(themeName: string) {
 
 		case 'HC': // High contrast
 			body.classList.add('bg-black', 'text-white');
+			body.classList.add('theme-HC');
 			document.documentElement.style.setProperty('--color-button', 'black');
 			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.74 0 0)');
 			document.documentElement.style.setProperty('--color-hist', 'oklch(0.7 0.2384 145.06)');
@@ -49,6 +52,7 @@ export function changeTheme(themeName: string) {
 
 		case 'OLED': // OLED
 			body.classList.add('bg-black', 'text-white');
+			body.classList.add('theme-OLED');
 			document.documentElement.style.setProperty('--color-button', 'black');
 			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.37 0 145.06)');
 			document.documentElement.style.setProperty('--color-hist', 'oklch(0.59 0 145.06)');
@@ -60,6 +64,7 @@ export function changeTheme(themeName: string) {
 
 		case 'WHITE': // White
 			body.classList.add('bg-gray-100', 'text-black');
+			body.classList.add('theme-WHITE');
 			document.documentElement.style.setProperty('--color-button', '#e5e7eb');
 			document.documentElement.style.setProperty('--color-button-hover', 'oklch(0.82 0 266.82)');
 			document.documentElement.style.setProperty('--color-hist', '#e5e7eb');

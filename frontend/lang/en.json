@@ -4,6 +4,7 @@
   "pfc": "Paper-Scissors-Stone",
   "play": "Play",
   "history": "History",
+  "history-4": "History 4",
   "back": "Back",
 
   "how_many_players": "How many players?",
@@ -38,5 +39,9 @@
 
   "select_game_mode": "Game mode",
   "normal": "Normal",
-  "bonus": "Bonus"
+  "bonus": "Bonus",
+
+  "rock": "Rock",
+  "paper": "Paper",
+  "scissors": "Scissors"
 }
