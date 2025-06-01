@@ -5,7 +5,7 @@ import line = erase.line;
 import {bgColor} from "ansi-styles";
 
 enum KeyBindings{
-	UP = 90,
+	UP = 87,
 	DOWN = 83,
 	UP2 = 38,
 	DOWN2 = 40

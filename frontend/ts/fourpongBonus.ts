@@ -1,7 +1,7 @@
 import { t } from "../lang/i18n.js"
 
 enum KeyBindings{
-	UPONE = 65, //A
+	UPONE = 87, //A
 	DOWNONE = 81, //Q
 	UPTWO = 38, //fleche haut
 	DOWNTWO = 40, //fleche bas

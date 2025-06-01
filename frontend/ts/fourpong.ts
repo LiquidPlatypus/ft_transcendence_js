@@ -3,7 +3,7 @@ import {erase} from "sisteransi";
 import line = erase.line;
 
 enum KeyBindings{
-	UPONE = 65, //A
+	UPONE = 87, //A
 	DOWNONE = 81, //Q
 	UPTWO = 38, //fleche haut
 	DOWNTWO = 40, //fleche bas

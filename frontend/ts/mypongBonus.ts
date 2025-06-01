@@ -2,7 +2,7 @@ import { showHome, startGame } from "./script.js";
 import { t } from "../lang/i18n.js"
 
 enum KeyBindings{
-	UP = 90,
+	UP = 87,
 	DOWN = 83,
 	UP2 = 38,
 	DOWN2 = 40
