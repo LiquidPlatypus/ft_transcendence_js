@@ -39,5 +39,9 @@
 
   "select_game_mode": "Mode de jeu",
   "normal": "Normal",
-  "bonus": "Bonus"
+  "bonus": "Bonus",
+
+  "rock": "Pierre",
+  "paper": "Feuille",
+  "scissors": "Ciseaux"
 }

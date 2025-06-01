@@ -251,7 +251,7 @@ function getChoixTranslationKey(choix: Choix): string {
 	switch(choix) {
 		case 'pierre': return 'rock';
 		case 'feuille': return 'paper';
-		case 'ciseaux': return 'scissor';
+		case 'ciseaux': return 'scissors';
 		default: return choix;
 	}
 }

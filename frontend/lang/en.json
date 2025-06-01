@@ -39,5 +39,9 @@
 
   "select_game_mode": "Game mode",
   "normal": "Normal",
-  "bonus": "Bonus"
+  "bonus": "Bonus",
+
+  "rock": "Rock",
+  "paper": "Paper",
+  "scissors": "Scissors"
 }
