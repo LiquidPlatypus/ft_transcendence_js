@@ -1,9 +1,8 @@
 import { t } from "../lang/i18n.js"
-import {erase} from "sisteransi";
-import line = erase.line;
+import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
-	UPONE = 87, //A
+	UPONE = 87, //W
 	DOWNONE = 81, //Q
 	UPTWO = 38, //fleche haut
 	DOWNTWO = 40, //fleche bas
@@ -32,7 +31,10 @@ export class GameFour {
 	private player2: Paddle2;
 	private player3: Paddle3;
 	private player4: Paddle4;
+
 	private ball: Ball;
+
+	public static ScreenReader = screenReader.getInstance();
 
 	constructor(){
 		const canvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
@@ -152,6 +154,10 @@ export class GameFour {
 			requestAnimationFrame(() => this.gameLoop());
 			return;
 		}
+
+		GameFour.ScreenReader.announcePageChange(t("pong-four"));
+		GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
+
 		this.update();
 		this.draw();
 		requestAnimationFrame(this.gameLoop);
@@ -159,6 +165,21 @@ export class GameFour {
 
 	public static setGameOver(state: boolean): void {
 		gameOver = state;
+
+		if (gameOver) {
+			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
+			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
+			const player3Name = localStorage.getItem('player3Alias') || 'Joueur 3';
+			const player4Name = localStorage.getItem('player4Alias') || 'Joueur 4';
+			let winner = "";
+
+			if (GameFour.player1Score >= MAX_SCORE) winner = "Joueur 1";
+			else if (GameFour.player2Score >= MAX_SCORE) winner = "Joueur 2";
+			else if (GameFour.player3Score >= MAX_SCORE) winner = "Joueur 3";
+			else if (GameFour.player4Score >= MAX_SCORE) winner = "Joueur 4";
+
+			GameFour.ScreenReader.announceGameEvent(`$(winner) $t("as_won")`);
+		}
 	}
 
 	public static isGameOver(): boolean {
@@ -404,6 +425,11 @@ class Ball extends Entity{
 		// Verification des buts dans les camps respectifs.
 		if (this.x <= 0) {
 			GameFour.player1Score += 1;
+
+			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
+			GameFour.ScreenReader.announceGameEvent(`$(player1Name) $t("scored")`);
+			GameFour.ScreenReader.announceScore(GameFour.player1Score, GameFour.player2Score, null, null);
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
@@ -414,6 +440,11 @@ class Ball extends Entity{
 
 		if (this.x + this.width >= canvas.width) {
 			GameFour.player2Score += 1;
+
+			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
+			GameFour.ScreenReader.announceGameEvent(`$(player2Name) $t("scored")`);
+			GameFour.ScreenReader.announceScore(GameFour.player1Score, GameFour.player2Score, null, null);
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
@@ -424,6 +455,11 @@ class Ball extends Entity{
 
 		if (this.y <= 0) {
 			GameFour.player3Score += 1;
+
+			const player3Name = localStorage.getItem('player3Alias') || 'Joueur 3';
+			GameFour.ScreenReader.announceGameEvent(`$(player3Name) $t("scored")`);
+			GameFour.ScreenReader.announceScore(GameFour.player1Score, GameFour.player2Score, null, null);
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
@@ -434,6 +470,11 @@ class Ball extends Entity{
 
 		if (this.y + this.height >= canvas.height) {
 			GameFour.player4Score += 1;
+
+			const player4Name = localStorage.getItem('player4Alias') || 'Joueur 4';
+			GameFour.ScreenReader.announceGameEvent(`$(player4Name) $t("scored")`);
+			GameFour.ScreenReader.announceScore(GameFour.player1Score, GameFour.player2Score, null, null);
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {

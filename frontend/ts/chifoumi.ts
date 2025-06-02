@@ -1,6 +1,7 @@
 import { showHome } from "./script.js";
 import {t} from "../lang/i18n.js";
 import {MatchType} from "./Utilities.js";
+import {screenReader} from "./screenReader.js";
 
 type Choix = 'pierre' | 'feuille' | 'ciseaux';
 
@@ -17,6 +18,8 @@ const symbols: Record<Choix, string> = {
 
 const touchesJ1: Record<string, Choix> = { q: 'pierre', z: 'feuille', e: 'ciseaux' };
 const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseaux' };
+
+const ScreenReader = screenReader.getInstance();
 
 /**
  * @brief Lance le pfc et la logique du back.
@@ -131,6 +134,8 @@ function init() {
 
 	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
 
+	ScreenReader.announcePageChange(t("pfc"));
+	ScreenReader.announceGameEvent('Partie démarrée. Joueur 1: utilisez A pour pierre, Z pour feuille, E pour ciseaux. Joueur 2: utilisez J pour pierre, K pour feuille, L pour ciseaux.');
 
 	function handleKeydown(e: KeyboardEvent) {
 		// Ignore les entree pendant le delai.
@@ -159,6 +164,9 @@ function init() {
 				const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 				const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
+				ScreenReader.announceGameEvent(`${player1Alias} $t("choose") ${choixJ1}`);
+				ScreenReader.announceGameEvent(`${player2Alias} $t("choose") ${choixJ2}`);
+
 				resultat.textContent = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} => ${result}`;
 				scores.textContent = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
@@ -186,10 +194,14 @@ function init() {
 			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-			if (scoreJ1 >= 5)
+			if (scoreJ1 >= 5) {
 				div.textContent = player1Alias + t("as_won");
-			else
+				ScreenReader.announceGameEvent(`${player1Alias} ${t("as_won")}`);
+			}
+			else {
 				div.textContent = player2Alias + t("as_won");
+				ScreenReader.announceGameEvent(`${player2Alias} ${t("as_won")}`);
+			}
 		}
 		document.removeEventListener("keydown", handleKeydown);
 
