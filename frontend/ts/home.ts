@@ -50,6 +50,15 @@ export function homePage() {
 				</button>
 			</div>
 		</div>
+		
+		<div class="fixed top-18 left-4 z-10">
+		<!-- Bouton pour activer le lecteur d'écran -->
+			<button id="screen-reader-toggle" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent"
+			aria-label="Activer le lecteur d'écran"
+				title="Activer/Désactiver le lecteur d'écran">
+				<img src="../static/megaphone.png" alt="Lecteur d'écran" class="w-8 h-6 rounded object-cover">
+			</button>
+		</div>
 
 		<!-- Div centrant les elements au centre. -->
 		<div class="flex items-center justify-center min-h-screen px-4">

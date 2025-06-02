@@ -1,5 +1,6 @@
 import { showHome, startGame } from "./script.js";
 import { t } from "../lang/i18n.js"
+import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
 	UP = 87,
@@ -37,8 +38,9 @@ export class GameBonus{
 	private bonusStartTime: number = Date.now();
 	public staticWalls: StaticWall[] = []; // Liste pour le bonus Wall
 
-
 	private ball: Ball;
+
+	public static ScreenReader = screenReader.getInstance();
 
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
 		setTimeout(() =>
@@ -258,6 +260,9 @@ export class GameBonus{
 			return;
 		}
 
+		GameBonus.ScreenReader.announcePageChange(t("pong-game"));
+		GameBonus.ScreenReader.announceGameEvent(t("pong_explanation"));
+
 		this.update();
 		this.draw();
 		requestAnimationFrame(() => this.gameLoop());
@@ -266,6 +271,14 @@ export class GameBonus{
 
 	public static setGameOver(state: boolean): void {
 		gameOver = state;
+
+		if (gameOver) {
+			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
+			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
+
+			const winner = this.player1Score > this.player2Score ? player1Name : player2Name;
+			GameBonus.ScreenReader.announceGameEvent(`$(winner) $t("as_won")`);
+		}
 	}
 
 	public static isGameOver(): boolean {
@@ -536,6 +549,11 @@ class Ball extends Entity{
 		// check but player 2.
 		if (this.x <= 0) {
 			GameBonus.player2Score += 1;
+
+			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
+			GameBonus.ScreenReader.announceGameEvent(`$(player2Name) $t("scored")`);
+			GameBonus.ScreenReader.announceScore(GameBonus.player1Score, GameBonus.player2Score, null, null);
+
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -548,6 +566,11 @@ class Ball extends Entity{
 		// .check but player 1
 		if (this.x + this.width >= canvas.width) {
 			GameBonus.player1Score += 1;
+
+			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
+			GameBonus.ScreenReader.announceGameEvent(`$(player1Name) $t("scored")`);
+			GameBonus.ScreenReader.announceScore(GameBonus.player1Score, GameBonus.player2Score, null, null);
+
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur

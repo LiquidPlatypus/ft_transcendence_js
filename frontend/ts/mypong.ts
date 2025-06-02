@@ -1,8 +1,6 @@
 import { showHome, startGame } from "./script.js";
 import { t } from "../lang/i18n.js"
-import {erase} from "sisteransi";
-import line = erase.line;
-import {bgColor} from "ansi-styles";
+import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
 	UP = 87,
@@ -28,6 +26,8 @@ export class Game{
 	private player2: Paddle2;
 
 	private ball: Ball;
+
+	public static ScreenReader = screenReader.getInstance();
 
 	constructor() {
 		const canvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
@@ -155,6 +155,9 @@ export class Game{
 			return;
 		}
 
+		Game.ScreenReader.announcePageChange(t("pong-game"));
+		Game.ScreenReader.announceGameEvent(t("pong_explanation"));
+
 		this.update();
 		this.draw();
 		requestAnimationFrame(() => this.gameLoop());
@@ -162,6 +165,14 @@ export class Game{
 
 	public static setGameOver(state: boolean): void {
 		gameOver = state;
+
+		if (gameOver) {
+			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
+			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
+
+			const winner = this.player1Score > this.player2Score ? player1Name : player2Name;
+			Game.ScreenReader.announceGameEvent(`$(winner) $t("as_won")`);
+		}
 	}
 
 	public static isGameOver(): boolean {
@@ -445,6 +456,11 @@ class Ball extends Entity {
 		// Check player 2 goal
 		if (this.x <= 0) {
 			Game.player2Score += 1;
+
+			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
+			Game.ScreenReader.announceGameEvent(`$(player2Name) $t("scored")`);
+			Game.ScreenReader.announceScore(Game.player1Score, Game.player2Score, null, null);
+
 			this.resetPosition(canvas);
 			if (!this.checkGameEnd("Joueur 2")) {
 			} else
@@ -454,6 +470,11 @@ class Ball extends Entity {
 		// Check player 1 goal
 		if (this.x + this.width >= canvas.width) {
 			Game.player1Score += 1;
+
+			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
+			Game.ScreenReader.announceGameEvent(`$(player1Name) $t("scored")`);
+			Game.ScreenReader.announceScore(Game.player1Score, Game.player2Score, null, null);
+
 			this.resetPosition(canvas);
 			if (!this.checkGameEnd("Joueur 1")) {
 			} else
