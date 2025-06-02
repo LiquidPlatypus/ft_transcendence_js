@@ -1,6 +1,5 @@
 import { showHome, startGame } from "./script.js";
 import { t } from "../lang/i18n.js"
-import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
 	UP = 87,
@@ -40,8 +39,6 @@ export class GameBonus{
 
 
 	private ball: Ball;
-
-	public static ScreenReader = screenReader.getInstance();
 
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
 		setTimeout(() =>
@@ -226,7 +223,7 @@ export class GameBonus{
 			if (collision) {
 				switch (bonus.type) {
 					case BonusType.WALL:
-						console.log("Mur activé : création d’un mur statique");
+						console.log("Mur activé : création d'un mur statique");
 
 						// Retarder la création du mur à après la suppression du bonus
 						this.createStaticWallLater(bonus.x + bonus.width / 2, bonus.y + bonus.height / 2);
@@ -261,9 +258,6 @@ export class GameBonus{
 			return;
 		}
 
-		GameBonus.ScreenReader.announcePageChange(t("pong-game"));
-		GameBonus.ScreenReader.announceGameEvent(t("pong_explanation"));
-
 		this.update();
 		this.draw();
 		requestAnimationFrame(() => this.gameLoop());
@@ -272,14 +266,6 @@ export class GameBonus{
 
 	public static setGameOver(state: boolean): void {
 		gameOver = state;
-
-		if (gameOver) {
-			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
-			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
-			const winner = this.player1Score > this.player2Score ? player1Name : player2Name;
-
-			GameBonus.ScreenReader.announceGameEvent(`$(winner) $t("as_won")`);
-		}
 	}
 
 	public static isGameOver(): boolean {
@@ -550,11 +536,6 @@ class Ball extends Entity{
 		// check but player 2.
 		if (this.x <= 0) {
 			GameBonus.player2Score += 1;
-
-			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
-			GameBonus.ScreenReader.announceGameEvent(`$(player2Name) $t("scored")`);
-			GameBonus.ScreenReader.announceScore(GameBonus.player1Score, GameBonus.player2Score, null, null);
-
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -567,11 +548,6 @@ class Ball extends Entity{
 		// .check but player 1
 		if (this.x + this.width >= canvas.width) {
 			GameBonus.player1Score += 1;
-
-			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
-			GameBonus.ScreenReader.announceGameEvent(`$(player1Name) $t("scored")`);
-			GameBonus.ScreenReader.announceScore(GameBonus.player1Score, GameBonus.player2Score, null, null);
-
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -678,7 +654,7 @@ class Ball extends Entity{
 				<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 				<p>${t("?next_match")}</p>
 				<div class="flex justify-center mt-4">
-					<button id="next-match-btn" class="btn rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
+					<button id="next-match-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
 				</div>
 			`;
 
@@ -837,7 +813,7 @@ class Ball extends Entity{
 					victoryMessageElement.innerHTML = `
 							<p class="font-extrabold">${tournamentWinner} ${t("tournament_win")}</p>
 							<div class="flex justify-center mt-4">
-								<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+								<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 							</div>
 						`;
 
@@ -869,7 +845,7 @@ class Ball extends Entity{
 					victoryMessageElement.innerHTML = `
 						<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 						<div class="flex justify-center">
-							<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+							<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 						</div>
 					`;
 

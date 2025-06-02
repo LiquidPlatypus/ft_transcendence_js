@@ -1,5 +1,4 @@
 import { t } from "../lang/i18n.js"
-import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
 	UPONE = 87, //A
@@ -209,7 +208,7 @@ export class GameFourBonus {
 			if (collision) {
 				switch (bonus.type) {
 					case BonusType.WALL:
-						console.log("Mur activé : création d’un mur statique");
+						console.log("Mur activé : création d'un mur statique");
 
 						// Retarder la création du mur à après la suppression du bonus
 						this.createStaticWallLater(bonus.x + bonus.width / 2, bonus.y + bonus.height / 2);
@@ -662,7 +661,7 @@ class Ball extends Entity{
 				victoryMessageElement.innerHTML = `
 					<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_lost")}</p>
 					<div class="flex justify-center">
-						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+						<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 					</div>
 				`;
 

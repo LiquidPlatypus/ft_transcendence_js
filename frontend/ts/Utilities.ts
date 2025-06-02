@@ -118,12 +118,12 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 	// Creer les boutons de selection du type de match.
 	container.innerHTML = `
 		<div class="flex flex-col items-center gap-4">
-			<button id="back-button-${gameType}" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
+			<button id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
 			<h2 class="text-xl font-semibold">${t("select_game_mode")}</h2>
 		</div>
 		<div class="flex justify-center gap-4 mt-4">
-			<button id="normal-button-${gameType}" class="mode-btn btn rounded-lg border p-4 shadow" data-mode="normal" data-game="${gameType}">${t("normal")}</button>
-			<button id="bonus-button-${gameType}" class="mode-btn btn rounded-lg border p-4 shadow" data-mode="bonus" data-game="${gameType}">${t("bonus")}</button>
+			<button id="normal-button-${gameType}" class="mode-btn btn btn-fixed rounded-lg border p-4 shadow" data-mode="normal" data-game="${gameType}">${t("normal")}</button>
+			<button id="bonus-button-${gameType}" class="mode-btn btn btn-fixed rounded-lg border p-4 shadow" data-mode="bonus" data-game="${gameType}">${t("bonus")}</button>
 		</div>
 	`;
 
