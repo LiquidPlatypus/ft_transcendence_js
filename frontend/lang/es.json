@@ -44,5 +44,20 @@
 
   "rock": "Piedra",
   "paper": "Papel",
-  "scissors": "Tijeras"
+  "scissors": "Tijeras",
+
+  "home": "Inicio",
+  "player_number_choice": "Elección del recuento de jugadores",
+  "player_alias_input": "Introducción de alias de jugador",
+  "pong_game": "Juego Pong",
+  "pong_explanation": "Juego iniciado. usa W y Q para el jugador 1, flechas arriba y abajo para el jugador 2.",
+  "player1": "Jugador 1",
+  "player2": "Jugador 2",
+  "player3": "Jugador 3",
+  "player4": "Jugador 4",
+  "scored": "Anotado",
+  "pong-four": "Pong para cuatro jugadores",
+  "pong-four_explanation": "Juego lanzado. usa W y Q para el jugador 1, flechas arriba y abajo para el jugador 2, I y O para el jugador 3, C y V para el jugador 4",
+  "pfc_explanation": "Juego lanzado. jugador 1: Q para piedra, W para papel , E para tijeras. jugador 2: J para piedra, K para papel, L para tijeras.",
+  "choose": "elegido"
 }
