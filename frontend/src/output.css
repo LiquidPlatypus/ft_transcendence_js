@@ -863,6 +863,9 @@
   .h-8 {
     height: calc(var(--spacing) * 8);
   }
+  .h-\[42px\] {
+    height: 42px;
+  }
   .h-screen {
     height: 100vh;
   }
@@ -877,6 +880,9 @@
   }
   .min-h-screen {
     min-height: 100vh;
+  }
+  .\!w-\[42px\] {
+    width: 42px !important;
   }
   .w-1 {
     width: calc(var(--spacing) * 1);
@@ -910,6 +916,9 @@
   }
   .min-w-screen {
     min-width: 100vw;
+  }
+  .flex-1 {
+    flex: 1;
   }
   .flex-auto {
     flex: auto;
@@ -1574,11 +1583,17 @@
   .bg-black {
     background-color: var(--color-black);
   }
+  .bg-blue-500 {
+    background-color: var(--color-blue-500);
+  }
   .bg-catpuccin {
     background-color: var(--color-catpuccin);
   }
   .bg-gray-100 {
     background-color: var(--color-gray-100);
+  }
+  .bg-gray-200 {
+    background-color: var(--color-gray-200);
   }
   .bg-green-600 {
     background-color: var(--color-green-600);
@@ -2398,6 +2413,13 @@
   .transform-view {
     transform-box: view-box;
   }
+  .hover\:bg-gray-300 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-gray-300);
+      }
+    }
+  }
   .hover\:ring-2 {
     &:hover {
       @media (hover: hover) {
@@ -2459,6 +2481,8 @@ body.theme-WHITE {
 .btn {
   background-color: var(--color-button);
   color: var(--button-text-color);
+}
+.btn-fixed {
   width: 100px;
 }
 .btn:hover:not([disabled]) {

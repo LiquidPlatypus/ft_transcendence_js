@@ -380,7 +380,7 @@ class Ball extends Entity{
 				victoryMessageElement.innerHTML = `
 					<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_lost")}</p>
 					<div class="flex justify-center">
-						<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+						<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 					</div>
 				`;
 

@@ -9,6 +9,7 @@
 
   "how_many_players": "How many players?",
   "players_count": "{{count}} players",
+  "players_names": "Players names",
 
   "player": "Player",
   "player_alias_ph": "Player alias",

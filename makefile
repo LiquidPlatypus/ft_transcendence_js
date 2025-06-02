@@ -1,10 +1,14 @@
-.PHONY: install start clean
+.PHONY: install start clean compile-ts
 
 install:
 	@echo "Exécution du script d'installation..."
 	@./install.sh
 
-start:
+compile-ts:
+	@echo "Compilation des fichiers TypeScript..."
+	@cd frontend && npx tsc
+
+start: compile-ts
 	@echo "Démarrage de l'application backend..."
 	@cd backend && npm run dev
 

@@ -1,3 +1,4 @@
 .env
 /frontend/dist/ts/*.js
 /frontend/dist/lang/*.js
+node_modules/
