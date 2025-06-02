@@ -44,6 +44,9 @@ body.theme-WHITE {
 .btn {
 	background-color: var(--color-button);
 	color: var(--button-text-color);
+}
+
+.btn-fixed {
 	width: 100px;
 }
 
