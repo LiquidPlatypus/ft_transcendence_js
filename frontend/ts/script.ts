@@ -11,6 +11,7 @@ import {disableUnrelatedButtons, GameType, MatchType, matchTypeChoice} from "./U
 import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
+import { Paddle2 } from './mypong.js';
 
 // Ecouteur d'evenements.
 document.addEventListener('DOMContentLoaded', async () => {
@@ -59,12 +60,12 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType, m
 	// Creer les boutons de selection du nombre de joueurs.
 	container.innerHTML = `
 		<div class="flex flex-col items-center gap-4">
-			<button id="back-button" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
+			<button id="back-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
 			<h2 class="text-xl font-semibold">${t("how_many_players")}</h2>
 		</div>
 		<div class="flex justify-center gap-4 mt-4">
-			<button id="2p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="2">${t("players_count", { count: 2 })}</button>
-			<button id="4p-button" class="player-count-btn btn rounded-lg border p-4 shadow" data-count="4">${t("players_count", { count: 4 })}</button>
+			<button id="2p-button" class="player-count-btn btn btn-fixed rounded-lg border p-4 shadow" data-count="2">2</button>
+			<button id="4p-button" class="player-count-btn btn btn-fixed rounded-lg border p-4 shadow" data-count="4">4</button>
 		</div>
 	`;
 
@@ -124,25 +125,36 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	// Creer les champs pour rentrer les alias selon le nombre de joueurs.
 	let inputsHTML = "";
 	for (let i = 1; i <= playerCount; i++) {
-		inputsHTML += `
-			<div class="mt-2">
-				<label for="playerAlias${i}" class="block text-lg">${t("player")} ${i} :</label>
-				<input type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="${t("player_alias_ph")} ${i}">
-			</div>
-		`;
+		if (i === 2 && gameType === 'pong' && playerCount === 2) {
+			// Special handling for player 2 in pong to add AI toggle
+			inputsHTML += `
+				<div class="mt-2 w-full">
+					<div class="flex items-center w-full">
+						<input type="text" id="playerAlias${i}" class="border p-2 rounded-l w-[calc(100%-100px)]" placeholder="Player ${i}">
+						<button id="aiToggleBtn" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
+					</div>
+				</div>
+			`;
+		} else {
+			inputsHTML += `
+				<div class="mt-2 w-full">
+					<input type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="Player ${i}">
+				</div>
+			`;
+		}
 	}
 
 	// Creer la div complete.
 	container.innerHTML = `
 		<div class="flex flex-col item-center gap-4">
-			<button id="back-button-${gameType}" class="btn rounded-lg border p-4 shadow">${t("back")}</button>
-			<h2 class="text-xl font-semibold">${t("enter_pl_alias")}</h2>
+			<button id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
+			<h2 class="text-xl font-semibold">${t("players_names")}</h2>
 		</div>
 		<div class="flex flex-col items-center w-full mb-2">
 			${inputsHTML}
 		</div>
 		<div class="flex justify-center">
-			<button id="start-${gameType}" class="btn rounded-lg border p-1 pe-1 shadow justify-center">${t("begin")}</button>
+			<button id="start-${gameType}" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow justify-center">${t("begin")}</button>
 		</div>
 	`;
 
@@ -161,24 +173,103 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 				matchTypeChoice(event, buttonType, 'pfc');
 			})
 		else if (buttonType === 'tournoi')
-			backButton.addEventListener("click", (event) => {showHome()});
+			backButton.addEventListener("click", (event) => showHome());
 	}
 
-	// Lance le ou les matchs en fonction du mode de jeu avec ID spécifique au type de jeu.
+	// Set up AI toggle if in pong mode with 2 players
+	if (gameType === 'pong' && playerCount === 2) {
+		const aiToggleBtn = document.getElementById('aiToggleBtn');
+		const player2Input = document.getElementById('playerAlias2') as HTMLInputElement;
+		let isAIEnabled = false;
+
+		if (aiToggleBtn && player2Input) {
+			aiToggleBtn.onclick = () => {
+				isAIEnabled = !isAIEnabled;
+				aiToggleBtn.classList.toggle('bg-blue-500', isAIEnabled);
+				aiToggleBtn.classList.toggle('text-white', isAIEnabled);
+				aiToggleBtn.classList.toggle('bg-gray-200', !isAIEnabled);
+				player2Input.disabled = isAIEnabled;
+				if (isAIEnabled) {
+					player2Input.value = "AI";
+				} else {
+					player2Input.value = "";
+				}
+			};
+		}
+	}
+
+	// Set up start button
 	const startButtonId = `start-${gameType}`;
 	const startButton = document.getElementById(startButtonId);
-	if (startButton)
-	{
+	if (startButton) {
 		if (gameType === 'pong') {
 			if (buttonType === 'match') {
-				if (playerCount == 2)
-					twoPlayersMatch(startButton, matchType);
-				else if (playerCount == 4)
+				if (playerCount == 2) {
+					const aiToggleBtn = document.getElementById('aiToggleBtn');
+					const player2Input = document.getElementById('playerAlias2') as HTMLInputElement;
+
+					startButton.onclick = async () => {
+						const alias1Elem = document.getElementById('playerAlias1') as HTMLInputElement;
+						const alias1 = alias1Elem ? alias1Elem.value.trim() : '';
+						const alias2 = player2Input ? player2Input.value.trim() : '';
+						const isAIEnabled = player2Input?.disabled || false;
+
+						if (!alias1 || (!isAIEnabled && !alias2)) {
+							alert('Please enter player names');
+							return;
+						}
+
+						localStorage.setItem('player1Alias', alias1);
+						localStorage.setItem('player2Alias', alias2);
+
+						// Enable AI if toggled
+						if (isAIEnabled) {
+							Paddle2.setAIEnabled(true);
+						}
+
+						try {
+							// Create players in backend
+							const player1Response = await fetch('/api/players', {
+								method: 'POST',
+								headers: {'Content-Type': 'application/json'},
+								body: JSON.stringify({name: alias1}),
+							}).then(res => res.json());
+
+							const player2Response = await fetch('/api/players', {
+								method: 'POST',
+								headers: {'Content-Type': 'application/json'},
+								body: JSON.stringify({name: alias2}),
+							}).then(res => res.json());
+
+							if (player1Response.success && player2Response.success) {
+								const matchResponse = await fetch('/api/players/match', {
+									method: 'POST',
+									headers: {'Content-Type': 'application/json'},
+									body: JSON.stringify({
+										player1Id: player1Response.id,
+										player2Id: player2Response.id,
+										gameType: 'pong'
+									}),
+								}).then(res => res.json());
+
+								if (matchResponse.success) {
+									localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
+									startGame(2, matchType);
+								}
+							}
+						} catch (error) {
+							console.error('Error creating match:', error);
+						}
+					};
+				} else if (playerCount == 4) {
 					fourPlayersMatchs(startButton, matchType);
-			} else if (buttonType === 'tournoi')
-				startButton.addEventListener("click", startTournament);
-		} else if (gameType === 'pfc')
+				}
+			} else if (buttonType === 'tournoi') {
+				startButton.addEventListener('click', startTournament);
+			}
+		} else if (gameType === 'pfc') {
 			start_pfc(startButton, matchType);
+		}
 	}
 }
 
@@ -493,4 +584,3 @@ export function showHome() {
 		attachTextListeners();
 	}
 }
-

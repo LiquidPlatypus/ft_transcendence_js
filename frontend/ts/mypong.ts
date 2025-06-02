@@ -142,7 +142,7 @@ export class Game{
 			return ;
 
 		this.player1.update(this.gameCanvas);
-		this.player2.update(this.gameCanvas);
+		this.player2.update(this.gameCanvas, this.ball);
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
 	}
 	gameLoop() {
@@ -226,28 +226,149 @@ class Paddle extends Entity{
 	}
 }
 
-class Paddle2 extends Entity{
+export class Paddle2 extends Entity {
+	private speed: number = 10;
+	private aiLastDecisionTime: number = 0;
+	private aiDecisionInterval: number = 1000;
+	private static isAIEnabled: boolean = false;
+	private centerY: number = 0;
 
-	private speed:number = 10;
+	// Simulated keyboard state
+	private isUpPressed: boolean = false;
+	private isDownPressed: boolean = false;
 
-	constructor(w:number, h:number, x:number, y:number){
-		super(w,h,x,y);
+	// Movement control
+	private targetY: number = 0;
+	private approachingBall: boolean = false;
+
+	constructor(w: number, h: number, x: number, y: number) {
+		super(w, h, x, y);
+		this.centerY = y;
+		this.targetY = y;
 	}
 
-	update(canvas: HTMLCanvasElement){
-		if (Game.keysPressed[KeyBindings.UP2]){
-			this.yVal = -1;
-			if (this.y <= 20){
-				this.yVal = 0
+	public static setAIEnabled(enabled: boolean) {
+		this.isAIEnabled = enabled;
+	}
+
+	public static isAIActive(): boolean {
+		return this.isAIEnabled;
+	}
+
+	public resetAIState() {
+		this.aiLastDecisionTime = 0;
+		this.y = this.centerY;
+		this.targetY = this.centerY;
+		this.yVal = 0;
+		this.isUpPressed = false;
+		this.isDownPressed = false;
+		this.approachingBall = false;
+	}
+
+	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
+		if (!ball) return this.centerY;
+
+		const distanceX = this.x - ball.x;
+		const estimatedBallSpeed = 5;
+		const timeToReach = distanceX / (ball.xVal * estimatedBallSpeed);
+
+		// Initial prediction
+		let predictedY = ball.y + (ball.yVal * estimatedBallSpeed * timeToReach);
+
+		// Account for bounces
+		while (predictedY < 0 || predictedY > canvas.height) {
+			if (predictedY < 0) {
+				predictedY = Math.abs(predictedY);
+			} else if (predictedY > canvas.height) {
+				predictedY = canvas.height - (predictedY - canvas.height);
 			}
 		}
-		else if (Game.keysPressed[KeyBindings.DOWN2]){
-			this.yVal = +1;
-			if (this.y + this.height >= canvas.height - 20){
-				this.yVal = 0
+
+		return Math.max(20, Math.min(canvas.height - 20 - this.height, predictedY));
+	}
+
+	private updateMovement() {
+		const paddleCenter = this.y + this.height / 2;
+		const distanceToTarget = this.targetY - paddleCenter;
+		const stoppingDistance = 15; // Distance to start slowing down
+
+		// Reset both keys
+		this.isUpPressed = false;
+		this.isDownPressed = false;
+
+		if (Math.abs(distanceToTarget) > stoppingDistance) {
+			// Move towards target
+			if (distanceToTarget < 0) {
+				this.isUpPressed = true;
+			} else {
+				this.isDownPressed = true;
+			}
+		} else if (this.approachingBall) {
+			// Fine adjustment when ball is approaching
+			if (Math.abs(distanceToTarget) > 5) {
+				if (distanceToTarget < 0) {
+					this.isUpPressed = true;
+				} else {
+					this.isDownPressed = true;
+				}
 			}
 		}
-		else{
+	}
+
+	update(canvas: HTMLCanvasElement, ball?: Ball) {
+		if (Paddle2.isAIEnabled && ball) {
+			const currentTime = Date.now();
+
+			// Update AI decisions every second
+			if (currentTime - this.aiLastDecisionTime >= this.aiDecisionInterval) {
+				this.aiLastDecisionTime = currentTime;
+
+				// Check if ball is moving towards AI
+				this.approachingBall = ball.xVal > 0;
+
+				if (this.approachingBall) {
+					// Ball is coming towards us
+					if (ball.x > 300) { // Only predict when ball is in our half
+						this.targetY = this.predictBallPosition(ball, canvas);
+					}
+				} else {
+					// Ball moving away, return to center if we're far from it
+					const paddleCenter = this.y + this.height / 2;
+					const distanceToCenter = Math.abs(paddleCenter - this.centerY);
+
+					if (distanceToCenter > 50) {
+						this.targetY = this.centerY;
+					}
+				}
+			}
+
+			// Update movement every frame based on current target
+			this.updateMovement();
+
+			// Apply simulated keyboard input
+			if (this.isUpPressed) {
+				this.yVal = -1;
+			} else if (this.isDownPressed) {
+				this.yVal = 1;
+			} else {
+				this.yVal = 0;
+			}
+		} else {
+			// Human player control
+			if (Game.keysPressed[KeyBindings.UP2]) {
+				this.yVal = -1;
+			} else if (Game.keysPressed[KeyBindings.DOWN2]) {
+				this.yVal = +1;
+			} else {
+				this.yVal = 0;
+			}
+		}
+
+		// Apply movement with boundary checks
+		if (this.y <= 20 && this.yVal < 0) {
+			this.yVal = 0;
+		}
+		if (this.y + this.height >= canvas.height - 20 && this.yVal > 0) {
 			this.yVal = 0;
 		}
 
@@ -255,41 +376,73 @@ class Paddle2 extends Entity{
 	}
 }
 
-class Ball extends Entity{
-
-	private speed:number = 5;
+class Ball extends Entity {
+	private baseSpeed: number = 5;
+	private currentSpeed: number = 5;
+	private lastSpeedIncreaseTime: number = 0;
+	private roundStartTime: number = 0;
+	private readonly INITIAL_WAIT_TIME: number = 20000; // 20 seconds before first increase
+	private readonly SPEED_INCREASE_INTERVAL: number = 5000; // 5 seconds between increases
+	private readonly SPEED_INCREASE_AMOUNT: number = 0.5; // Speed increase per interval
+	private readonly MAX_SPEED: number = 12; // Maximum speed cap
 	private lastTouchedBy: 'player1' | 'player2' | null = null;
 
-	public getLastTouchedBy(): 'player1' | 'player2' | null
-	{
+	public getLastTouchedBy(): 'player1' | 'player2' | null {
 		return this.lastTouchedBy;
 	}
 
-	constructor(w: number, h: number, x: number, y: number){
+	constructor(w: number, h: number, x: number, y: number) {
 		super(w, h, x, y);
-		const randomDirection = Math.floor(Math.random() * 2) +1;
-		if (randomDirection % 2)
-			this.xVal = 1;
-		else
-			this.xVal = -1;
-		this.yVal = 1;
+		this.resetRound();
 	}
 
-	update(player1: Paddle, player2: Paddle2, canvas: HTMLCanvasElement){
+	private resetRound() {
+		const randomDirection = Math.floor(Math.random() * 2) + 1;
+		this.xVal = randomDirection % 2 ? 1 : -1;
+		this.yVal = 1;
+		this.currentSpeed = this.baseSpeed;
+		this.roundStartTime = Date.now();
+		this.lastSpeedIncreaseTime = this.roundStartTime;
+	}
 
-		// Si le jeu est en pause, on ne met pas à jour la position de la balle.
+	private updateSpeed() {
+		const currentTime = Date.now();
+		const timeSinceStart = currentTime - this.roundStartTime;
+
+		// Only start increasing speed after initial wait time
+		if (timeSinceStart >= this.INITIAL_WAIT_TIME) {
+			const timeSinceLastIncrease = currentTime - this.lastSpeedIncreaseTime;
+
+			// Check if it's time for another speed increase
+			if (timeSinceLastIncrease >= this.SPEED_INCREASE_INTERVAL) {
+				this.lastSpeedIncreaseTime = currentTime;
+
+				// Increase speed if not at max
+				if (this.currentSpeed < this.MAX_SPEED) {
+					this.currentSpeed += this.SPEED_INCREASE_AMOUNT;
+					console.log(`Ball speed increased to: ${this.currentSpeed}`);
+				}
+			}
+		}
+	}
+
+	update(player1: Paddle, player2: Paddle2, canvas: HTMLCanvasElement) {
+		// If the game is paused, don't update position
 		if (isPaused)
-			return ;
+			return;
 
-		// check le haut.
+		// Update speed based on time
+		this.updateSpeed();
+
+		// Check top wall
 		if (this.y <= 10)
 			this.yVal = 1;
 
-		// check le bas.
+		// Check bottom wall
 		if (this.y + this.height >= canvas.height - 10)
 			this.yVal = -1;
 
-		// check but player 2.
+		// Check player 2 goal
 		if (this.x <= 0) {
 			Game.player2Score += 1;
 			this.resetPosition(canvas);
@@ -298,7 +451,7 @@ class Ball extends Entity{
 				return;
 		}
 
-		// .check but player 1
+		// Check player 1 goal
 		if (this.x + this.width >= canvas.width) {
 			Game.player1Score += 1;
 			this.resetPosition(canvas);
@@ -307,42 +460,50 @@ class Ball extends Entity{
 				return;
 		}
 
-		// Collision avec joueur 1.
+		// Collision with player 1
 		if (this.x <= player1.x + player1.width &&
 			this.x >= player1.x &&
 			this.y + this.height >= player1.y &&
 			this.y <= player1.y + player1.height) {
 			let relativeY = (this.y + this.height / 2) - (player1.y + player1.height / 2);
-			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale.
+			let normalizedY = relativeY / (player1.height / 2);
 			this.xVal = 1;
-			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+			this.yVal = normalizedY * 1.2;
 			this.lastTouchedBy = 'player1';
 		}
 
-		// Collision avec joueur 2.
+		// Collision with player 2
 		if (this.x + this.width >= player2.x &&
 			this.x <= player2.x + player2.width &&
 			this.y + this.height >= player2.y &&
 			this.y <= player2.y + player2.height) {
 			let relativeY = (this.y + this.height / 2) - (player2.y + player2.height / 2);
-			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale.
+			let normalizedY = relativeY / (player2.height / 2);
 			this.xVal = -1;
-			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+			this.yVal = normalizedY * 1.2;
 			this.lastTouchedBy = 'player2';
 		}
 
-		// Fait en sorte que la balle se déplace a une vitesse constante meme en diagonale.
+		// Ensure constant velocity regardless of direction
 		const length = Math.sqrt(this.xVal * this.xVal + this.yVal * this.yVal);
-		this.x += (this.xVal / length) * this.speed;
-		this.y += (this.yVal / length) * this.speed;
+		this.x += (this.xVal / length) * this.currentSpeed;
+		this.y += (this.yVal / length) * this.currentSpeed;
 	}
 
-	// Reset la position de la balle.
+	// Reset ball position
 	private resetPosition(canvas: HTMLCanvasElement) {
 		this.x = canvas.width / 2 - this.width / 2;
 		this.y = canvas.height / 2 - this.height / 2;
 		isPaused = true;
-		setTimeout(() => { isPaused = false; }, pauseDuration);
+		if (Paddle2.isAIActive()) {
+			this.lastTouchedBy = null;
+			Paddle2.setAIEnabled(false);
+			setTimeout(() => Paddle2.setAIEnabled(true), 0);
+		}
+		setTimeout(() => {
+			isPaused = false;
+			this.resetRound(); // Reset speed and start time for new round
+		}, pauseDuration);
 	}
 
 	private async checkGameEnd(winner: string): Promise<boolean> {
@@ -381,7 +542,7 @@ class Ball extends Entity{
 				<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 				<p>${t("?next_match")}</p>
 				<div class="flex justify-center mt-4">
-					<button id="next-match-btn" class="btn rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
+					<button id="next-match-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
 				</div>
 			`;
 
@@ -540,7 +701,7 @@ class Ball extends Entity{
 					victoryMessageElement.innerHTML = `
 							<p class="font-extrabold">${tournamentWinner} ${t("tournament_win")}</p>
 							<div class="flex justify-center mt-4">
-								<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+								<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 							</div>
 						`;
 
@@ -572,7 +733,7 @@ class Ball extends Entity{
 					victoryMessageElement.innerHTML = `
 						<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 						<div class="flex justify-center">
-							<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+							<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 						</div>
 					`;
 

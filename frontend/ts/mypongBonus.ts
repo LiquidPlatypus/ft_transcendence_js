@@ -223,7 +223,7 @@ export class GameBonus{
 			if (collision) {
 				switch (bonus.type) {
 					case BonusType.WALL:
-						console.log("Mur activé : création d’un mur statique");
+						console.log("Mur activé : création d'un mur statique");
 
 						// Retarder la création du mur à après la suppression du bonus
 						this.createStaticWallLater(bonus.x + bonus.width / 2, bonus.y + bonus.height / 2);
@@ -654,7 +654,7 @@ class Ball extends Entity{
 				<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 				<p>${t("?next_match")}</p>
 				<div class="flex justify-center mt-4">
-					<button id="next-match-btn" class="btn rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
+					<button id="next-match-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
 				</div>
 			`;
 
@@ -813,7 +813,7 @@ class Ball extends Entity{
 					victoryMessageElement.innerHTML = `
 							<p class="font-extrabold">${tournamentWinner} ${t("tournament_win")}</p>
 							<div class="flex justify-center mt-4">
-								<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+								<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 							</div>
 						`;
 
@@ -845,7 +845,7 @@ class Ball extends Entity{
 					victoryMessageElement.innerHTML = `
 						<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 						<div class="flex justify-center">
-							<button id="menu-btn" class="btn rounded-lg border p-4 shadow">${t("menu")}</button>
+							<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 						</div>
 					`;
 
