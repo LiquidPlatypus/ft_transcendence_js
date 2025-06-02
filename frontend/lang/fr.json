@@ -44,20 +44,5 @@
 
   "rock": "Pierre",
   "paper": "Feuille",
-  "scissors": "Ciseaux",
-
-  "home": "acceuil",
-  "player_number_choice": "Choix du nombre de joueurs",
-  "player_alias_input": "Choix des pseudos des joueurs",
-  "pong_game": "Partie de pong",
-  "pong_explanation": "Partie démarrée. Utilisez les touches W et Q pour le joueur 1, et les flèches haut et bas pour le joueur 2.",
-  "player1": "Joueur 1",
-  "player2": "Joueur 2",
-  "player3": "Joueur 3",
-  "player4": "Joueur 4",
-  "scored": "a marqué",
-  "pong-four": "Partie de pong à quatre",
-  "pong-four_explanation": "Partie démarrée. Utilisez W et Q pour le joueur 1, les flèches haut et bas pour le joueur 2, I et O pour le joueur 3, et C et V pour le joueur 4",
-  "pfc_explanation": "Partie démarrée. Joueur 1: Q pour pierre, Z pour feuille, E pour ciseaux. Joueur 2: J pour pierre, K pour feuille, L pour ciseaux.",
-  "choose": "a choisi"
+  "scissors": "Ciseaux"
 }

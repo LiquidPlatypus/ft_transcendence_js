@@ -1,5 +1,4 @@
 import { t } from "../lang/i18n.js"
-import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
 	UPONE = 87, //A

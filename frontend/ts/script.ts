@@ -12,35 +12,6 @@ import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
 import { Paddle2 } from './mypong.js';
-import {screenReader} from "./screenReader.js";
-
-function initializeScreenReader() {
-	const ScreenReader = screenReader.getInstance();
-
-	// Recupere le bouton par son ID.
-	const screenReaderButton = document.getElementById('screen-reader-toggle');
-
-	if (screenReaderButton) {
-		screenReaderButton.addEventListener('click', () => {
-			const newState = !ScreenReader.isEnabled();
-			ScreenReader.setEnabled(newState);
-
-			// Change l'apparence du bouton.
-			screenReaderButton.className = newState ?
-				'transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent active' :
-				'transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent';
-
-			// Change le texte alternatif de l'image.
-			const img = screenReaderButton.querySelector('img');
-			if (img) {
-				img.alt = newState ? 'Désactiver le lecteur d\'écran' : 'Activer le lecteur d\'écran';
-			}
-		});
-	}
-
-	// Annonce le chargement de la page.
-	ScreenReader.announcePageChange(t("home"));
-}
 
 // Ecouteur d'evenements.
 document.addEventListener('DOMContentLoaded', async () => {
@@ -56,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		initTheme();
 		attachTextListeners();
 		initText()
-		initializeScreenReader();
 	}
 })
 
@@ -101,9 +71,6 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType, m
 
 	// Empeche d'appuyer sur tout les autres boutons en dehors de la div de Pong.
 	disableUnrelatedButtons('pong');
-
-	const ScreenReader = screenReader.getInstance();
-	ScreenReader.announcePageChange(t("player_number_choice"));
 
 	// Bouton retour.
 	const backButton = document.getElementById("back-button");
@@ -193,9 +160,6 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 
 	// Empeche d'appuyer sur les autres boutons en dehors de la div appropriée.
 	disableUnrelatedButtons(gameType);
-
-	const ScreenReader = screenReader.getInstance();
-	ScreenReader.announcePageChange(t("player_alias_input"));
 
 	// Bouton retour avec ID spécifique au type de jeu.
 	const backButton = document.getElementById(`back-button-${gameType}`);
@@ -469,9 +433,6 @@ export async function showHistory(event: Event, gameType: string) {
 
 		// Empeche d'appuyer sur les boutons en dehors des div d'historiques.
 		disableUnrelatedButtons(gameType === 'pong' || gameType === 'fourpong' ? 'pfc' : 'pong');
-
-		const ScreenReader = screenReader.getInstance();
-		ScreenReader.announcePageChange(t("history"));
 
 		// Bouton retour.
 		const backButton = document.getElementById(`back-button-${gameType}`);
