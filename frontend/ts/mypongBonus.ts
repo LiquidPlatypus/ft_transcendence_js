@@ -259,10 +259,6 @@ export class GameBonus{
 			requestAnimationFrame(() => this.gameLoop());
 			return;
 		}
-
-		GameBonus.ScreenReader.announcePageChange(t("pong-game"));
-		GameBonus.ScreenReader.announceGameEvent(t("pong_explanation"));
-
 		this.update();
 		this.draw();
 		requestAnimationFrame(() => this.gameLoop());
