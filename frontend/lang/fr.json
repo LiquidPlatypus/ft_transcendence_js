@@ -58,6 +58,6 @@
   "scored": "a marqué",
   "pong-four": "Partie de pong à quatre",
   "pong-four_explanation": "Partie démarrée. Utilisez W et Q pour le joueur 1, les flèches haut et bas pour le joueur 2, I et O pour le joueur 3, et C et V pour le joueur 4",
-  "pfc_explanation": "Partie démarrée. Joueur 1: Q pour pierre, Z pour feuille, E pour ciseaux. Joueur 2: J pour pierre, K pour feuille, L pour ciseaux.",
+  "pfc_explanation": "Partie démarrée. Joueur 1: Q pour pierre, W pour feuille, E pour ciseaux. Joueur 2: J pour pierre, K pour feuille, L pour ciseaux.",
   "choose": "a choisi"
 }
