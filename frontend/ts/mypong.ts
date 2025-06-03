@@ -154,10 +154,6 @@ export class Game{
 			requestAnimationFrame(() => this.gameLoop());
 			return;
 		}
-
-		Game.ScreenReader.announcePageChange(t("pong-game"));
-		Game.ScreenReader.announceGameEvent(t("pong_explanation"));
-
 		this.update();
 		this.draw();
 		requestAnimationFrame(() => this.gameLoop());

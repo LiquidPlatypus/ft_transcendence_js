@@ -155,10 +155,6 @@ export class GameFour {
 			requestAnimationFrame(() => this.gameLoop());
 			return;
 		}
-
-		GameFour.ScreenReader.announcePageChange(t("pong-four"));
-		GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
-
 		this.update();
 		this.draw();
 		requestAnimationFrame(this.gameLoop);

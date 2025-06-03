@@ -538,6 +538,8 @@ export function startGame(playerCount: number, matchType: MatchType) {
 	if (!container)
 		return;
 
+	const ScreenReader = screenReader.getInstance();
+
 	console.log("Starting game with players:");
 	console.log("Player 1:", localStorage.getItem('player1Alias'));
 	console.log("Player 2:", localStorage.getItem('player2Alias'));
@@ -566,11 +568,19 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		if (matchType === 'normal') {
 			setTimeout(() => {
 				const game = new Game();
+
+				Game.ScreenReader.announcePageChange(t("pong-game"));
+				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
+
 				requestAnimationFrame(game.gameLoop.bind(game));
 			});
 		} else if (matchType === 'bonus') {
 			setTimeout(() => {
 				const game = new GameBonus();
+
+				Game.ScreenReader.announcePageChange(t("pong-game"));
+				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
+
 				requestAnimationFrame(game.gameLoop.bind(game));
 			});
 		}
@@ -590,11 +600,19 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		if (matchType === 'normal') {
 			setTimeout(() => {
 				const game = new GameFour();
+
+				GameFour.ScreenReader.announcePageChange(t("pong-four"));
+				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
+
 				requestAnimationFrame(game.gameLoop.bind(game));
 			});
 		} else if (matchType === 'bonus') {
 			setTimeout(() => {
 				const game = new GameFourBonus();
+
+				GameFour.ScreenReader.announcePageChange(t("pong-four"));
+				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
+
 				requestAnimationFrame(game.gameLoop.bind(game));
 			});
 		}
@@ -621,5 +639,6 @@ export function showHome() {
 		attachHomePageListeners();
 		attachLanguageListeners();
 		attachTextListeners();
+		initializeScreenReader();
 	}
 }
