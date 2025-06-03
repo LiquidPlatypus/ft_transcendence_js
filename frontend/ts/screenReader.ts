@@ -1,3 +1,5 @@
+import {getCurrentLang} from "../lang/i18n.js";
+
 /**
  * @brief Classe gerant la fonctionnalité de lecture d'ecran.
  */
@@ -20,6 +22,11 @@ export class screenReader {
 		// Ecoute l'evenement voiceschanged pour les navigateurs qui chargent les voix asynchronement.
 		this.speechSynthesis.addEventListener('voiceschanged', () => this.loadVoices());
 
+		// Ecoute les changements de langue pour mettre a jour la voix.
+		document.addEventListener('languageChanged', () => {
+			this.loadVoices();
+		});
+
 		// Charge l'état depuis le localStorage si dispo.
 		const savedState = localStorage.getItem('screenReaderEnabled');
 		if (savedState)
@@ -40,16 +47,75 @@ export class screenReader {
 	 */
 	private loadVoices(): void {
 		const voices = this.speechSynthesis.getVoices();
+		const currentLang = getCurrentLang();
 
-		// Essaie de trouver une voix francaise.
-		let frenchVoice = voices.find(voice => voice.lang.includes('fr'));
+		// Map les langues aux codes de lange pour les voix.
+		const langMap: Record<string, string[]> = {
+			'fr': ['fr-FR', 'fr-CA', 'fr'],
+			'en': ['en-US', 'en-GB', 'en-AU', 'en'],
+			'es': ['es-ES', 'es-MX', 'es-AR', 'es']
+		};
 
-		// Si pas de voix fr, utilise la première voix dispo.
-		if (!frenchVoice && voices.length > 0)
-			frenchVoice = voices[0];
+		const targetLangCodes = langMap[currentLang] || ['en'];
 
-		this.voice = frenchVoice;
-		console.log("Voix sélectionnée:", this.voice?.name);
+		// Cherche une voix correspondant a la langue actuelle.
+		let selectedVoice = this.findVoiceByLanguage(voices, targetLangCodes);
+
+		// Si pas de voix pour la langue courante, utilise la pre;iere dispo.
+		if (!selectedVoice && voices.length > 0)
+			selectedVoice = voices[0];
+
+		this.voice = selectedVoice;
+		console.log(`Voix sélectionnée pour ${currentLang}:`, this.voice?.name, this.voice?.lang);
+
+		// Ajuste la vitesse en fonction de la langue.
+		this.adjustRateForLanguage(currentLang);
+	}
+
+	/**
+	 * @brief Trouve une voix correspondant aux codes de langue donnes.
+	 * @param voices voix.
+	 * @param langCodes codes de langue.
+	 */
+	private findVoiceByLanguage(voices: SpeechSynthesisVoice[], langCodes: string[]): SpeechSynthesisVoice | undefined {
+		// Cherche en premier une correspondance exacte.
+		for (const langCode of langCodes) {
+			const exactMatch = voices.find(voice => voice.lang === langCode);
+			if (exactMatch)
+				return exactMatch;
+		}
+
+		// Ou une correspondance partielle.
+		for (const langcode of langCodes) {
+			const partialMatch = voices.find(voice => voice.lang.startsWith(langcode.split('-')[0]));
+			if (partialMatch)
+				return partialMatch;
+		}
+
+		return undefined;
+	}
+
+	/**
+	 * @brief Ajuste la vitesse en fonction de la langue choisie.
+	 * @param lang langue choisie.
+	 * @private
+	 */
+	private adjustRateForLanguage(lang: string): void {
+		const baseRate = this.rate;
+		switch (lang) {
+			case 'fr':
+				this.rate = Math.max(0.1, baseRate * 0.9);
+				break;
+
+			case 'es':
+				this.rate = Math.max(0.1, baseRate * 0.9);
+				break;
+
+			case 'en':
+
+			default:
+				break;
+		}
 	}
 
 	/**
@@ -60,9 +126,28 @@ export class screenReader {
 		this.enabled = enabled;
 		localStorage.setItem('screenReaderEnabled', enabled.toString());
 
-		if (enabled)
-			this.speak("Lecteur d'écran activé");
-		this.speak("Lecteur d'écran activé");
+		if (enabled) {
+			// Utilise une cle de traduction si disponible.
+			const message = this.getLocalizedMessage('screenReaderEnabled', "Lecteur d'écran activé");
+			this.speak(message);
+		} else {
+			const message = this.getLocalizedMessage('screenReaderDisabled', "Lecteur d'écran désactivé");
+			this.speak(message);
+		}
+	}
+
+	/**
+	 * @brief Obtient un message localise ou utilise un fallback.
+	 * @param key phrase a traduire.
+	 * @param fallback si fonctionne pas.
+	 * @private
+	 */
+	private getLocalizedMessage(key: string, fallback: string): string {
+		// Essaie d'utiliser la fonction t() si elle est dispo globalement.
+		if (typeof window !== 'undefined' && (window as any).t)
+			return (window as any).t(key) || fallback;
+
+		return fallback;
 	}
 
 	/**
@@ -135,6 +220,8 @@ export class screenReader {
 	 */
 	public setRate(rate: number): void {
 		this.rate = Math.max(0.1, Math.min(10, rate));
+		// Reapplique l'ajustement de langue.
+		this.adjustRateForLanguage(getCurrentLang());
 	}
 
 	/**
@@ -156,17 +243,32 @@ export class screenReader {
 		if (!this.enabled)
 			return ;
 
-		const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
-		const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
+		const player1Name = localStorage.getItem('player1Alias') || this.getLocalizedMessage('player1Default', 'Joueur 1');
+		const player2Name = localStorage.getItem('player2Alias') || this.getLocalizedMessage('player2Default', 'Joueur 2');
 
-		if (!player3Score)
-			this.speak(`Score: ${player1Name} ${player1Score}, ${player2Name} ${player2Score}`);
+		if (!player3Score) {
+			const scoreMessage = this.getLocalizedMessage('scoreAnnouncement', 'Score: {{player1}} {{score1}}, {{player2}} {{score2}}')
+				.replace('{{player1}}', player1Name)
+				.replace('{{score1}}', player1Score.toString())
+				.replace('{{player2}}', player2Name)
+				.replace('{{score2}}', player2Score.toString());
+			this.speak(scoreMessage);
+		}
 
-		if (player3Score) {
-			const player3Name = localStorage.getItem('player3Alias') || 'Joueur 3';
-			const player4Name = localStorage.getItem('player4Alias') || 'Joueur 4';
+		if (player3Score && player4Score) {
+			const player3Name = localStorage.getItem('player3Alias') || this.getLocalizedMessage('player3Default', 'Joueur 3');
+			const player4Name = localStorage.getItem('player4Alias') || this.getLocalizedMessage('player4Default', 'Joueur 4');
 
-			this.speak(`Score: ${player1Name} ${player1Score}, ${player2Name} ${player2Score}, ${player3Name} ${player3Score}, ${player4Name} ${player4Score}`);
+			const scoreMessage = this.getLocalizedMessage('scoreAnnouncement4Players', 'Score: {{player1}} {{score1}}, {{player2}} {{score2}}, {{player3}} {{score3}}, {{player4}} {{score4}}')
+				.replace('{{player1}}', player1Name)
+				.replace('{{score1}}', player1Score.toString())
+				.replace('{{player2}}', player2Name)
+				.replace('{{score2}}', player2Score.toString())
+				.replace('{{player3}}', player3Name)
+				.replace('{{score3}}', player3Score.toString())
+				.replace('{{player4}}', player4Name)
+				.replace('{{score4}}', player4Score.toString());
+			this.speak(scoreMessage);
 		}
 	}
 
@@ -187,6 +289,15 @@ export class screenReader {
 	public announcePageChange(pageName: string): void {
 		if (!this.enabled)
 			return ;
-		this.speak(`Page ${pageName} chargée`, true);
+		const message = this.getLocalizedMessage('pageLoaded', 'Page {{pageName}} chargée')
+			.replace('{{pageName}}', pageName);
+		this.speak(message, true);
+	}
+
+	/**
+	 * @brief Met à jour la voix selon la langue courante (méthode publique).
+	 */
+	public updateVoiceForCurrentLanguage(): void {
+		this.loadVoices();
 	}
 }
