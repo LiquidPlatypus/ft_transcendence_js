@@ -1,6 +1,6 @@
 import { startGame } from "./script.js";
 import {MatchType} from "./Utilities.js";
-import {t} from "../lang/i18n";
+import {t} from "../lang/i18n.js";
 import {isValidString} from "./sanitize.js";
 
 /**
