@@ -16,7 +16,7 @@ const symbols: Record<Choix, string> = {
 	ciseaux: "✂"
 };
 
-const touchesJ1: Record<string, Choix> = { q: 'pierre', z: 'feuille', e: 'ciseaux' };
+const touchesJ1: Record<string, Choix> = { q: 'pierre', w: 'feuille', e: 'ciseaux' };
 const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseaux' };
 
 const ScreenReader = screenReader.getInstance();
@@ -99,7 +99,7 @@ function init() {
 	const rockSymbol = symbols.pierre;
 	const paperSymbol = symbols.feuille;
 	const scissorSymbol = symbols.ciseaux;
-	const instructions1 = creerElement("p", "", `${t("player")} 1 : Q = ${rockSymbol} | Z = ${paperSymbol} | E = ${scissorSymbol}`);
+	const instructions1 = creerElement("p", "", `${t("player")} 1 : Q = ${rockSymbol} | W = ${paperSymbol} | E = ${scissorSymbol}`);
 	const instructions2 = creerElement("p", "", `${t("player")} 2 : J = ${rockSymbol} | K = ${paperSymbol} | L = ${scissorSymbol}`);
 
 	const arena = creerElement("div", "arena", "");
@@ -135,7 +135,7 @@ function init() {
 	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
 
 	ScreenReader.announcePageChange(t("pfc"));
-	ScreenReader.announceGameEvent('Partie démarrée. Joueur 1: utilisez A pour pierre, Z pour feuille, E pour ciseaux. Joueur 2: utilisez J pour pierre, K pour feuille, L pour ciseaux.');
+	ScreenReader.announceGameEvent(t("pfc_explanation"));
 
 	function handleKeydown(e: KeyboardEvent) {
 		// Ignore les entree pendant le delai.
@@ -288,7 +288,7 @@ function init_bonus() {
 	const rockSymbol = symbols.pierre;
 	const paperSymbol = symbols.feuille;
 	const scissorSymbol = symbols.ciseaux;
-	const instructions1 = creerElement("p", "", `${t("player")} 1 : Q = ${rockSymbol} | Z = ${paperSymbol} | E = ${scissorSymbol}`);
+	const instructions1 = creerElement("p", "", `${t("player")} 1 : Q = ${rockSymbol} | W = ${paperSymbol} | E = ${scissorSymbol}`);
 	const instructions2 = creerElement("p", "", `${t("player")} 2 : J = ${rockSymbol} | K = ${paperSymbol} | L = ${scissorSymbol}`);
 
 	const arena = creerElement("div", "arena", "");
@@ -322,6 +322,10 @@ function init_bonus() {
 	vainqueur.id = "vainqueur";
 
 	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
+
+	ScreenReader.announcePageChange(t("pfc"));
+	ScreenReader.announceGameEvent(t("pfc_explanation"));
+
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (isWaiting) return; // Ignore les entrées pendant le délai
