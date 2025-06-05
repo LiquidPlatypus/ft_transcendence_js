@@ -1,4 +1,4 @@
-import {getCurrentLang} from "../lang/i18n.js";
+import {getCurrentLang, t} from "../lang/i18n.js";
 
 /**
  * @brief Classe gerant la fonctionnalité de lecture d'ecran.
@@ -140,14 +140,36 @@ export class screenReader {
 	 * @brief Obtient un message localise ou utilise un fallback.
 	 * @param key phrase a traduire.
 	 * @param fallback si fonctionne pas.
+	 * @param vars a mettre dans la phrase.
 	 * @private
 	 */
-	private getLocalizedMessage(key: string, fallback: string): string {
-		// Essaie d'utiliser la fonction t() si elle est dispo globalement.
-		if (typeof window !== 'undefined' && (window as any).t)
-			return (window as any).t(key) || fallback;
-
-		return fallback;
+	private getLocalizedMessage(key: string, fallback: string, vars?: Record<string, string | number | null>): string {
+		try {
+			const translated = t(key, vars);
+			// Si la traduction retourne la clé (pas trouvee), utilise le fallback.
+			if (translated === key && fallback) {
+				// Applique les variables au fallback.
+				if (vars) {
+					let text = fallback;
+					for (const [k, v] of Object.entries(vars)) {
+						text = text.replace(`{{${k}}}`, String(v));
+					}
+					return text;
+				}
+				return fallback;
+			}
+			return translated;
+		} catch (error) {
+			// En cas d'erreur, utilise le fallback avec substitution.
+			if (vars && fallback) {
+				let text = fallback;
+				for (const [k, v] of Object.entries(vars)) {
+					text = text.replace(`{{${k}}}`, String(v));
+				}
+				return text;
+			}
+			return fallback;
+		}
 	}
 
 	/**
@@ -247,27 +269,29 @@ export class screenReader {
 		const player2Name = localStorage.getItem('player2Alias') || this.getLocalizedMessage('player2Default', 'Joueur 2');
 
 		if (!player3Score) {
-			const scoreMessage = this.getLocalizedMessage('scoreAnnouncement', 'Score: {{player1}} {{score1}}, {{player2}} {{score2}}')
-				.replace('{{player1}}', player1Name)
-				.replace('{{score1}}', player1Score.toString())
-				.replace('{{player2}}', player2Name)
-				.replace('{{score2}}', player2Score.toString());
+			const scoreMessage = this.getLocalizedMessage('scoreAnnouncement', 'Score: {{player1}} {{score1}}, {{player2}} {{score2}}', {
+				player1: player1Name,
+				score1: player1Score,
+				player2: player2Name,
+				score2: player2Score
+			});
 			this.speak(scoreMessage);
 		}
 
-		if (player3Score && player4Score) {
+		if (player3Score) {
 			const player3Name = localStorage.getItem('player3Alias') || this.getLocalizedMessage('player3Default', 'Joueur 3');
 			const player4Name = localStorage.getItem('player4Alias') || this.getLocalizedMessage('player4Default', 'Joueur 4');
 
-			const scoreMessage = this.getLocalizedMessage('scoreAnnouncement4Players', 'Score: {{player1}} {{score1}}, {{player2}} {{score2}}, {{player3}} {{score3}}, {{player4}} {{score4}}')
-				.replace('{{player1}}', player1Name)
-				.replace('{{score1}}', player1Score.toString())
-				.replace('{{player2}}', player2Name)
-				.replace('{{score2}}', player2Score.toString())
-				.replace('{{player3}}', player3Name)
-				.replace('{{score3}}', player3Score.toString())
-				.replace('{{player4}}', player4Name)
-				.replace('{{score4}}', player4Score.toString());
+			const scoreMessage = this.getLocalizedMessage('scoreAnnouncement4Players', 'Score: {{player1}} {{score1}}, {{player2}} {{score2}}, {{player3}} {{score3}}, {{player4}} {{score4}}', {
+				player1: player1Name,
+				score1: player1Score,
+				player2: player2Name,
+				score2: player2Score,
+				player3: player3Name,
+				score3: player3Score,
+				player4: player4Name,
+				score4: player4Score
+			});
 			this.speak(scoreMessage);
 		}
 	}
@@ -289,8 +313,13 @@ export class screenReader {
 	public announcePageChange(pageName: string): void {
 		if (!this.enabled)
 			return ;
-		const message = this.getLocalizedMessage('pageLoaded', 'Page {{pageName}} chargée')
-			.replace('{{pageName}}', pageName);
+
+		console.log('Announcing page change for:', pageName);
+		console.log('Current language:', getCurrentLang());
+
+		const message = this.getLocalizedMessage('pageLoaded', 'Page {{pageName}} chargée', { pageName });
+		console.log('Final message:', message);
+
 		this.speak(message, true);
 	}
 
