@@ -86,8 +86,8 @@ export class screenReader {
 		}
 
 		// Ou une correspondance partielle.
-		for (const langcode of langCodes) {
-			const partialMatch = voices.find(voice => voice.lang.startsWith(langcode.split('-')[0]));
+		for (const langCode of langCodes) {
+			const partialMatch = voices.find(voice => voice.lang.startsWith(langCode.split('-')[0]));
 			if (partialMatch)
 				return partialMatch;
 		}
@@ -108,7 +108,7 @@ export class screenReader {
 				break;
 
 			case 'es':
-				this.rate = Math.max(0.1, baseRate * 0.9);
+				this.rate = Math.max(0.1, baseRate * 0.95);
 				break;
 
 			case 'en':
@@ -144,28 +144,50 @@ export class screenReader {
 	 * @private
 	 */
 	private getLocalizedMessage(key: string, fallback: string, vars?: Record<string, string | number | null>): string {
+		console.log('🔍 getLocalizedMessage called with:', { key, fallback, vars });
+
 		try {
-			const translated = t(key, vars);
-			// Si la traduction retourne la clé (pas trouvee), utilise le fallback.
-			if (translated === key && fallback) {
-				// Applique les variables au fallback.
+			// Essaie d'abord d'obtenir la traduction sans variables.
+			const rawTranslation = t(key);
+			console.log('📝 Raw translation result:', rawTranslation);
+
+			// Si on a une traduction valide (differente de la cle.)
+			if (rawTranslation && rawTranslation !== key) {
+				// Applique manuellement les variables.
 				if (vars) {
-					let text = fallback;
+					let text = rawTranslation;
 					for (const [k, v] of Object.entries(vars)) {
-						text = text.replace(`{{${k}}}`, String(v));
+						console.log(`🔄 Replacing {{${k}}} with "${v}" in "${text}"`);
+						text = text.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v));
 					}
+					console.log('✅ Final translated text:', text);
 					return text;
 				}
-				return fallback;
+				return rawTranslation;
 			}
-			return translated;
+
+			// Sinon utilise le fallback.
+			console.log('⚠️ No translation found, using fallback');
+			if (vars && fallback) {
+				let text = fallback;
+				for (const [k, v] of Object.entries(vars)) {
+					console.log(`🔄 Fallback: Replacing {{${k}}} with "${v}" in "${text}"`);
+					text = text.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v));
+				}
+				console.log('✅ Final fallback text:', text);
+				return text;
+			}
+			return fallback;
+
 		} catch (error) {
+			console.error('❌ Error in getLocalizedMessage:', error);
 			// En cas d'erreur, utilise le fallback avec substitution.
 			if (vars && fallback) {
 				let text = fallback;
 				for (const [k, v] of Object.entries(vars)) {
-					text = text.replace(`{{${k}}}`, String(v));
+					text = text.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v));
 				}
+				console.log('🔧 Error fallback with substitution:', text);
 				return text;
 			}
 			return fallback;
