@@ -59,5 +59,6 @@
   "pong-four": "Four players pong",
   "pong-four_explanation": "Game launched. use W and Q for player 1, up and down arrows for player 2, I and O for player 3, C and V for player 4",
   "pfc_explanation": "Game launched. player 1: Q for stone, W for paper , E for scissors. player 2: J for stone, K for paper, L for scissors.",
-  "choose": "choosed"
+  "choose": "choosed",
+  "pageLoaded": "Page {{pageName}} loaded"
 }

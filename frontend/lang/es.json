@@ -59,5 +59,6 @@
   "pong-four": "Pong para cuatro jugadores",
   "pong-four_explanation": "Juego lanzado. usa W y Q para el jugador 1, flechas arriba y abajo para el jugador 2, I y O para el jugador 3, C y V para el jugador 4",
   "pfc_explanation": "Juego lanzado. jugador 1: Q para piedra, W para papel , E para tijeras. jugador 2: J para piedra, K para papel, L para tijeras.",
-  "choose": "elegido"
+  "choose": "elegido",
+  "pageLoaded": "Página {{pageName}} cargada"
 }

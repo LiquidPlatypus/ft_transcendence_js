@@ -19,7 +19,7 @@ export async function loadLanguage(lang: Lang) {
 	}));
 }
 
-export function t(key: string, vars?: Record<string, string | number>): string {
+export function t(key: string, vars?: Record<string, string | number | null>): string {
 	let text = translations[key] || key;
 	if (vars) {
 		for (const [k, v] of Object.entries(vars)) {
