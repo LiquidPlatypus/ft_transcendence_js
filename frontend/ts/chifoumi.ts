@@ -10,12 +10,12 @@ let choixJ1: Choix | null = null;
 let choixJ2: Choix | null = null;
 
 const symbols: Record<Choix, string> = {
-	pierre: "🗑",
-	feuille: "📋",
-	ciseaux: "✂"
+	pierre: "🪨",
+	feuille: "🧻",
+	ciseaux: "✂️"
 };
 
-const touchesJ1: Record<string, Choix> = { q: 'pierre', z: 'feuille', e: 'ciseaux' };
+const touchesJ1: Record<string, Choix> = { q: 'pierre', w: 'feuille', e: 'ciseaux' };
 const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseaux' };
 
 /**
@@ -129,7 +129,7 @@ function init() {
 	const vainqueur = creerElement("div", "", "");
 	vainqueur.id = "vainqueur";
 
-	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
+	container.append(instructions1, instructions2, arena, resultat, scores, vainqueur);
 
 
 	function handleKeydown(e: KeyboardEvent) {

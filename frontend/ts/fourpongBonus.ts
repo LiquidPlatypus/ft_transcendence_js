@@ -46,20 +46,22 @@ export class GameFourBonus {
 	private ball: Ball;
 
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
-		setTimeout(() =>
-		{
-			const wall = new StaticWall(x, y);
-			this.staticWalls.push(wall);
-			if (this.staticWalls.length > 3)
-			{
-				this.staticWalls.shift();
+		setTimeout(() => {
+			const ballPos = this.ball.getPosition();
+			const safeDistance = 30;
+			
+			if (Math.abs(ballPos.x - x) > safeDistance || Math.abs(ballPos.y - y) > safeDistance) {
+				const wall = new StaticWall(x, y);
+				this.staticWalls.push(wall);
+				if (this.staticWalls.length > 3) {
+					this.staticWalls.shift();
+				}
 			}
-		}, 200) // Ajout différé
+		}, 300); // Increased from 200 to 300ms
 	}
 
-	private freezePlayers(except: 'player1' | 'player2' | 'player3' | 'player4' | null)  //Bonus ICE
-	{
-		const freezeDuration = 500;
+	private freezePlayers(except: 'player1' | 'player2' | 'player3' | 'player4' | null) {
+		const freezeDuration = 2000;  // Increased to 2 seconds
 
 		if (except !== 'player1') this.player1.freeze(freezeDuration);
 		if (except !== 'player2') this.player2.freeze(freezeDuration);
@@ -68,7 +70,7 @@ export class GameFourBonus {
 	}
 
 	private invertPlayersControls(except: 'player1' | 'player2' | 'player3' | 'player4'| null) {
-		const invertDuration = 2000; // 4 secondes
+		const invertDuration = 5000; // Increased to 5 seconds
 
 		if (except !== 'player1') this.player1.invertControls(invertDuration);
 		if (except !== 'player2') this.player2.invertControls(invertDuration);
@@ -103,6 +105,13 @@ export class GameFourBonus {
 		this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.player3 = new Paddle3(paddleHeight, paddleWidth, this.gameCanvas.width / 2 - paddleHeight / 2, wallOffset);
 		this.player4 = new Paddle4(paddleHeight, paddleWidth, this.gameCanvas.width / 2 - paddleHeight / 2, this.gameCanvas.height - (wallOffset + paddleWidth));
+		
+		// AI will be enabled by the player selection screen if toggled
+		// Set game reference for each paddle
+		this.player2.setGameRef(this);
+		this.player3.setGameRef(this);
+		this.player4.setGameRef(this);
+
 		this.ball = new Ball(ballSize, ballSize, 0, 0, this.gameCanvas.width, this.gameCanvas.height);
 		this.ball.setGameRef(this);
 		this.ball.setOnGoalCallback(() => {
@@ -116,14 +125,18 @@ export class GameFourBonus {
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
+		const styles = getComputedStyle(document.body);
+		const lineColor = styles.getPropertyValue('--canvas-line-color').trim() || '#fff';
+		const textColor = styles.getPropertyValue('--canvas-text-color').trim() || '#fff';
+
 		// Trace les contours du terrain.
-		this.gameContext.strokeStyle = "#fff";
+		this.gameContext.strokeStyle = lineColor;
 		this.gameContext.lineWidth = 5;
 		this.gameContext.strokeRect(10,10,this.gameCanvas.width - 20 ,this.gameCanvas.height - 20);
 
 		// Affiche la couleur.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
-			this.gameContext.fillStyle = "#fff";
+			this.gameContext.fillStyle = lineColor;
 		}
 
 		// Affiche noms des joueurs.
@@ -133,7 +146,7 @@ export class GameFourBonus {
 		const player4Alias = localStorage.getItem('player4Alias') || 'Joueur 4';
 
 		this.gameContext!.font = "20px Orbitron";
-		this.gameContext!.fillStyle = "#fff";
+		this.gameContext!.fillStyle = textColor;
 		this.gameContext!.textAlign = "center";
 
 		// Position des noms des joueurs.
@@ -156,7 +169,9 @@ export class GameFourBonus {
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
 
-		this.gameContext.fillStyle = "#000";
+		const styles = getComputedStyle(document.body);
+		const bgColor = styles.getPropertyValue('--canvas-bg-color').trim() || '#000';
+		this.gameContext.fillStyle = bgColor;
 		this.gameContext.fillRect(0,0,this.gameCanvas.width,this.gameCanvas.height);
 
 		this.drawBoardDetails();
@@ -174,9 +189,9 @@ export class GameFourBonus {
 			return ;
 
 		this.player1.update(this.gameCanvas);
-		this.player2.update(this.gameCanvas);
-		this.player3.update(this.gameCanvas);
-		this.player4.update(this.gameCanvas);
+		this.player2.update(this.gameCanvas, this.ball);
+		this.player3.update(this.gameCanvas, this.ball);
+		this.player4.update(this.gameCanvas, this.ball);
 		this.ball.update(this.player1, this.player2, this.player3, this.player4, this.gameCanvas);
 
 		//partie bonus
@@ -225,7 +240,7 @@ export class GameFourBonus {
 						break;
 					case BonusType.SPEED:
 						console.log("Vitesse activée : Augmente la vitesse de la balle");
-						this.ball.increaseSpeed(1.1);
+						this.ball.increaseSpeed(1.2);
 						break;
 				}
 				return false;
@@ -270,13 +285,25 @@ class Entity{
 		this.x = x;
 		this.y =y;
 	}
+
+	private getCanvasColors() {
+		const styles = getComputedStyle(document.body);
+		return {
+			bgColor: styles.getPropertyValue('--canvas-bg-color').trim() || '#000',
+			lineColor: styles.getPropertyValue('--canvas-line-color').trim() || '#fff',
+			textColor: styles.getPropertyValue('--canvas-text-color').trim() || '#fff',
+			entityColor: styles.getPropertyValue('--canvas-entity-color').trim() || '#fff',
+		};
+	}
+
 	draw(context: CanvasRenderingContext2D){
-		context.fillStyle = "#fff";
+		const { entityColor } = this.getCanvasColors();
+		context.fillStyle = entityColor;
 		context.fillRect(this.x,this.y,this.width,this.height);
 	}
 }
 
-class Paddle extends Entity{
+export class Paddle extends Entity{
 
 	private speed:number = 10;
 
@@ -334,174 +361,580 @@ class Paddle extends Entity{
 		this.y += this.yVal * this.speed;
 	}
 }
-class Paddle2 extends Entity{
 
-	private speed:number = 10;
-
-	constructor(w:number, h:number, x:number, y:number){
-		super(w,h,x,y);
+export class Paddle2 extends Entity{
+	private speed: number = 10;
+	private aiLastDecisionTime: number = 0;
+	private aiDecisionInterval: number = 1000;
+	private static isAIEnabled: boolean = false;
+	private centerY: number = 0;
+	private gameRef: GameFourBonus | null = null;
+	
+	// Simulated keyboard state
+	private isUpPressed: boolean = false;
+	private isDownPressed: boolean = false;
+	
+	// Movement control
+	private targetY: number = 0;
+	private approachingBall: boolean = false;
+	
+	// Bonus states
+	private invertedUntil: number = 0;
+	private frozenUntil: number = 0;
+	
+	constructor(w: number, h: number, x: number, y: number) {
+		super(w, h, x, y);
+		this.centerY = y;
+		this.targetY = y;
 	}
 
-	private invertedUntil: number = 0;
+	public setGameRef(game: GameFourBonus) {
+		this.gameRef = game;
+	}
 
-	public invertControls(duration: number)
-	{
+	public static setAIEnabled(enabled: boolean) {
+		this.isAIEnabled = enabled;
+	}
+
+	public static isAIActive(): boolean {
+		return this.isAIEnabled;
+	}
+
+	public resetAIState() {
+		this.aiLastDecisionTime = 0;
+		this.y = this.centerY;
+		this.targetY = this.centerY;
+		this.yVal = 0;
+		this.isUpPressed = false;
+		this.isDownPressed = false;
+		this.approachingBall = false;
+	}
+
+	public invertControls(duration: number) {
 		this.invertedUntil = Date.now() + duration;
 	}
 
-
-	private frozenUntil: number = 0;
-
-	public freeze(duration: number)
-	{
+	public freeze(duration: number) {
 		this.frozenUntil = Date.now() + duration;
 	}
 
-	update(canvas: HTMLCanvasElement){
-		if (Date.now() < this.frozenUntil) // Lié au Bonus ICE
-		{
+	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
+		if (!ball) return this.centerY;
+
+		const distanceX = this.x - ball.x;
+		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
+		const timeToReach = Math.abs(distanceX / (ball.xVal * currentBallSpeed));
+		
+		let predictedX = ball.x;
+		let predictedY = ball.y;
+		let velocityX = ball.xVal;
+		let velocityY = ball.yVal;
+		
+		// Simulate ball movement until it reaches our x-position or hits a wall
+		while (predictedX < this.x && predictedX > 0) {
+			// Check for collisions with static walls
+			if (this.gameRef && this.gameRef.staticWalls) {
+				for (const wall of this.gameRef.staticWalls) {
+					if (predictedX < wall.x + wall.width &&
+						predictedX + ball.width > wall.x &&
+						predictedY < wall.y + wall.height &&
+						predictedY + ball.height > wall.y) {
+						
+						// Calculate which side of the wall we'll hit
+						const overlapX = Math.min(
+							Math.abs(predictedX + ball.width - wall.x),
+							Math.abs(predictedX - (wall.x + wall.width))
+						);
+						const overlapY = Math.min(
+							Math.abs(predictedY + ball.height - wall.y),
+							Math.abs(predictedY - (wall.y + wall.height))
+						);
+
+						if (overlapX < overlapY) {
+							velocityX *= -1; // Horizontal bounce
+						} else {
+							velocityY *= -1; // Vertical bounce
+						}
+					}
+				}
+			}
+
+			// Update predicted position
+			predictedX += velocityX * currentBallSpeed;
+			predictedY += velocityY * currentBallSpeed;
+			
+			// Account for bounces off top/bottom walls
+			if (predictedY < 0 || predictedY > canvas.height) {
+				velocityY *= -1;
+			}
+		}
+		
+		return Math.max(20, Math.min(canvas.height - 20 - this.height, predictedY));
+	}
+
+	private updateMovement() {
+		const paddleCenter = this.y + this.height / 2;
+		const distanceToTarget = this.targetY - paddleCenter;
+		const deadzone = 5; // Add deadzone to prevent wiggling
+		
+		// Reset both keys
+		this.isUpPressed = false;
+		this.isDownPressed = false;
+		
+		// Only move if we're outside the deadzone
+		if (Math.abs(distanceToTarget) > deadzone) {
+			if (distanceToTarget < 0) {
+				this.isUpPressed = true;
+			} else {
+				this.isDownPressed = true;
+			}
+		}
+	}
+
+	update(canvas: HTMLCanvasElement, ball?: Ball) {
+		const now = Date.now();
+		
+		// Don't move if frozen by ICE power-up
+		if (now < this.frozenUntil) {
 			this.yVal = 0;
 			return;
 		}
-		const isInverted = Date.now() < this.invertedUntil; // Lié au Bonus POTION
 
-		if (GameFourBonus.keysPressed[KeyBindings.UPTWO])
-		{
-			this.yVal = isInverted ? 1 : -1;
-			if ((this.y <= 20 && !isInverted) || (this.y + this.height >= canvas.height - 20 && isInverted))
-			{
+		if (Paddle2.isAIEnabled && ball && !isPaused) {
+			const currentTime = Date.now();
+			
+			if (currentTime - this.aiLastDecisionTime >= this.aiDecisionInterval) {
+				this.aiLastDecisionTime = currentTime;
+				this.approachingBall = ball.xVal > 0;
+				
+				if (this.approachingBall) {
+					// Always predict when ball is moving towards us
+					this.targetY = this.predictBallPosition(ball, canvas);
+				} else {
+					// Return to center more aggressively
+					const paddleCenter = this.y + this.height / 2;
+					const distanceToCenter = Math.abs(paddleCenter - this.centerY);
+					
+					if (distanceToCenter > 20) { // More aggressive return to center
+						this.targetY = this.centerY;
+					}
+				}
+			}
+			
+			this.updateMovement();
+			
+			// Handle POTION power-up (inverted controls)
+			const isInverted = now < this.invertedUntil;
+			
+			if (this.isUpPressed) {
+				this.yVal = isInverted ? 1 : -1;
+			} else if (this.isDownPressed) {
+				this.yVal = isInverted ? -1 : 1;
+			} else {
+				this.yVal = 0;
+			}
+		} else {
+			if (GameFourBonus.keysPressed[KeyBindings.UPTWO]) {
+				this.yVal = now < this.invertedUntil ? 1 : -1;
+			} else if (GameFourBonus.keysPressed[KeyBindings.DOWNTWO]) {
+				this.yVal = now < this.invertedUntil ? -1 : 1;
+			} else {
 				this.yVal = 0;
 			}
 		}
-		else if (GameFourBonus.keysPressed[KeyBindings.DOWNTWO])
-		{
-			this.yVal = isInverted ? -1 : 1;
-			if ((this.y + this.height >= canvas.height - 20 && !isInverted) || (this.y <= 20 && isInverted))
-			{
-				this.yVal = 0;
-			}
-		}
-		else
-		{
+
+		if (this.yVal < 0 && this.y <= 20) {
 			this.yVal = 0;
 		}
-
+		if (this.yVal > 0 && this.y + this.height >= canvas.height - 20) {
+			this.yVal = 0;
+		}
 
 		this.y += this.yVal * this.speed;
 	}
 }
 
 
-class Paddle3 extends Entity{
-
-	private speed:number = 10;
-
-	constructor(w:number, h:number, x:number, y:number){
-		super(w,h,x,y);
+export class Paddle3 extends Entity{
+	private speed: number = 10;
+	private aiLastDecisionTime: number = 0;
+	private aiDecisionInterval: number = 1000;
+	private static isAIEnabled: boolean = false;
+	private centerX: number = 0;
+	private gameRef: GameFourBonus | null = null;
+	
+	// Simulated keyboard state
+	private isLeftPressed: boolean = false;
+	private isRightPressed: boolean = false;
+	
+	// Movement control
+	private targetX: number = 0;
+	private approachingBall: boolean = false;
+	
+	// Bonus states
+	private invertedUntil: number = 0;
+	private frozenUntil: number = 0;
+	
+	constructor(w: number, h: number, x: number, y: number) {
+		super(w, h, x, y);
+		this.centerX = x;
+		this.targetX = x;
 	}
 
-	private invertedUntil: number = 0;
+	public setGameRef(game: GameFourBonus) {
+		this.gameRef = game;
+	}
 
-	public invertControls(duration: number)
-	{
+	public static setAIEnabled(enabled: boolean) {
+		this.isAIEnabled = enabled;
+	}
+
+	public static isAIActive(): boolean {
+		return this.isAIEnabled;
+	}
+
+	public resetAIState() {
+		this.aiLastDecisionTime = 0;
+		this.x = this.centerX;
+		this.targetX = this.centerX;
+		this.xVal = 0;
+		this.isLeftPressed = false;
+		this.isRightPressed = false;
+		this.approachingBall = false;
+	}
+
+	public invertControls(duration: number) {
 		this.invertedUntil = Date.now() + duration;
 	}
 
-
-	private frozenUntil: number = 0;
-
-	public freeze(duration: number)
-	{
+	public freeze(duration: number) {
 		this.frozenUntil = Date.now() + duration;
 	}
 
-	update(canvas: HTMLCanvasElement){
-		if (Date.now() < this.frozenUntil) // Lié au Bonus ICE
-		{
+	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
+		if (!ball) return this.centerX;
+
+		const distanceY = ball.y - this.y;
+		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
+		const timeToReach = Math.abs(distanceY / (ball.yVal * currentBallSpeed));
+		
+		let predictedX = ball.x;
+		let predictedY = ball.y;
+		let velocityX = ball.xVal;
+		let velocityY = ball.yVal;
+		
+		// Simulate ball movement until it reaches our y-position or hits a wall
+		while (predictedY > this.y && predictedY < canvas.height) {
+			// Check for collisions with static walls
+			if (this.gameRef && this.gameRef.staticWalls) {
+				for (const wall of this.gameRef.staticWalls) {
+					if (predictedX < wall.x + wall.width &&
+						predictedX + ball.width > wall.x &&
+						predictedY < wall.y + wall.height &&
+						predictedY + ball.height > wall.y) {
+						
+						// Calculate which side of the wall we'll hit
+						const overlapX = Math.min(
+							Math.abs(predictedX + ball.width - wall.x),
+							Math.abs(predictedX - (wall.x + wall.width))
+						);
+						const overlapY = Math.min(
+							Math.abs(predictedY + ball.height - wall.y),
+							Math.abs(predictedY - (wall.y + wall.height))
+						);
+
+						if (overlapX < overlapY) {
+							velocityX *= -1; // Horizontal bounce
+						} else {
+							velocityY *= -1; // Vertical bounce
+						}
+					}
+				}
+			}
+
+			// Update predicted position
+			predictedX += velocityX * currentBallSpeed;
+			predictedY += velocityY * currentBallSpeed;
+			
+			// Account for bounces off side walls
+			if (predictedX < 0 || predictedX > canvas.width) {
+				velocityX *= -1;
+			}
+		}
+		
+		return Math.max(20, Math.min(canvas.width - 20 - this.width, predictedX));
+	}
+
+	private updateMovement() {
+		const paddleCenter = this.x + this.width / 2;
+		const distanceToTarget = this.targetX - paddleCenter;
+		const deadzone = 5; // Add deadzone to prevent wiggling
+		
+		// Reset both keys
+		this.isLeftPressed = false;
+		this.isRightPressed = false;
+		
+		// Only move if we're outside the deadzone
+		if (Math.abs(distanceToTarget) > deadzone) {
+			if (distanceToTarget < 0) {
+				this.isLeftPressed = true;
+			} else {
+				this.isRightPressed = true;
+			}
+		}
+	}
+
+	update(canvas: HTMLCanvasElement, ball?: Ball) {
+		const now = Date.now();
+		
+		// Don't move if frozen by ICE power-up
+		if (now < this.frozenUntil) {
 			this.xVal = 0;
 			return;
 		}
-		const isInverted = Date.now() < this.invertedUntil; // Lié au Bonus POTION
 
-		if (GameFourBonus.keysPressed[KeyBindings.LEFTONE])
-		{
-			this.xVal = isInverted ? 1 : -1;
-			if ((this.x <= 20 && !isInverted) || (this.x + this.width >= canvas.width - 20 && isInverted))
-			{
+		if (Paddle3.isAIEnabled && ball && !isPaused) {
+			const currentTime = Date.now();
+			
+			if (currentTime - this.aiLastDecisionTime >= this.aiDecisionInterval) {
+				this.aiLastDecisionTime = currentTime;
+				this.approachingBall = ball.yVal < 0;
+				
+				if (this.approachingBall) {
+					// Always predict when ball is moving towards us
+					this.targetX = this.predictBallPosition(ball, canvas);
+				} else {
+					// Return to center more aggressively
+					const paddleCenter = this.x + this.width / 2;
+					const distanceToCenter = Math.abs(paddleCenter - this.centerX);
+					
+					if (distanceToCenter > 20) { // More aggressive return to center
+						this.targetX = this.centerX;
+					}
+				}
+			}
+			
+			this.updateMovement();
+			
+			// Handle POTION power-up (inverted controls)
+			const isInverted = now < this.invertedUntil;
+			
+			if (this.isLeftPressed) {
+				this.xVal = isInverted ? 1 : -1;
+			} else if (this.isRightPressed) {
+				this.xVal = isInverted ? -1 : 1;
+			} else {
+				this.xVal = 0;
+			}
+		} else {
+			if (GameFourBonus.keysPressed[KeyBindings.LEFTONE]) {
+				this.xVal = now < this.invertedUntil ? 1 : -1;
+			} else if (GameFourBonus.keysPressed[KeyBindings.RIGHTONE]) {
+				this.xVal = now < this.invertedUntil ? -1 : 1;
+			} else {
 				this.xVal = 0;
 			}
 		}
-		else if (GameFourBonus.keysPressed[KeyBindings.RIGHTONE])
-		{
-			this.xVal = isInverted ? -1 : 1;
-			if ((this.x + this.width >= canvas.width - 20 && !isInverted) || (this.x <= 20 && isInverted))
-			{
-				this.xVal = 0;
-			}
-		}
-		else
-		{
+
+		if (this.xVal < 0 && this.x <= 20) {
 			this.xVal = 0;
 		}
-
+		if (this.xVal > 0 && this.x + this.width >= canvas.width - 20) {
+			this.xVal = 0;
+		}
 
 		this.x += this.xVal * this.speed;
 	}
 }
 
 
-class Paddle4 extends Entity{
-
-	private speed:number = 10;
-
-	constructor(w:number, h:number, x:number, y:number){
-		super(w,h,x,y);
+export class Paddle4 extends Entity{
+	private speed: number = 10;
+	private aiLastDecisionTime: number = 0;
+	private aiDecisionInterval: number = 1000;
+	private static isAIEnabled: boolean = false;
+	private centerX: number = 0;
+	private gameRef: GameFourBonus | null = null;
+	
+	// Simulated keyboard state
+	private isLeftPressed: boolean = false;
+	private isRightPressed: boolean = false;
+	
+	// Movement control
+	private targetX: number = 0;
+	private approachingBall: boolean = false;
+	
+	// Bonus states
+	private invertedUntil: number = 0;
+	private frozenUntil: number = 0;
+	
+	constructor(w: number, h: number, x: number, y: number) {
+		super(w, h, x, y);
+		this.centerX = x;
+		this.targetX = x;
 	}
 
-	private invertedUntil: number = 0;
+	public setGameRef(game: GameFourBonus) {
+		this.gameRef = game;
+	}
 
-	public invertControls(duration: number)
-	{
+	public static setAIEnabled(enabled: boolean) {
+		this.isAIEnabled = enabled;
+	}
+
+	public static isAIActive(): boolean {
+		return this.isAIEnabled;
+	}
+
+	public resetAIState() {
+		this.aiLastDecisionTime = 0;
+		this.x = this.centerX;
+		this.targetX = this.centerX;
+		this.xVal = 0;
+		this.isLeftPressed = false;
+		this.isRightPressed = false;
+		this.approachingBall = false;
+	}
+
+	public invertControls(duration: number) {
 		this.invertedUntil = Date.now() + duration;
 	}
 
-
-	private frozenUntil: number = 0;
-
-	public freeze(duration: number)
-	{
+	public freeze(duration: number) {
 		this.frozenUntil = Date.now() + duration;
 	}
 
-	update(canvas: HTMLCanvasElement){
-		if (Date.now() < this.frozenUntil) // Lié au Bonus ICE
-		{
+	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
+		if (!ball) return this.centerX;
+
+		const distanceY = this.y - ball.y;
+		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
+		const timeToReach = Math.abs(distanceY / (ball.yVal * currentBallSpeed));
+		
+		let predictedX = ball.x;
+		let predictedY = ball.y;
+		let velocityX = ball.xVal;
+		let velocityY = ball.yVal;
+		
+		// Simulate ball movement until it reaches our y-position or hits a wall
+		while (predictedY < this.y && predictedY > 0) {
+			// Check for collisions with static walls
+			if (this.gameRef && this.gameRef.staticWalls) {
+				for (const wall of this.gameRef.staticWalls) {
+					if (predictedX < wall.x + wall.width &&
+						predictedX + ball.width > wall.x &&
+						predictedY < wall.y + wall.height &&
+						predictedY + ball.height > wall.y) {
+						
+						// Calculate which side of the wall we'll hit
+						const overlapX = Math.min(
+							Math.abs(predictedX + ball.width - wall.x),
+							Math.abs(predictedX - (wall.x + wall.width))
+						);
+						const overlapY = Math.min(
+							Math.abs(predictedY + ball.height - wall.y),
+							Math.abs(predictedY - (wall.y + wall.height))
+						);
+
+						if (overlapX < overlapY) {
+							velocityX *= -1; // Horizontal bounce
+						} else {
+							velocityY *= -1; // Vertical bounce
+						}
+					}
+				}
+			}
+
+			// Update predicted position
+			predictedX += velocityX * currentBallSpeed;
+			predictedY += velocityY * currentBallSpeed;
+			
+			// Account for bounces off side walls
+			if (predictedX < 0 || predictedX > canvas.width) {
+				velocityX *= -1;
+			}
+		}
+		
+		return Math.max(20, Math.min(canvas.width - 20 - this.width, predictedX));
+	}
+
+	private updateMovement() {
+		const paddleCenter = this.x + this.width / 2;
+		const distanceToTarget = this.targetX - paddleCenter;
+		const deadzone = 5; // Add deadzone to prevent wiggling
+		
+		// Reset both keys
+		this.isLeftPressed = false;
+		this.isRightPressed = false;
+		
+		// Only move if we're outside the deadzone
+		if (Math.abs(distanceToTarget) > deadzone) {
+			if (distanceToTarget < 0) {
+				this.isLeftPressed = true;
+			} else {
+				this.isRightPressed = true;
+			}
+		}
+	}
+
+	update(canvas: HTMLCanvasElement, ball?: Ball) {
+		const now = Date.now();
+		
+		// Don't move if frozen by ICE power-up
+		if (now < this.frozenUntil) {
 			this.xVal = 0;
 			return;
 		}
-		const isInverted = Date.now() < this.invertedUntil; // Lié au Bonus POTION
 
-		if (GameFourBonus.keysPressed[KeyBindings.LEFTTWO])
-		{
-			this.xVal = isInverted ? 1 : -1;
-			if ((this.x <= 20 && !isInverted) || (this.x + this.width >= canvas.width - 20 && isInverted))
-			{
+		if (Paddle4.isAIEnabled && ball && !isPaused) {
+			const currentTime = Date.now();
+			
+			if (currentTime - this.aiLastDecisionTime >= this.aiDecisionInterval) {
+				this.aiLastDecisionTime = currentTime;
+				this.approachingBall = ball.yVal > 0;
+				
+				if (this.approachingBall) {
+					// Always predict when ball is moving towards us
+					this.targetX = this.predictBallPosition(ball, canvas);
+				} else {
+					// Return to center more aggressively
+					const paddleCenter = this.x + this.width / 2;
+					const distanceToCenter = Math.abs(paddleCenter - this.centerX);
+					
+					if (distanceToCenter > 20) { // More aggressive return to center
+						this.targetX = this.centerX;
+					}
+				}
+			}
+			
+			this.updateMovement();
+			
+			// Handle POTION power-up (inverted controls)
+			const isInverted = now < this.invertedUntil;
+			
+			if (this.isLeftPressed) {
+				this.xVal = isInverted ? 1 : -1;
+			} else if (this.isRightPressed) {
+				this.xVal = isInverted ? -1 : 1;
+			} else {
+				this.xVal = 0;
+			}
+		} else {
+			if (GameFourBonus.keysPressed[KeyBindings.LEFTTWO]) {
+				this.xVal = now < this.invertedUntil ? 1 : -1;
+			} else if (GameFourBonus.keysPressed[KeyBindings.RIGHTTWO]) {
+				this.xVal = now < this.invertedUntil ? -1 : 1;
+			} else {
 				this.xVal = 0;
 			}
 		}
-		else if (GameFourBonus.keysPressed[KeyBindings.RIGHTTWO])
-		{
-			this.xVal = isInverted ? -1 : 1;
-			if ((this.x + this.width >= canvas.width - 20 && !isInverted) || (this.x <= 20 && isInverted))
-			{
-				this.xVal = 0;
-			}
-		}
-		else
-		{
+
+		if (this.xVal < 0 && this.x <= 20) {
 			this.xVal = 0;
 		}
-
+		if (this.xVal > 0 && this.x + this.width >= canvas.width - 20) {
+			this.xVal = 0;
+		}
 
 		this.x += this.xVal * this.speed;
 	}
@@ -578,13 +1011,16 @@ class Ball extends Entity{
 		return this.lastTouchedBy;
 	}
 
-	private baseSpeed: number = 5; // Vitesse initiale
+	private baseSpeed: number = 5; // Changed from 7 to 5
 	private speed: number = this.baseSpeed; // Lié au bonus SPEED
+
+	public getSpeed(): number {
+		return this.speed;
+	}
 
 	public increaseSpeed(factor: number)
 	{
-		this.speed *= factor;
-		console.log(`Vitesse augmentée : ${this.speed.toFixed(2)}`);
+		this.speed = Math.min(this.speed * factor, 15);
 	}
 
 	private onGoalCallback: (() => void) | null = null; //Pour réinitialiser les bonus, appel dans Game
@@ -817,5 +1253,13 @@ class Ball extends Entity{
 			return "Joueur 3";
 		else
 			return "Joueur 4";
+	}
+
+	public getPosition() {
+		return { x: this.x, y: this.y };
+	}
+
+	public getGameRef(): GameFourBonus {
+		return this.gameRef;
 	}
 }

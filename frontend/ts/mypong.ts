@@ -54,6 +54,27 @@ export class Game{
 		this.player1 = new Paddle(paddleWidth, paddleHeight, wallOffset, this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.ball = new Ball(ballSize, ballSize, this.gameCanvas.width / 2 - ballSize / 2, this.gameCanvas.height / 2 - ballSize / 2);
+
+		// Check if we're in tournament mode and if players are AI
+		const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
+		const player1Alias = localStorage.getItem('player1Alias') || '';
+		const player2Alias = localStorage.getItem('player2Alias') || '';
+		const isPlayer1AI = player1Alias.toLowerCase() === 'ai';
+		const isPlayer2AI = player2Alias.toLowerCase() === 'ai';
+
+		// Store AI status in localStorage
+		localStorage.setItem('isPlayer1AI', isPlayer1AI.toString());
+		localStorage.setItem('isPlayer2AI', isPlayer2AI.toString());
+
+		// Enable AI for player 1 if in tournament mode and player 1 is AI
+		if (tournamentMode && isPlayer1AI) {
+			Paddle.setAIEnabled(true);
+		}
+
+		// Enable AI for player 2 if in tournament mode and player 2 is AI
+		if (tournamentMode && isPlayer2AI) {
+			Paddle2.setAIEnabled(true);
+		}
 	}
 
 	getCanvasColors() {
@@ -141,7 +162,7 @@ export class Game{
 		if (!this.gameCanvas)
 			return ;
 
-		this.player1.update(this.gameCanvas);
+		this.player1.update(this.gameCanvas, this.ball);
 		this.player2.update(this.gameCanvas, this.ball);
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
 	}
@@ -198,27 +219,160 @@ class Entity{
 }
 
 class Paddle extends Entity{
-
 	private speed:number = 10;
+	private aiLastDecisionTime: number = 0;
+	private aiDecisionInterval: number = 1000;
+	private static isAIEnabled: boolean = false;
+	private centerY: number = 0;
+	
+	// Simulated keyboard state
+	private isUpPressed: boolean = false;
+	private isDownPressed: boolean = false;
+	
+	// Movement control
+	private targetY: number = 0;
+	private approachingBall: boolean = false;
 
 	constructor(w:number, h:number, x:number, y:number){
 		super(w,h,x,y);
+		this.centerY = y;
+		this.targetY = y;
 	}
 
-	update(canvas: HTMLCanvasElement){
-		if (Game.keysPressed[KeyBindings.UP]){
-			this.yVal = -1;
-			if (this.y <= 20){
-				this.yVal = 0
+	public static setAIEnabled(enabled: boolean) {
+		this.isAIEnabled = enabled;
+	}
+
+	public static isAIActive(): boolean {
+		return this.isAIEnabled;
+	}
+
+	public resetAIState() {
+		this.aiLastDecisionTime = 0;
+		this.y = this.centerY;
+		this.targetY = this.centerY;
+		this.yVal = 0;
+		this.isUpPressed = false;
+		this.isDownPressed = false;
+		this.approachingBall = false;
+	}
+
+	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
+		if (!ball) return this.centerY;
+
+		const distanceX = ball.x - this.x;
+		const estimatedBallSpeed = 5;
+		const timeToReach = Math.abs(distanceX / (ball.xVal * estimatedBallSpeed));
+		
+		// Initial prediction
+		let predictedY = ball.y + (ball.yVal * estimatedBallSpeed * timeToReach);
+		
+		// Account for bounces
+		while (predictedY < 0 || predictedY > canvas.height) {
+			if (predictedY < 0) {
+				predictedY = Math.abs(predictedY);
+			} else if (predictedY > canvas.height) {
+				predictedY = canvas.height - (predictedY - canvas.height);
 			}
 		}
-		else if (Game.keysPressed[KeyBindings.DOWN]){
-			this.yVal = +1;
-			if (this.y + this.height >= canvas.height - 20){
-				this.yVal = 0
+		
+		return Math.max(20, Math.min(canvas.height - 20 - this.height, predictedY));
+	}
+
+	private updateMovement() {
+		const paddleCenter = this.y + this.height / 2;
+		const distanceToTarget = this.targetY - paddleCenter;
+		const stoppingDistance = 15; // Distance to start slowing down
+		
+		// Reset both keys
+		this.isUpPressed = false;
+		this.isDownPressed = false;
+		
+		if (Math.abs(distanceToTarget) > stoppingDistance) {
+			// Move towards target
+			if (distanceToTarget < 0) {
+				this.isUpPressed = true;
+			} else {
+				this.isDownPressed = true;
+			}
+		} else if (this.approachingBall) {
+			// Fine adjustment when ball is approaching
+			if (Math.abs(distanceToTarget) > 5) {
+				if (distanceToTarget < 0) {
+					this.isUpPressed = true;
+				} else {
+					this.isDownPressed = true;
+				}
 			}
 		}
-		else{
+	}
+
+	update(canvas: HTMLCanvasElement, ball?: Ball){
+		// Check if we're in tournament mode and if player 1 is AI
+		const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
+		const isPlayer1AI = localStorage.getItem('isPlayer1AI') === 'true';
+
+		if (tournamentMode && isPlayer1AI && ball) {
+			const currentTime = Date.now();
+			
+			// Update AI decisions every second
+			if (currentTime - this.aiLastDecisionTime >= this.aiDecisionInterval) {
+				this.aiLastDecisionTime = currentTime;
+				
+				// Check if ball is moving towards AI
+				this.approachingBall = ball.xVal < 0;
+				
+				if (this.approachingBall) {
+					// Ball is coming towards us
+					if (ball.x < 300) { // Only predict when ball is in our half
+						this.targetY = this.predictBallPosition(ball, canvas);
+					}
+				} else {
+					// Ball moving away, return to center if we're far from it
+					const paddleCenter = this.y + this.height / 2;
+					const distanceToCenter = Math.abs(paddleCenter - this.centerY);
+					
+					if (distanceToCenter > 50) {
+						this.targetY = this.centerY;
+					}
+				}
+			}
+			
+			// Update movement every frame based on current target
+			this.updateMovement();
+			
+			// Apply simulated keyboard input
+			if (this.isUpPressed) {
+				this.yVal = -1;
+			} else if (this.isDownPressed) {
+				this.yVal = 1;
+			} else {
+				this.yVal = 0;
+			}
+		} else {
+			// Human player control
+			if (Game.keysPressed[KeyBindings.UP]){
+				this.yVal = -1;
+				if (this.y <= 20){
+					this.yVal = 0
+				}
+			}
+			else if (Game.keysPressed[KeyBindings.DOWN]){
+				this.yVal = +1;
+				if (this.y + this.height >= canvas.height - 20){
+					this.yVal = 0
+				}
+			}
+			else{
+				this.yVal = 0;
+			}
+		}
+
+		// Apply movement with boundary checks
+		if (this.y <= 20 && this.yVal < 0) {
+			this.yVal = 0;
+		}
+		if (this.y + this.height >= canvas.height - 20 && this.yVal > 0) {
 			this.yVal = 0;
 		}
 
@@ -381,8 +535,8 @@ class Ball extends Entity {
 	private currentSpeed: number = 5;
 	private lastSpeedIncreaseTime: number = 0;
 	private roundStartTime: number = 0;
-	private readonly INITIAL_WAIT_TIME: number = 20000; // 20 seconds before first increase
-	private readonly SPEED_INCREASE_INTERVAL: number = 5000; // 5 seconds between increases
+	private readonly INITIAL_WAIT_TIME: number = 10000; // Changed from 20000 to 10000 (10 seconds before first increase)
+	private readonly SPEED_INCREASE_INTERVAL: number = 5000; // Already at 5 seconds between increases
 	private readonly SPEED_INCREASE_AMOUNT: number = 0.5; // Speed increase per interval
 	private readonly MAX_SPEED: number = 12; // Maximum speed cap
 	private lastTouchedBy: 'player1' | 'player2' | null = null;
@@ -495,11 +649,19 @@ class Ball extends Entity {
 		this.x = canvas.width / 2 - this.width / 2;
 		this.y = canvas.height / 2 - this.height / 2;
 		isPaused = true;
+
+		// Reset AI states for both paddles
+		if (Paddle.isAIActive()) {
+			this.lastTouchedBy = null;
+			Paddle.setAIEnabled(false);
+			setTimeout(() => Paddle.setAIEnabled(true), 0);
+		}
 		if (Paddle2.isAIActive()) {
 			this.lastTouchedBy = null;
 			Paddle2.setAIEnabled(false);
 			setTimeout(() => Paddle2.setAIEnabled(true), 0);
 		}
+
 		setTimeout(() => {
 			isPaused = false;
 			this.resetRound(); // Reset speed and start time for new round

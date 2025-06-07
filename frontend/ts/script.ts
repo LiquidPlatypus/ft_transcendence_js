@@ -1,9 +1,9 @@
 import { homePage } from './home.js'
 import { startTournament } from './tournament.js';
 import { Game } from './mypong.js';
-import { GameBonus } from "./mypongBonus.js";
-import { GameFour } from './fourpong.js';
-import { GameFourBonus } from "./fourpongBonus.js";
+import { GameBonus, Paddle2 as Paddle2Bonus } from "./mypongBonus.js";
+import { GameFour, Paddle2, Paddle3, Paddle4 } from './fourpong.js';
+import { GameFourBonus, Paddle2 as Paddle2FourBonus, Paddle3 as Paddle3Bonus, Paddle4 as Paddle4Bonus } from "./fourpongBonus.js";
 import { twoPlayersMatch, fourPlayersMatchs } from './matches.js'
 import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
@@ -11,7 +11,6 @@ import {disableUnrelatedButtons, GameType, MatchType, matchTypeChoice} from "./U
 import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
-import { Paddle2 } from './mypong.js';
 
 // Ecouteur d'evenements.
 document.addEventListener('DOMContentLoaded', async () => {
@@ -125,13 +124,14 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	// Creer les champs pour rentrer les alias selon le nombre de joueurs.
 	let inputsHTML = "";
 	for (let i = 1; i <= playerCount; i++) {
-		if (i === 2 && gameType === 'pong' && playerCount === 2) {
-			// Special handling for player 2 in pong to add AI toggle
+		if ((i === 2 && gameType === 'pong' && playerCount === 2) || 
+			(i >= 2 && i <= 4 && gameType === 'pong' && playerCount === 4)) {
+			// Add AI toggle for player 2 in 2-player mode, and players 2,3,4 in 4-player mode
 			inputsHTML += `
 				<div class="mt-2 w-full">
 					<div class="flex items-center w-full">
 						<input type="text" id="playerAlias${i}" class="border p-2 rounded-l w-[calc(100%-100px)]" placeholder="Player ${i}">
-						<button id="aiToggleBtn" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
+						<button id="aiToggleBtn${i}" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
 					</div>
 				</div>
 			`;
@@ -176,23 +176,34 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			backButton.addEventListener("click", (event) => showHome());
 	}
 
-	// Set up AI toggle if in pong mode with 2 players
-	if (gameType === 'pong' && playerCount === 2) {
-		const aiToggleBtn = document.getElementById('aiToggleBtn');
-		const player2Input = document.getElementById('playerAlias2') as HTMLInputElement;
+	// Set up AI toggles for all applicable players
+	if (gameType === 'pong') {
+		if (playerCount === 2) {
+			setupAIToggle(2);
+		} else if (playerCount === 4) {
+			setupAIToggle(2);
+			setupAIToggle(3);
+			setupAIToggle(4);
+		}
+	}
+
+	// Helper function to set up AI toggle for a player
+	function setupAIToggle(playerNum: number) {
+		const aiToggleBtn = document.getElementById(`aiToggleBtn${playerNum}`);
+		const playerInput = document.getElementById(`playerAlias${playerNum}`) as HTMLInputElement;
 		let isAIEnabled = false;
 
-		if (aiToggleBtn && player2Input) {
+		if (aiToggleBtn && playerInput) {
 			aiToggleBtn.onclick = () => {
 				isAIEnabled = !isAIEnabled;
 				aiToggleBtn.classList.toggle('bg-blue-500', isAIEnabled);
 				aiToggleBtn.classList.toggle('text-white', isAIEnabled);
 				aiToggleBtn.classList.toggle('bg-gray-200', !isAIEnabled);
-				player2Input.disabled = isAIEnabled;
+				playerInput.disabled = isAIEnabled;
 				if (isAIEnabled) {
-					player2Input.value = "AI";
+					playerInput.value = "AI";
 				} else {
-					player2Input.value = "";
+					playerInput.value = "";
 				}
 			};
 		}
@@ -204,8 +215,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	if (startButton) {
 		if (gameType === 'pong') {
 			if (buttonType === 'match') {
-				if (playerCount == 2) {
-					const aiToggleBtn = document.getElementById('aiToggleBtn');
+				if (playerCount === 2) {
 					const player2Input = document.getElementById('playerAlias2') as HTMLInputElement;
 					
 					startButton.onclick = async () => {
@@ -224,7 +234,11 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 
 						// Enable AI if toggled
 						if (isAIEnabled) {
-							Paddle2.setAIEnabled(true);
+							if (matchType === 'normal') {
+								Paddle2.setAIEnabled(true);
+							} else {
+								Paddle2Bonus.setAIEnabled(true);
+							}
 						}
 
 						try {
@@ -261,8 +275,95 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 							console.error('Error creating match:', error);
 						}
 					};
-				} else if (playerCount == 4) {
-					fourPlayersMatchs(startButton, matchType);
+				} else if (playerCount === 4) {
+					startButton.onclick = async () => {
+						const alias1Elem = document.getElementById('playerAlias1') as HTMLInputElement;
+						const alias2Elem = document.getElementById('playerAlias2') as HTMLInputElement;
+						const alias3Elem = document.getElementById('playerAlias3') as HTMLInputElement;
+						const alias4Elem = document.getElementById('playerAlias4') as HTMLInputElement;
+
+						const alias1 = alias1Elem ? alias1Elem.value.trim() : '';
+						const alias2 = alias2Elem ? alias2Elem.value.trim() : '';
+						const alias3 = alias3Elem ? alias3Elem.value.trim() : '';
+						const alias4 = alias4Elem ? alias4Elem.value.trim() : '';
+
+						const isAI2Enabled = alias2Elem?.disabled || false;
+						const isAI3Enabled = alias3Elem?.disabled || false;
+						const isAI4Enabled = alias4Elem?.disabled || false;
+
+						if (!alias1 || 
+							(!isAI2Enabled && !alias2) || 
+							(!isAI3Enabled && !alias3) || 
+							(!isAI4Enabled && !alias4)) {
+							alert('Please enter player names');
+							return;
+						}
+
+						localStorage.setItem('player1Alias', alias1);
+						localStorage.setItem('player2Alias', alias2);
+						localStorage.setItem('player3Alias', alias3);
+						localStorage.setItem('player4Alias', alias4);
+
+						// Enable AI for each toggled player
+						if (matchType === 'normal') {
+							if (isAI2Enabled) Paddle2.setAIEnabled(true);
+							if (isAI3Enabled) Paddle3.setAIEnabled(true);
+							if (isAI4Enabled) Paddle4.setAIEnabled(true);
+						} else {
+							if (isAI2Enabled) Paddle2FourBonus.setAIEnabled(true);
+							if (isAI3Enabled) Paddle3Bonus.setAIEnabled(true);
+							if (isAI4Enabled) Paddle4Bonus.setAIEnabled(true);
+						}
+
+						try {
+							// Create players in backend
+							const player1Response = await fetch('/api/players', {
+								method: 'POST',
+								headers: {'Content-Type': 'application/json'},
+								body: JSON.stringify({name: alias1}),
+							}).then(res => res.json());
+
+							const player2Response = await fetch('/api/players', {
+								method: 'POST',
+								headers: {'Content-Type': 'application/json'},
+								body: JSON.stringify({name: alias2}),
+							}).then(res => res.json());
+
+							const player3Response = await fetch('/api/players', {
+								method: 'POST',
+								headers: {'Content-Type': 'application/json'},
+								body: JSON.stringify({name: alias3}),
+							}).then(res => res.json());
+
+							const player4Response = await fetch('/api/players', {
+								method: 'POST',
+								headers: {'Content-Type': 'application/json'},
+								body: JSON.stringify({name: alias4}),
+							}).then(res => res.json());
+
+							if (player1Response.success && player2Response.success && 
+								player3Response.success && player4Response.success) {
+								const matchResponse = await fetch('/api/players/match4', {
+									method: 'POST',
+									headers: {'Content-Type': 'application/json'},
+									body: JSON.stringify({
+										player1Id: player1Response.id,
+										player2Id: player2Response.id,
+										player3Id: player3Response.id,
+										player4Id: player4Response.id,
+										gameType: 'pong'
+									}),
+								}).then(res => res.json());
+
+								if (matchResponse.success) {
+									localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
+									startGame(4, matchType);
+								}
+							}
+						} catch (error) {
+							console.error('Error creating match:', error);
+						}
+					};
 				}
 			} else if (buttonType === 'tournoi') {
 				startButton.addEventListener('click', startTournament);
@@ -527,11 +628,21 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		if (matchType === 'normal') {
 			setTimeout(() => {
 				const game = new Game();
+				// Check if AI was enabled in player selection
+				const player2Input = document.getElementById('playerAlias2') as HTMLInputElement;
+				if (player2Input?.disabled) {
+					Paddle2.setAIEnabled(true);
+				}
 				requestAnimationFrame(game.gameLoop.bind(game));
 			});
 		} else if (matchType === 'bonus') {
 			setTimeout(() => {
 				const game = new GameBonus();
+				// Check if AI was enabled in player selection
+				const player2Input = document.getElementById('playerAlias2') as HTMLInputElement;
+				if (player2Input?.disabled) {
+					Paddle2Bonus.setAIEnabled(true);
+				}
 				requestAnimationFrame(game.gameLoop.bind(game));
 			});
 		}
