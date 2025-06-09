@@ -161,14 +161,6 @@ export class Game{
 
 	public static setGameOver(state: boolean): void {
 		gameOver = state;
-
-		if (gameOver) {
-			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
-			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
-
-			const winner = this.player1Score > this.player2Score ? player1Name : player2Name;
-			Game.ScreenReader.announceGameEvent(`$(winner) $t("as_won")`);
-		}
 	}
 
 	public static isGameOver(): boolean {
@@ -453,10 +445,6 @@ class Ball extends Entity {
 		if (this.x <= 0) {
 			Game.player2Score += 1;
 
-			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
-			Game.ScreenReader.announceGameEvent(`$(player2Name) $t("scored")`);
-			Game.ScreenReader.announceScore(Game.player1Score, Game.player2Score, null, null);
-
 			this.resetPosition(canvas);
 			if (!this.checkGameEnd("Joueur 2")) {
 			} else
@@ -466,10 +454,6 @@ class Ball extends Entity {
 		// Check player 1 goal
 		if (this.x + this.width >= canvas.width) {
 			Game.player1Score += 1;
-
-			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
-			Game.ScreenReader.announceGameEvent(`$(player1Name) $t("scored")`);
-			Game.ScreenReader.announceScore(Game.player1Score, Game.player2Score, null, null);
 
 			this.resetPosition(canvas);
 			if (!this.checkGameEnd("Joueur 1")) {
@@ -747,12 +731,19 @@ class Ball extends Entity {
 				// Fin de match normal (hors tournoi).
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
+					const winnerAlias = this.getWinnerAlias(winner);
+
+					const screenReaderInstance = screenReader.getInstance();
+					screenReaderInstance.announceScore(Game.player1Score, Game.player2Score, null, null);
+					screenReaderInstance.speak(`${winnerAlias} ${t("as_won")}`);
+
 					victoryMessageElement.innerHTML = `
 						<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 						<div class="flex justify-center">
 							<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 						</div>
 					`;
+
 
 					// Nettoie le localStorage.
 					const menu_btn = document.getElementById("menu-btn");
