@@ -346,7 +346,7 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Met à jour la voix selon la langue courante (méthode publique).
+	 * @brief Met à jour la voix selon la langue courante.
 	 */
 	public updateVoiceForCurrentLanguage(): void {
 		this.loadVoices();
