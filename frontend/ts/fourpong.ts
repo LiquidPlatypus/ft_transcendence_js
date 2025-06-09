@@ -1,5 +1,4 @@
 import { t } from "../lang/i18n.js"
-import {erase} from "sisteransi";
 import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
@@ -162,20 +161,6 @@ export class GameFour {
 
 	public static setGameOver(state: boolean): void {
 		gameOver = state;
-
-		if (gameOver) {
-			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
-			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
-			const player3Name = localStorage.getItem('player3Alias') || 'Joueur 3';
-			const player4Name = localStorage.getItem('player4Alias') || 'Joueur 4';
-
-			let winner = "";
-			if (GameFour.player1Score >= MAX_SCORE) winner = "Joueur 1";
-			else if (GameFour.player2Score >= MAX_SCORE) winner = "Joueur 2";
-			else if (GameFour.player3Score >= MAX_SCORE) winner = "Joueur 3";
-			else if (GameFour.player4Score >= MAX_SCORE) winner = "Joueur 4";
-			GameFour.ScreenReader.announceGameEvent(`$(winner) $t("as_won")`);
-		}
 	}
 
 	public static isGameOver(): boolean {
@@ -394,6 +379,12 @@ class Ball extends Entity{
 
 			const victoryMessageElement = document.getElementById("Pong");
 			if (victoryMessageElement) {
+				const winnerAlias = this.getWinnerAlias(winner);
+
+				const screenReaderInstance = screenReader.getInstance();
+				screenReaderInstance.announceScore(GameFour.player1Score, GameFour.player2Score, GameFour.player3Score, GameFour.player4Score);
+				screenReaderInstance.speak(`${winnerAlias} ${t("as_lost")}`);
+
 				victoryMessageElement.innerHTML = `
 					<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_lost")}</p>
 					<div class="flex justify-center">
@@ -422,10 +413,6 @@ class Ball extends Entity{
 		if (this.x <= 0) {
 			GameFour.player1Score += 1;
 
-			const player1Name = localStorage.getItem('player1Alias') || 'Joueur 1';
-			GameFour.ScreenReader.announceGameEvent(`$(player1Name) $t("scored")`);
-			GameFour.ScreenReader.announceScore(GameFour.player1Score, GameFour.player2Score, null, null);
-
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
@@ -436,10 +423,6 @@ class Ball extends Entity{
 
 		if (this.x + this.width >= canvas.width) {
 			GameFour.player2Score += 1;
-
-			const player2Name = localStorage.getItem('player2Alias') || 'Joueur 2';
-			GameFour.ScreenReader.announceGameEvent(`$(player2Name) $t("scored")`);
-			GameFour.ScreenReader.announceScore(GameFour.player1Score, GameFour.player2Score, null, null);
 
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
@@ -452,10 +435,6 @@ class Ball extends Entity{
 		if (this.y <= 0) {
 			GameFour.player3Score += 1;
 
-			const player3Name = localStorage.getItem('player3Alias') || 'Joueur 3';
-			GameFour.ScreenReader.announceGameEvent(`$(player3Name) $t("scored")`);
-			GameFour.ScreenReader.announceScore(GameFour.player1Score, GameFour.player2Score, null, null);
-
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
@@ -466,10 +445,6 @@ class Ball extends Entity{
 
 		if (this.y + this.height >= canvas.height) {
 			GameFour.player4Score += 1;
-
-			const player4Name = localStorage.getItem('player4Alias') || 'Joueur 4';
-			GameFour.ScreenReader.announceGameEvent(`$(player4Name) $t("scored")`);
-			GameFour.ScreenReader.announceScore(GameFour.player1Score, GameFour.player2Score, null, null);
 
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
@@ -531,12 +506,12 @@ class Ball extends Entity{
 
 	private getWinnerAlias(winner: string): string {
 		if (winner === "Joueur 1")
-			return "Joueur 1";
+			return localStorage.getItem('player1Alias') || 'Joueur 1';
 		else if (winner === "Joueur 2")
-			return "Joueur 2";
+			return localStorage.getItem('player2Alias') || 'Joueur 2';
 		else if (winner === "Joueur 3")
-			return "Joueur 3";
+			return localStorage.getItem('player3Alias') || 'Joueur 3';
 		else
-			return "Joueur 4";
+			return localStorage.getItem('player4Alias') || 'Joueur 4';
 	}
 }

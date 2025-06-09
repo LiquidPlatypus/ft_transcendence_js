@@ -46,6 +46,8 @@ export class GameFourBonus {
 
 	private ball: Ball;
 
+	public static ScreenReader = screenReader.getInstance();
+
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
 		setTimeout(() =>
 		{
@@ -659,6 +661,12 @@ class Ball extends Entity{
 
 			const victoryMessageElement = document.getElementById("Pong");
 			if (victoryMessageElement) {
+				const winnerAlias = this.getWinnerAlias(winner);
+
+				const screenReaderInstance = screenReader.getInstance();
+				screenReaderInstance.announceScore(GameFourBonus.player1Score, GameFourBonus.player2Score, GameFourBonus.player3Score, GameFourBonus.player4Score);
+				screenReaderInstance.speak(`${winnerAlias} ${t("as_lost")}`);
+
 				victoryMessageElement.innerHTML = `
 					<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_lost")}</p>
 					<div class="flex justify-center">
