@@ -1,6 +1,7 @@
 import {ButtonType, showPlayerCountSelection, showAliasInputs} from "./script.js";
 import {updateDisabledButtonStyles} from "./themeSwitcher.js";
 import {t} from "../lang/i18n.js";
+import {screenReader} from "./screenReader.js";
 
 /**
  * @brief Desactive ou active les boutons au besoin.
@@ -129,6 +130,9 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 
 	// Empeche d'appuyer sur tout les autres boutons en dehors de la div actuelle.
 	disableUnrelatedButtons(gameType);
+
+	const ScreenReader = screenReader.getInstance();
+	ScreenReader.announcePageChange(t("match_type_choice"));
 
 	// Bouton retour.
 	const backButton = document.getElementById(`back-button-${gameType}`);
