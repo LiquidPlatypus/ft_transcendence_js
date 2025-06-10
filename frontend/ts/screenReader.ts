@@ -1,4 +1,5 @@
 import {getCurrentLang, t} from "../lang/i18n.js";
+import {cursorRestorePosition} from "ansi-escapes";
 
 /**
  * @brief Classe gerant la fonctionnalité de lecture d'ecran.
@@ -13,9 +14,17 @@ export class screenReader {
 	private pitch: number = 1.0;
 	private queue: string[] = [];
 	private speaking: boolean = false;
+	private browserType: string = '';
+	private isFirefox: boolean = false;
 
 	private constructor() {
 		this.speechSynthesis = window.speechSynthesis;
+		this.browserType = this.detectBrowser();
+		this.isFirefox = this.browserType === 'firefox';
+
+		console.log(`Navigateur detecte: ${this.browserType}`);
+		if (this.isFirefox)
+			this.setupFirefoxOptimizations();
 
 		// Cherche une voix francaise.
 		this.loadVoices();
@@ -34,20 +43,43 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Recupere l'instance de screenReader.
+	 * @brief Detecte le navigateur utilise.
 	 */
-	public static getInstance(): screenReader {
-		if (!screenReader.instance)
-			screenReader.instance = new screenReader();
-		return screenReader.instance;
+	private detectBrowser(): string {
+		const userAgent = navigator.userAgent.toLowerCase();
+
+		if (userAgent.includes('firefox')) return 'firefox';
+		if (userAgent.includes('chrome') && !userAgent.includes('edg')) return 'chrome';
+
+		return 'unknown';
 	}
 
 	/**
-	 * @brief  Charge les voix dispo et essaie de prendre la voix francaise.
+	 * @brief Configuration pour Firefox.
+	 */
+	private setupFirefoxOptimizations(): void {
+		console.log('Application des optimisations du lecteur d\'écrans pour Firefox');
+
+		setTimeout(() => {
+			this.loadVoices();
+		}, 1000);
+
+		setInterval(() => {
+			if (this.speechSynthesis.getVoices().length === 0)
+				this.loadVoices();
+		}, 30000);
+	}
+	/**
+	 * @brief  Charge les voix dispo.
 	 */
 	private loadVoices(): void {
+		if (this.isFirefox)
+			this.speechSynthesis.cancel();
+
 		const voices = this.speechSynthesis.getVoices();
 		const currentLang = getCurrentLang();
+
+		console.log(`Voix disponibles dans ${this.browserType} (${voices.length}):`, voices.map(v => `${v.name} (${v.lang}) [Local: ${v.localService}]`));
 
 		// Map les langues aux codes de lange pour les voix.
 		const langMap: Record<string, string[]> = {
@@ -59,46 +91,211 @@ export class screenReader {
 		const targetLangCodes = langMap[currentLang] || ['en'];
 
 		// Cherche une voix correspondant a la langue actuelle.
-		let selectedVoice = this.findVoiceByLanguage(voices, targetLangCodes);
-
-		// Si pas de voix pour la langue courante, utilise la pre;iere dispo.
+		let selectedVoice = this.findBestVoiceForBrowser(voices, currentLang, targetLangCodes);
 		if (!selectedVoice && voices.length > 0)
 			selectedVoice = voices[0];
 
 		this.voice = selectedVoice;
-		console.log(`Voix sélectionnée pour ${currentLang}:`, this.voice?.name, this.voice?.lang);
+		console.log(`Voix sélectionnée:`, {name: this.voice?.name, lang: this.voice?.lang, local: this.voice?.localService, browser: this.browserType});
 
-		// Ajuste la vitesse en fonction de la langue.
-		this.adjustRateForLanguage(currentLang);
+		this.adjustParametersForBrowserAndVoice(currentLang, this.voice);
 	}
 
 	/**
-	 * @brief Trouve une voix correspondant aux codes de langue donnes.
+	 * @brief Trouve la meilleure voix selon le navigateur.
 	 * @param voices voix.
-	 * @param langCodes codes de langue.
+	 * @param lang langue.
+	 * @param langCodes code de langue.
 	 */
-	private findVoiceByLanguage(voices: SpeechSynthesisVoice[], langCodes: string[]): SpeechSynthesisVoice | undefined {
-		// Cherche en premier une correspondance exacte.
+	private findBestVoiceForBrowser(voices: SpeechSynthesisVoice[], lang: string, langCodes: string[]): SpeechSynthesisVoice | undefined {
+		if (this.isFirefox)
+			return this.findBestFirefoxVoice(voices, lang, langCodes);
+		else
+			return this.findBestChromeVoice(voices, lang, langCodes);
+	}
+
+	private findBestFirefoxVoice(voices: SpeechSynthesisVoice[], lang: string, langCodes: string[]): SpeechSynthesisVoice | undefined {
+		console.log('Recherche une voix optimisée pour Firefox');
+
+		const firefoxPreferred: Record<string, string[]> = {
+			'fr': [
+				'Microsoft Hortense', // Windows
+				'Amélie', 'Virginie', 'Thomas', // macOS
+				'French', 'Français', // Générique
+				'eSpeak French' // Linux backup
+			],
+			'en': [
+				'Microsoft Zira', 'Microsoft David', // Windows
+				'Alex', 'Samantha', 'Victoria', // macOS
+				'English', 'US English', 'UK English' // Générique
+			],
+			'es': [
+				'Microsoft Helena', 'Microsoft Sabina', // Windows
+				'Monica', 'Paulina', // macOS
+				'Spanish', 'Español' // Générique
+			]
+		};
+
+		const preferred = firefoxPreferred[lang] || [];
+
+		// 1. Cherche dans les voix préférées Firefox
+		for (const prefName of preferred) {
+			const voice = voices.find(v =>
+				v.name.toLowerCase().includes(prefName.toLowerCase()) &&
+				langCodes.some(code => v.lang.toLowerCase().includes(code.toLowerCase()))
+			);
+			if (voice) {
+				console.log(`🎯 Voix Firefox préférée trouvée: ${voice.name}`);
+				return voice;
+			}
+		}
+
+		// 2. Priorise les voix locales (meilleures en général)
+		for (const langCode of langCodes) {
+			const localVoice = voices.find(voice =>
+				voice.lang === langCode && voice.localService === true
+			);
+			if (localVoice) {
+				console.log(`🏠 Voix locale Firefox: ${localVoice.name}`);
+				return localVoice;
+			}
+		}
+
+		// 3. Correspondance exacte
 		for (const langCode of langCodes) {
 			const exactMatch = voices.find(voice => voice.lang === langCode);
-			if (exactMatch)
-				return exactMatch;
+			if (exactMatch) return exactMatch;
 		}
 
-		// Ou une correspondance partielle.
+		// 4. Correspondance partielle
 		for (const langCode of langCodes) {
-			const partialMatch = voices.find(voice => voice.lang.startsWith(langCode.split('-')[0]));
-			if (partialMatch)
-				return partialMatch;
+			const partialMatch = voices.find(voice =>
+				voice.lang.startsWith(langCode.split('-')[0])
+			);
+			if (partialMatch) return partialMatch;
 		}
 
-		return undefined;
+		return voices[0];
+	}
+
+	/**
+	 * @brief Optimisation pour Chrome/autres navigateurs.
+	 * @param voices voix.
+	 * @param lang langue.
+	 * @param langCodes code de langue.
+	 */
+	private findBestChromeVoice(voices: SpeechSynthesisVoice[], lang: string, langCodes: string[]): SpeechSynthesisVoice | undefined {
+		console.log('🌐 Recherche voix optimisée Chrome');
+
+		// Chrome préfère les voix Google en ligne.
+		const chromePreferred: Record<string, string[]> = {
+			'fr': ['Google français', 'Microsoft Hortense', 'Amélie'],
+			'en': ['Google US English', 'Google UK English Female', 'Microsoft Zira'],
+			'es': ['Google español', 'Microsoft Helena', 'Monica']
+		};
+
+		const preferred = chromePreferred[lang] || [];
+
+		for (const prefName of preferred) {
+			const voice = voices.find(v =>
+				v.name.toLowerCase().includes(prefName.toLowerCase())
+			);
+			if (voice) {
+				console.log(`🎯 Voix Chrome préférée: ${voice.name}`);
+				return voice;
+			}
+		}
+
+		// Fallback standard.
+		for (const langCode of langCodes) {
+			const exactMatch = voices.find(voice => voice.lang === langCode);
+			if (exactMatch) return exactMatch;
+		}
+
+		return voices[0];
+	}
+
+	/**
+	 * @brief Ajuste les parametres en fonction du navigateur et de la voix.
+	 * @param lang langue.
+	 * @param voice voix.
+	 */
+	private adjustParametersForBrowserAndVoice(lang: string, voice: SpeechSynthesisVoice | undefined): void {
+		const baseRate = 1.0;
+		const basePitch = 1.0;
+
+		switch (lang) {
+			case 'fr':
+				this.rate = baseRate * 0.9;
+				break;
+
+			case 'es':
+				this.rate = baseRate * 0.95;
+				break;
+
+			default:
+				this.rate = baseRate;
+				break;
+		}
+
+		if (!voice)
+			return ;
+
+		const voiceName = voice.name.toLowerCase();
+
+		// Ajustement specifiques a Firefox.
+		if (this.isFirefox) {
+			console.log('Application des ajustements spécifiques à Firefox');
+
+			// firefox avec eSpeak (Linux) - pas ouf.
+			if (voiceName.includes('espeak') || voiceName.includes('festival')) {
+				this.rate *= 0.7;
+				this.pitch = basePitch * 1.2;
+				this.volume = Math.min(1.0, this.volume * 1.1);
+				console.log('Ajustement eSpeak/Festival appliqués');
+			}
+
+			// Firefox avec voix Microsoft (Windows).
+			else if (voiceName.includes('microsoft')) {
+				this.rate *= 0.95;
+				console.log('Ajustements Microsoft Firefox appliqués');
+			}
+
+			// Autres voix Firefox.
+			else {
+				this.rate *= 0.85;
+				console.log('Ajustements génériques Firefox appliqués');
+			}
+		}
+
+		// Ajustements Chrome/autres.
+		else {
+			if (voiceName.includes('google')) {
+				this.pitch = basePitch * 0.95;
+				console.log('Ajustements Google appliqués');
+			}
+		}
+
+		// Limites de securite.
+		this.rate = Math.max(0.1, Math.min(10, this.rate));
+		this.pitch = Math.max(0, Math.min(2, this.pitch));
+
+		console.log(` Paramètres finaux: rate=${this.rate.toFixed(2)}, pitch=${this.pitch.toFixed(2)}, volume=${this.volume.toFixed(2)}`);
+	}
+
+	/**
+	 * @brief Suggestion pour ameliorer l'experience.
+	 */
+	public getBrowserRecommendation(): string {
+		if (this.isFirefox) {
+			return "Pour une meilleure qualité audio, nous recommandons d'utiliser Chrome ou Chromium qui offrent des voix de synthèse de meilleure qualité.";
+		}
+		return "Vous utilisez un navigateur avec un bon support de la synthèse vocale.";
 	}
 
 	/**
 	 * @brief Ajuste la vitesse en fonction de la langue choisie.
 	 * @param lang langue choisie.
-	 * @private
 	 */
 	private adjustRateForLanguage(lang: string): void {
 		const baseRate = this.rate;
@@ -237,6 +434,47 @@ export class screenReader {
 		this.speaking = true;
 		const text = this.queue.shift() || "";
 
+		// Fix pour Firefox: divise les textes longs.
+		if (this.isFirefox && text.length > 200) {
+			const chunks = this.splitTextForFirefox(text);
+			this.queue.unshift(...chunks.slice(1));
+			this.speakChunk(chunks[0]);
+		} else
+			this.speakChunk(text);
+	}
+
+	/**
+	 * @brief Divise le texte pour Firefox.
+	 * @param text text a diviser.
+	 */
+	private splitTextForFirefox(text: string): string[] {
+		const maxLength = 150;
+		const chunks: string[] = [];
+
+		// Divise par phrases en premier.
+		const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+
+		let currentChunk = '';
+
+		for (const sentence of sentences) {
+			if (currentChunk.length + sentence.length > maxLength && currentChunk.length > 0) {
+				chunks.push(currentChunk.trim());
+				currentChunk = sentence;
+			} else
+				currentChunk += (currentChunk.length > 0 ? '. ' : '') + sentence;
+		}
+
+		if (currentChunk.trim().length > 0)
+			chunks.push(currentChunk.trim());
+
+		return chunks.length > 0 ? chunks : [text];
+	}
+
+	/**
+	 * @brief Pronoce un chunk de texte.
+	 * @param text texte a prononcer.
+	 */
+	private speakChunk(text: string): void {
 		const utterance = new SpeechSynthesisUtterance(text);
 		utterance.volume = this.volume;
 		utterance.rate = this.rate;
@@ -245,9 +483,69 @@ export class screenReader {
 		if (this.voice)
 			utterance.voice = this.voice;
 
-		utterance.onend = () => this.processQueue();
+		// Gestion d'erreur.
+		utterance.onerror = (event) => {
+			console.error('Erreur de synthèse:', event);
+
+			if (this.isFirefox) {
+				// Fix Firefox: recharge les voix et reessaie.
+				setTimeout(() => {
+					console.log('Retry Firefox après erreur');
+					this.loadVoices();
+					setTimeout(() => this.processQueue(), 500);
+				}, 200);
+			} else
+				setTimeout(() => this.processQueue(), 100);
+		};
+
+		utterance.onend = () => {
+			this.processQueue();
+		};
+
+		// Timeout plus long pour Firefox.
+		const timeoutDuration = this.isFirefox ? 15000 : 10000
+		const timeoutId = setTimeout(() => {
+			console.warn(`Timeout ${this.browserType}`);
+			this.speechSynthesis.cancel();
+			this.processQueue();
+		}, timeoutDuration);
+
+		utterance.onend = () => {
+			clearTimeout(timeoutId);
+			this.processQueue();
+		};
 
 		this.speechSynthesis.speak(utterance);
+	}
+
+	/**
+	 * @brief Recupere l'instance de screenReader.
+	 */
+	public static getInstance(): screenReader {
+		if (!screenReader.instance)
+			screenReader.instance = new screenReader();
+		return screenReader.instance;
+	}
+
+	/**
+	 * @brief Infos de diagnostic.
+	 */
+	public getDiagnosticInfo(): object {
+		return {
+			browser: this.browserType,
+			isFirefox: this.isFirefox,
+			currentVoice: this.voice ? {
+				name: this.voice.name,
+				lang: this.voice.lang,
+				localService: this.voice.localService
+			} : null,
+			availableVoicesCount: this.speechSynthesis.getVoices().length,
+			parameters: {
+				rate: this.rate,
+				pitch: this.pitch,
+				volume: this.volume
+			}
+		};
 	}
 
 	/**
