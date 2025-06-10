@@ -36,7 +36,6 @@
   "error_match_creation": "Erreur lors de la création du match",
   "error_score_save": "Erreur lors de l'enregistrement du score",
   "wins_round": "gagne la manche !",
-  "player_wins_round": "Joueur {{player}} gagne la manche !",
 
   "select_game_mode": "Mode de jeu",
   "normal": "Normal",
