@@ -3,7 +3,7 @@ import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
 	UPONE = 87, //W
-	DOWNONE = 81, //Q
+	DOWNONE = 83, //S
 	UPTWO = 38, //fleche haut
 	DOWNTWO = 40, //fleche bas
 	RIGHTONE = 79, //O

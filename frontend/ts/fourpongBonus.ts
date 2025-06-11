@@ -2,8 +2,8 @@ import { t } from "../lang/i18n.js"
 import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
-	UPONE = 87, //A
-	DOWNONE = 81, //Q
+	UPONE = 87, //W
+	DOWNONE = 83, //S
 	UPTWO = 38, //fleche haut
 	DOWNTWO = 40, //fleche bas
 	RIGHTONE = 79, //O
