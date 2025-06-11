@@ -58,6 +58,7 @@ export function homePage() {
 				title="Activer/Désactiver le lecteur d'écran">
 				<img src="../static/megaphone.png" alt="Lecteur d'écran" class="w-8 h-6 rounded object-cover">
 			</button>
+			<p>${t("chrome_recommendation")}</p>
 		</div>
 
 		<!-- Div centrant les elements au centre. -->
