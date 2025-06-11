@@ -1,5 +1,4 @@
 import {getCurrentLang, t} from "../lang/i18n.js";
-import {cursorRestorePosition} from "ansi-escapes";
 
 /**
  * @brief Classe gerant la fonctionnalité de lecture d'ecran.
@@ -153,7 +152,7 @@ export class screenReader {
 		// 2. Priorise les voix locales (meilleures en général)
 		for (const langCode of langCodes) {
 			const localVoice = voices.find(voice =>
-				voice.lang === langCode && voice.localService === true
+				voice.lang === langCode && voice.localService
 			);
 			if (localVoice) {
 				console.log(`🏠 Voix locale Firefox: ${localVoice.name}`);
@@ -281,38 +280,6 @@ export class screenReader {
 		this.pitch = Math.max(0, Math.min(2, this.pitch));
 
 		console.log(` Paramètres finaux: rate=${this.rate.toFixed(2)}, pitch=${this.pitch.toFixed(2)}, volume=${this.volume.toFixed(2)}`);
-	}
-
-	/**
-	 * @brief Suggestion pour ameliorer l'experience.
-	 */
-	public getBrowserRecommendation(): string {
-		if (this.isFirefox) {
-			return "Pour une meilleure qualité audio, nous recommandons d'utiliser Chrome ou Chromium qui offrent des voix de synthèse de meilleure qualité.";
-		}
-		return "Vous utilisez un navigateur avec un bon support de la synthèse vocale.";
-	}
-
-	/**
-	 * @brief Ajuste la vitesse en fonction de la langue choisie.
-	 * @param lang langue choisie.
-	 */
-	private adjustRateForLanguage(lang: string): void {
-		const baseRate = this.rate;
-		switch (lang) {
-			case 'fr':
-				this.rate = Math.max(0.1, baseRate * 0.9);
-				break;
-
-			case 'es':
-				this.rate = Math.max(0.1, baseRate * 0.95);
-				break;
-
-			case 'en':
-
-			default:
-				break;
-		}
 	}
 
 	/**
@@ -528,53 +495,6 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Infos de diagnostic.
-	 */
-	public getDiagnosticInfo(): object {
-		return {
-			browser: this.browserType,
-			isFirefox: this.isFirefox,
-			currentVoice: this.voice ? {
-				name: this.voice.name,
-				lang: this.voice.lang,
-				localService: this.voice.localService
-			} : null,
-			availableVoicesCount: this.speechSynthesis.getVoices().length,
-			parameters: {
-				rate: this.rate,
-				pitch: this.pitch,
-				volume: this.volume
-			}
-		};
-	}
-
-	/**
-	 * @brief Regle le volume (0.0 a 1.0).
-	 * @param volume valeur du volume.
-	 */
-	public setvolume(volume: number): void {
-		this.volume = Math.max(0, Math.min(1, volume));
-	}
-
-	/**
-	 * @brief Regle la vitesse (0.1 a 10).
-	 * @param rate valeur de la vitesse.
-	 */
-	public setRate(rate: number): void {
-		this.rate = Math.max(0.1, Math.min(10, rate));
-		// Reapplique l'ajustement de langue.
-		this.adjustRateForLanguage(getCurrentLang());
-	}
-
-	/**
-	 * @brief Regle la hauteur de la voix (0 a 2).
-	 * @param pitch valeur de la hauteur.
-	 */
-	public setPitch(pitch: number): void {
-		this.pitch = Math.max(0, Math.min(2, pitch));
-	}
-
-	/**
 	 * @brief Annonce le score.
 	 * @param player1Score score du j1.
 	 * @param player2Score score du j2.
@@ -641,12 +561,5 @@ export class screenReader {
 		console.log('Final message:', message);
 
 		this.speak(message, true);
-	}
-
-	/**
-	 * @brief Met à jour la voix selon la langue courante.
-	 */
-	public updateVoiceForCurrentLanguage(): void {
-		this.loadVoices();
 	}
 }
