@@ -195,6 +195,8 @@ function init() {
 			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
+			ScreenReader.announceScore(scoreJ1, scoreJ2, null, null);
+
 			if (scoreJ1 >= 5) {
 				div.textContent = player1Alias + t("as_won");
 				ScreenReader.announceGameEvent(`${player1Alias} ${t("as_won")}`);
