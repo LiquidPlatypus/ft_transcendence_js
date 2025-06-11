@@ -539,13 +539,19 @@ class Ball extends Entity {
 				// S'affiche lorse que un autre match est encore en attente.
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
+					const winnerAlias = this.getWinnerAlias(winner);
+
+					const screenReaderInstance = screenReader.getInstance();
+					screenReaderInstance.announceScore(Game.player1Score, Game.player2Score, null, null);
+					screenReaderInstance.speak(`${winnerAlias} ${t("as_won")}`);
+
 					victoryMessageElement.innerHTML = `
-				<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
-				<p>${t("?next_match")}</p>
-				<div class="flex justify-center mt-4">
-					<button id="next-match-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
-				</div>
-			`;
+						<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
+						<p>${t("?next_match")}</p>
+						<div class="flex justify-center mt-4">
+							<button id="next-match-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
+						</div>
+					`;
 
 					const nextMatchBtn = document.getElementById("next-match-btn");
 					if (nextMatchBtn) {
