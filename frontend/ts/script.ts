@@ -17,6 +17,9 @@ import {screenReader} from "./screenReader.js";
 function initializeScreenReader() {
 	const ScreenReader = screenReader.getInstance();
 
+	// Initialise les listeners globaux pour la navigation au clavier
+	ScreenReader.initializeGlobalListeners();
+
 	// Recupere le bouton par son ID.
 	const screenReaderButton = document.getElementById('screen-reader-toggle');
 

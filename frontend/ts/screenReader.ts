@@ -16,6 +16,8 @@ export class screenReader {
 	private browserType: string = '';
 	private isFirefox: boolean = false;
 
+	private listenersInitialized: boolean = false;
+
 	private constructor() {
 		this.speechSynthesis = window.speechSynthesis;
 		this.browserType = this.detectBrowser();
@@ -39,6 +41,8 @@ export class screenReader {
 		const savedState = localStorage.getItem('screenReaderEnabled');
 		if (savedState)
 			this.enabled = savedState === 'true';
+
+		this.initializeGlobalListeners();
 	}
 
 	/**
@@ -561,5 +565,62 @@ export class screenReader {
 		console.log('Final message:', message);
 
 		this.speak(message, true);
+	}
+
+	/**
+	 * @brief Annonce l'element focus.
+	 * @param element element focus.
+	 */
+	public announceFocusedElement(element: HTMLElement): void {
+		if (!this.enabled)
+			return;
+
+		let announcement = '';
+
+		// Recupere le texte du bouton ou son aria-label/title.
+		const text = element.textContent?.trim() ||
+			element.getAttribute('aria-label') ||
+			element.getAttribute('title') ||
+			element.getAttribute('alt') || '';
+
+		const role = element.getAttribute('role') || element.tagName.toLowerCase();
+
+		if (role === 'button' || element.tagName.toLowerCase() === 'button') {
+			const buttonText = this.getLocalizedMessage('buttonFocused', 'Bouton {{text}}', { text });
+			announcement = buttonText;
+		} else if (element.tagName.toLowerCase() === 'img') {
+			const imageText = this.getLocalizedMessage('imageFocused', 'Image {{text}}', { text });
+			announcement = imageText;
+		} else {
+			announcement = text || this.getLocalizedMessage('elementFocused', 'Élément sélectionné');
+		}
+
+		if (announcement) {
+			this.speak(announcement);
+		}
+	}
+
+	/**
+	 * @brief Initialise les event listeners globaux.
+	 */
+	public initializeGlobalListeners(): void {
+		// Evite de dupliquer les listeners.
+		if (this.listenersInitialized) return;
+		this.listenersInitialized = true;
+
+		// Ecouteur global pour tous les elements qui recoivent le focus.
+		document.addEventListener('focusin', (event) => {
+			const target = event.target as HTMLElement;
+			if (target && (
+				target.tagName === 'BUTTON' ||
+				target.getAttribute('role') === 'button' ||
+				target.tagName === 'A' ||
+				target.tagName === 'INPUT' ||
+				target.tagName === 'SELECT' ||
+				target.tagName === 'TEXTAREA'
+			)) {
+				this.announceFocusedElement(target);
+			}
+		});
 	}
 }
