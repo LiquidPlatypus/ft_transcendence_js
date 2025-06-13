@@ -60,5 +60,8 @@
   "pfc_explanation": "Partie démarrée. Joueur 1: Q pour pierre, W pour feuille, E pour ciseaux. Joueur 2: J pour pierre, K pour feuille, L pour ciseaux.",
   "choose": "a choisi",
   "pageLoaded": "Page {{pageName}} chargée",
-  "chrome_recommendation": "Veuillez utiliser Chrome<br>pour une meilleure expérience<br>avec le lecteur d'écran"
+  "chrome_recommendation": "Veuillez utiliser Chrome<br>pour une meilleure expérience<br>avec le lecteur d'écran",
+
+  "high_contrast": "contrast élevé",
+  "white": "blanc"
 }

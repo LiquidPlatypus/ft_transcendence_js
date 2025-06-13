@@ -60,5 +60,8 @@
   "pfc_explanation": "Game launched. player 1: Q for stone, W for paper , E for scissors. player 2: J for stone, K for paper, L for scissors.",
   "choose": "choosed",
   "pageLoaded": "Page {{pageName}} loaded",
-  "chrome_recommendation": "Please use Chrome<br>for a better experience<br>with the screen reader"
+  "chrome_recommendation": "Please use Chrome<br>for a better experience<br>with the screen reader",
+
+  "high_contrast": "high contrast",
+  "white": "white"
 }

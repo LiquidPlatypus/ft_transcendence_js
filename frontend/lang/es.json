@@ -60,5 +60,8 @@
   "pfc_explanation": "Juego lanzado. jugador 1: Q para piedra, W para papel , E para tijeras. jugador 2: J para piedra, K para papel, L para tijeras.",
   "choose": "elegido",
   "pageLoaded": "Página {{pageName}} cargada",
-  "chrome_recommendation": "Por favor, utilice Chrome<br>para una mejor experiencia<br>con el lector de pantalla"
+  "chrome_recommendation": "Por favor, utilice Chrome<br>para una mejor experiencia<br>con el lector de pantalla",
+
+  "high_contrast": "alto contraste",
+  "white": "blanco"
 }
