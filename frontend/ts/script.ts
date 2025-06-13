@@ -93,7 +93,7 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType, m
 	// Creer les boutons de selection du nombre de joueurs.
 	container.innerHTML = `
 		<div class="flex flex-col items-center gap-4">
-			<button id="back-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
+			<button aria-label="${t("back")}" id="back-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
 			<h2 class="text-xl font-semibold">${t("how_many_players")}</h2>
 		</div>
 		<div class="flex justify-center gap-4 mt-4">
@@ -183,7 +183,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	// Creer la div complete.
 	container.innerHTML = `
 		<div class="flex flex-col item-center gap-4">
-			<button id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
+			<button aria-label="${t("back")}" id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
 			<h2 class="text-xl font-semibold">${t("players_names")}</h2>
 		</div>
 		<div class="flex flex-col items-center w-full mb-2">
@@ -374,7 +374,7 @@ export async function showHistory(event: Event, gameType: string) {
 		const headerDiv = document.createElement('div');
 		headerDiv.className = 'flex items-center justify-center gap-2 mb-4 mt-2';
 		headerDiv.innerHTML = `
-			<button id="back-button-${gameType}" class="little_btn rounded-lg border p-4 shadow flex items-center justify-center w-8 h-8"><span class="inline-block">&lt;</span></button>
+			<button aria-label="${t("back")}" id="back-button-${gameType}" class="little_btn rounded-lg border p-4 shadow flex items-center justify-center w-8 h-8"><span class="inline-block">&lt;</span></button>
 			<h2 class="text-xl font-semibold">${t("history")} ${gameType}</h2>
 		`;
 		historyContainer.appendChild(headerDiv);

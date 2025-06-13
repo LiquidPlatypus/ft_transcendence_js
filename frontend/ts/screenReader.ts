@@ -577,10 +577,10 @@ export class screenReader {
 
 		let announcement = '';
 
-		// Recupere le texte du bouton ou son aria-label/title.
-		const text = element.textContent?.trim() ||
-			element.getAttribute('aria-label') ||
+		// Priorité à aria-label, puis title, puis textContent, puis alt
+		const text = element.getAttribute('aria-label') ||
 			element.getAttribute('title') ||
+			element.textContent?.trim() ||
 			element.getAttribute('alt') || '';
 
 		const role = element.getAttribute('role') || element.tagName.toLowerCase();
