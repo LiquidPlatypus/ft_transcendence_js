@@ -63,5 +63,10 @@
   "chrome_recommendation": "Please use Chrome<br>for a better experience<br>with the screen reader",
 
   "high_contrast": "high contrast",
-  "white": "white"
+  "white": "white",
+  "screen_reader": "Enable screen reader",
+
+  "normal_text": "normal text",
+  "large_text": "large text",
+  "bold_text": "bold text"
 }

@@ -63,5 +63,10 @@
   "chrome_recommendation": "Por favor, utilice Chrome<br>para una mejor experiencia<br>con el lector de pantalla",
 
   "high_contrast": "alto contraste",
-  "white": "blanco"
+  "white": "blanco",
+  "screen_reader": "activar el lector de pantalla",
+
+  "normal_text": "texto normal",
+  "large_text": "texto grande",
+  "bold_text": "texto en negrita"
 }

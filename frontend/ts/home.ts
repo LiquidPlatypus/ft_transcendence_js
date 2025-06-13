@@ -24,13 +24,13 @@ export function homePage() {
 				<button aria-label="catpuccin" class="transition rounded hover:brightness-110 focus:outline-none" data-theme="CP">
 					<div class="w-8 h-6 bg-catpuccin border-2 border-black rounded transition hover:ring-2 hover:ring-accent"></div>
 				</button>
-				<button aria-label=$t("high_contrast") class="transition rounded hover:brightness-110 focus:outline-none" data-theme="HC">
+				<button aria-label="${t("high_contrast")}" class="transition rounded hover:brightness-110 focus:outline-none" data-theme="HC">
 					<div class="w-8 h-6 bg-green-600 text-white rounded transition hover:ring-2 hover:ring-accent">HC</div>
 				</button>
 				<button aria-label="oled" class="transition rounded hover:brightness-110 focus:outline-none" data-theme="OLED">
 					<div class="w-8 h-6 bg-black rounded transition hover:ring-2 hover:ring-accent"></div>
 				</button>
-				<button aria-label=$t("white") class="transition rounded hover:brightness-110 focus:outline-none" data-theme="WHITE">
+				<button aria-label="${t("white")}" class="transition rounded hover:brightness-110 focus:outline-none" data-theme="WHITE">
 					<div class="w-8 h-6 bg-gray-100 border border-gray-300 rounded transition hover:ring-2 hover:ring-accent"></div>
 				</button>
 			</div>
@@ -39,13 +39,13 @@ export function homePage() {
 		<div class="fixed top-11 left-4 z-10">
 		<!-- Boutons pour choisir la taille du texte. -->
 			<div class="flex gap-2">
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="normal">
+				<button aria-label="${t("normal_text")}" class="transition rounded hover:brightness-110 focus:outline-none" data-text="normal">
 					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent text-sm flex items-center justify-center">Tx</div>
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="large">
+				<button aria-label="${t("large_text")}" class="transition rounded hover:brightness-110 focus:outline-none" data-text="large">
 					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent text-base flex items-center justify-center">Lg</div>
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="bold">
+				<button aria-label="${t("bold_text")}" class="transition rounded hover:brightness-110 focus:outline-none" data-text="bold">
 					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent font-bold flex items-center justify-center">Bl</div>
 				</button>
 			</div>
@@ -54,7 +54,7 @@ export function homePage() {
 		<div class="fixed top-18 left-4 z-10">
 		<!-- Bouton pour activer le lecteur d'écran -->
 			<button id="screen-reader-toggle" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent"
-			aria-label="Activer le lecteur d'écran"
+			aria-label="${t("screen_reader")}"
 				title="Activer/Désactiver le lecteur d'écran">
 				<img src="../static/megaphone.png" alt="Lecteur d'écran" class="w-8 h-6 rounded object-cover">
 			</button>
