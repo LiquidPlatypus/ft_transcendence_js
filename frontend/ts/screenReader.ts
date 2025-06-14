@@ -406,11 +406,11 @@ export class screenReader {
 		const text = this.queue.shift() || "";
 
 		// Fix pour Firefox: divise les textes longs.
-		if (this.isFirefox && text.length > 200) {
-			const chunks = this.splitTextForFirefox(text);
-			this.queue.unshift(...chunks.slice(1));
-			this.speakChunk(chunks[0]);
-		} else
+//		if (this.isFirefox && text.length > 200) {
+//			const chunks = this.splitTextForFirefox(text);
+//			this.queue.unshift(...chunks.slice(1));
+//			this.speakChunk(chunks[0]);
+//		} else
 			this.speakChunk(text);
 	}
 
