@@ -134,7 +134,6 @@ function init() {
 
 	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
 
-	ScreenReader.announcePageChange(t("pfc"));
 	ScreenReader.announceGameEvent(t("pfc_explanation"));
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -331,7 +330,6 @@ function init_bonus() {
 
 	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
 
-	ScreenReader.announcePageChange(t("pfc"));
 	ScreenReader.announceGameEvent(t("pfc_explanation"));
 
 

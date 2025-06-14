@@ -166,7 +166,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			inputsHTML += `
 				<div class="mt-2 w-full">
 					<div class="flex items-center w-full">
-						<input type="text" id="playerAlias${i}" class="border p-2 rounded-l w-[calc(100%-100px)]" placeholder="Player ${i}">
+						<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded-l w-[calc(100%-100px)]" placeholder="Player ${i}">
 						<button id="aiToggleBtn" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
 					</div>
 				</div>
@@ -174,7 +174,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 		} else {
 			inputsHTML += `
 				<div class="mt-2 w-full">
-					<input type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="Player ${i}">
+					<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="Player ${i}">
 				</div>
 			`;
 		}
@@ -572,7 +572,6 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			setTimeout(() => {
 				const game = new Game();
 
-				Game.ScreenReader.announcePageChange(t("pong-game"));
 				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
 
 				requestAnimationFrame(game.gameLoop.bind(game));
@@ -581,7 +580,6 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			setTimeout(() => {
 				const game = new GameBonus();
 
-				Game.ScreenReader.announcePageChange(t("pong-game"));
 				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
 
 				requestAnimationFrame(game.gameLoop.bind(game));
@@ -604,7 +602,6 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			setTimeout(() => {
 				const game = new GameFour();
 
-				GameFour.ScreenReader.announcePageChange(t("pong-four"));
 				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
 
 				requestAnimationFrame(game.gameLoop.bind(game));
@@ -613,7 +610,6 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			setTimeout(() => {
 				const game = new GameFourBonus();
 
-				GameFour.ScreenReader.announcePageChange(t("pong-four"));
 				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
 
 				requestAnimationFrame(game.gameLoop.bind(game));
