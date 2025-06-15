@@ -223,6 +223,8 @@ export class GameBonus{
 				this.ball.y + this.ball.height > bonus.y;
 
 			if (collision) {
+				screenReader.getInstance().handleBonusHit();
+
 				switch (bonus.type) {
 					case BonusType.WALL:
 						console.log("Mur activé : création d'un mur statique");
