@@ -15,6 +15,7 @@ export class screenReader {
 	private speaking: boolean = false;
 	private browserType: string = '';
 	private isFirefox: boolean = false;
+	private sounds: Map<string, HTMLAudioElement> = new Map();
 
 	private listenersInitialized: boolean = false;
 
@@ -41,6 +42,17 @@ export class screenReader {
 		const savedState = localStorage.getItem('screenReaderEnabled');
 		if (savedState)
 			this.enabled = savedState === 'true';
+
+		this.loadSound('paddleGauche', '../static/beep_paddle_gauche.mp3');
+		this.loadSound('paddleDroit', '../static/beep_paddle_droit.mp3');
+		this.loadSound('paddleHaut', '../static/beep_paddle_haut.mp3');
+		this.loadSound('paddleBas', '../static/beep_paddle_bas.mp3');
+		this.loadSound('wall', '../static/wall.mp3');
+		this.loadSound('bonus', '../static/bonus.mp3');
+		this.loadSound('scoreP1', '../static/scoreP1.mp3');
+		this.loadSound('scoreP2', '../static/scoreP2.mp3');
+		this.loadSound('scoreP3', '../static/scoreP3.mp3');
+		this.loadSound('scoreP4', '../static/scoreP4.mp3');
 
 		this.initializeGlobalListeners();
 	}
@@ -454,39 +466,71 @@ export class screenReader {
 		if (this.voice)
 			utterance.voice = this.voice;
 
-		// Gestion d'erreur.
-		utterance.onerror = (event) => {
-			console.error('Erreur de synthèse:', event);
+		// Timeout basé sur la longueur du texte.
+		const estimatedDuration = (text.length / 10) * 1000; // ~100ms par caractère
+		const timeoutDuration = Math.max(
+			this.isFirefox ? 20000 : 15000,
+			estimatedDuration + 5000
+		);
 
-			if (this.isFirefox) {
-				// Fix Firefox: recharge les voix et reessaie.
-				setTimeout(() => {
-					console.log('Retry Firefox après erreur');
-					this.loadVoices();
-					setTimeout(() => this.processQueue(), 500);
-				}, 200);
-			} else
-				setTimeout(() => this.processQueue(), 100);
-		};
-
-		utterance.onend = () => {
-			this.processQueue();
-		};
-
-		// Timeout plus long pour Firefox.
-		const timeoutDuration = this.isFirefox ? 15000 : 10000
 		const timeoutId = setTimeout(() => {
-			console.warn(`Timeout ${this.browserType}`);
+			console.warn(`Timeout ${this.browserType} après ${timeoutDuration}ms`);
 			this.speechSynthesis.cancel();
 			this.processQueue();
 		}, timeoutDuration);
 
+		// Gestion d'erreur.
+		utterance.onerror = (event) => {
+			console.error('Erreur de synthèse:', event.error, event);
+			clearTimeout(timeoutId);
+
+			// Évite les boucles infinies d'erreurs.
+			if (event.error === 'network' || event.error === 'synthesis-failed') {
+				console.log('Erreur réseau ou de synthèse, passage au texte suivant');
+				setTimeout(() => this.processQueue(), 300);
+				return;
+			}
+
+			if (this.isFirefox && event.error === 'interrupted') {
+				// Firefox: réessaie une seule fois après une interruption.
+				console.log('Retry Firefox après interruption');
+				setTimeout(() => {
+					this.loadVoices();
+					setTimeout(() => this.processQueue(), 500);
+				}, 200);
+			} else {
+				setTimeout(() => this.processQueue(), 100);
+			}
+		};
+
 		utterance.onend = () => {
 			clearTimeout(timeoutId);
+			console.log('Lecture terminée normalement');
 			this.processQueue();
 		};
 
-		this.speechSynthesis.speak(utterance);
+		// Gère les interruptions.
+		utterance.onpause = () => {
+			console.log('Lecture mise en pause');
+			clearTimeout(timeoutId);
+		};
+
+		utterance.onresume = () => {
+			console.log('Lecture reprise');
+		};
+
+		// Vérification avant de lancer la synthèse.
+		if (this.speechSynthesis.speaking) {
+			console.log('Synthèse déjà en cours, annulation');
+			this.speechSynthesis.cancel();
+
+			// Attendre un peu avant de relancer.
+			setTimeout(() => {
+				this.speechSynthesis.speak(utterance);
+			}, 100);
+		} else {
+			this.speechSynthesis.speak(utterance);
+		}
 	}
 
 	/**
@@ -622,5 +666,70 @@ export class screenReader {
 				this.announceFocusedElement(target);
 			}
 		});
+	}
+
+	/**
+	 * @brief Charge les sons.
+	 * @param name du son.
+	 * @param path du son.
+	 */
+	private loadSound(name: string, path: string): void {
+		const audio = new Audio(path);
+		this.sounds.set(name, audio);
+	}
+
+	/**
+	 * @brief Joue le son.
+	 * @param name du son.
+	 */
+	public playSound(name: string): void {
+		if (this.enabled) {
+			const sound = this.sounds.get(name);
+			if (sound) {
+				sound.currentTime = 0;
+				sound.play();
+			}
+		}
+	}
+
+	// Méthodes pour les événements de jeu spécifiques.
+	public handleLeftPaddleHit(): void {
+		this.playSound('paddleGauche');
+	}
+
+	public handleRightPaddleHit(): void {
+		this.playSound('paddleDroit');
+	}
+
+	public handleUpPaddleHit(): void {
+		this.playSound('paddleHaut');
+	}
+
+	public handleDownPaddleHit(): void {
+		this.playSound('paddleBas');
+	}
+
+	public handleWallHit(): void {
+		this.playSound('wall');
+	}
+
+	public handleBonusHit(): void {
+		this.playSound('bonus');
+	}
+
+	public handleScoreP1Hit(): void {
+		this.playSound('scoreP1');
+	}
+
+	public handleScoreP2Hit(): void {
+		this.playSound('scoreP2');
+	}
+
+	public handleScoreP3Hit(): void {
+		this.playSound('scoreP3');
+	}
+
+	public handleScoreP4Hit(): void {
+		this.playSound('scoreP4');
 	}
 }

@@ -694,6 +694,9 @@ class Ball extends Entity{
 		// Verification des buts dans les camps respectifs.
 		if (this.x <= 0) {
 			GameFourBonus.player1Score += 1;
+
+			screenReader.getInstance().handleScoreP1Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -707,6 +710,9 @@ class Ball extends Entity{
 
 		if (this.x + this.width >= canvas.width) {
 			GameFourBonus.player2Score += 1;
+
+			screenReader.getInstance().handleScoreP2Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -721,6 +727,9 @@ class Ball extends Entity{
 
 		if (this.y <= 0) {
 			GameFourBonus.player3Score += 1;
+
+			screenReader.getInstance().handleScoreP3Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -735,6 +744,9 @@ class Ball extends Entity{
 
 		if (this.y + this.height >= canvas.height) {
 			GameFourBonus.player4Score += 1;
+
+			screenReader.getInstance().handleScoreP4Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -756,6 +768,8 @@ class Ball extends Entity{
 			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale.
 			this.xVal = 1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+
+			screenReader.getInstance().handleLeftPaddleHit();
 		}
 
 		// Collision avec jooueur 2.
@@ -767,6 +781,8 @@ class Ball extends Entity{
 			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale.
 			this.xVal = -1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+
+			screenReader.getInstance().handleRightPaddleHit();
 		}
 
 		// Collision avec joueur 3 (paddle vertical).
@@ -778,6 +794,8 @@ class Ball extends Entity{
 			let normalizedX = relativeX / (player3.width / 2);
 			this.yVal = 1;
 			this.xVal = normalizedX * 1.2;
+
+			screenReader.getInstance().handleUpPaddleHit();
 		}
 
 		// Collision avec joueur 4 (paddle vertical).
@@ -789,6 +807,8 @@ class Ball extends Entity{
 			let normalizedX = relativeX / (player4.width / 2);
 			this.yVal = -1;
 			this.xVal = normalizedX * 1.2;
+
+			screenReader.getInstance().handleDownPaddleHit();
 		}
 
 		// Collision avec les murs statiques
@@ -801,6 +821,8 @@ class Ball extends Entity{
 				// Inversion de direction (effet "rebond") selon la direction de collision
 				const overlapX = (this.x + this.width / 2) - (wall.x + wall.width / 2);
 				const overlapY = (this.y + this.height / 2) - (wall.y + wall.height / 2);
+
+				screenReader.getInstance().handleWallHit();
 
 				if (Math.abs(overlapX) > Math.abs(overlapY)) {
 					this.xVal *= -1; // rebond horizontal

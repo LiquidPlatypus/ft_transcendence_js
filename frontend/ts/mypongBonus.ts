@@ -527,16 +527,22 @@ class Ball extends Entity{
 			return ;
 
 		// check le haut.
-		if (this.y <= 10)
+		if (this.y <= 10) {
 			this.yVal = 1;
+			screenReader.getInstance().handleWallHit();
+		}
 
 		// check le bas.
-		if (this.y + this.height >= canvas.height - 10)
+		if (this.y + this.height >= canvas.height - 10) {
 			this.yVal = -1;
+			screenReader.getInstance().handleWallHit();
+		}
 
 		// check but player 2.
 		if (this.x <= 0) {
 			GameBonus.player2Score += 1;
+
+			screenReader.getInstance().handleScoreP2Hit();
 
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
@@ -550,6 +556,8 @@ class Ball extends Entity{
 		// .check but player 1
 		if (this.x + this.width >= canvas.width) {
 			GameBonus.player1Score += 1;
+
+			screenReader.getInstance().handleScoreP1Hit();
 
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
@@ -570,6 +578,8 @@ class Ball extends Entity{
 			this.xVal = 1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
 			this.lastTouchedBy = 'player1';
+
+			screenReader.getInstance().handleLeftPaddleHit();
 		}
 
 		// Collision avec joueur 2.
@@ -582,6 +592,8 @@ class Ball extends Entity{
 			this.xVal = -1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
 			this.lastTouchedBy = 'player2';
+
+			screenReader.getInstance().handleRightPaddleHit();
 		}
 
 		// Collision avec les murs statiques
@@ -594,6 +606,8 @@ class Ball extends Entity{
 				// Inversion de direction (effet "rebond") selon la direction de collision
 				const overlapX = (this.x + this.width / 2) - (wall.x + wall.width / 2);
 				const overlapY = (this.y + this.height / 2) - (wall.y + wall.height / 2);
+
+				screenReader.getInstance().handleWallHit();
 
 				if (Math.abs(overlapX) > Math.abs(overlapY)) {
 					this.xVal *= -1; // rebond horizontal

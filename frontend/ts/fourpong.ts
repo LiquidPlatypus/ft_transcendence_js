@@ -413,6 +413,8 @@ class Ball extends Entity{
 		if (this.x <= 0) {
 			GameFour.player1Score += 1;
 
+			screenReader.getInstance().handleScoreP1Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
@@ -423,6 +425,8 @@ class Ball extends Entity{
 
 		if (this.x + this.width >= canvas.width) {
 			GameFour.player2Score += 1;
+
+			screenReader.getInstance().handleScoreP2Hit();
 
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
@@ -435,6 +439,8 @@ class Ball extends Entity{
 		if (this.y <= 0) {
 			GameFour.player3Score += 1;
 
+			screenReader.getInstance().handleScoreP3Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
@@ -445,6 +451,8 @@ class Ball extends Entity{
 
 		if (this.y + this.height >= canvas.height) {
 			GameFour.player4Score += 1;
+
+			screenReader.getInstance().handleScoreP4Hit();
 
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			isPaused = true;
@@ -463,9 +471,11 @@ class Ball extends Entity{
 			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale.
 			this.xVal = 1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+
+			screenReader.getInstance().handleLeftPaddleHit();
 		}
 
-		// Collision avec jooueur 2.
+		// Collision avec joueur 2.
 		if (this.x + this.width >= player2.x &&
 			this.x <= player2.x + player2.width &&
 			this.y + this.height >= player2.y &&
@@ -474,6 +484,8 @@ class Ball extends Entity{
 			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale.
 			this.xVal = -1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+
+			screenReader.getInstance().handleRightPaddleHit();
 		}
 
 		// Collision avec joueur 3 (paddle vertical).
@@ -485,6 +497,8 @@ class Ball extends Entity{
 			let normalizedX = relativeX / (player3.width / 2);
 			this.yVal = 1;
 			this.xVal = normalizedX * 1.2;
+
+			screenReader.getInstance().handleUpPaddleHit();
 		}
 
 		// Collision avec joueur 4 (paddle vertical).
@@ -496,6 +510,8 @@ class Ball extends Entity{
 			let normalizedX = relativeX / (player4.width / 2);
 			this.yVal = -1;
 			this.xVal = normalizedX * 1.2;
+
+			screenReader.getInstance().handleDownPaddleHit();
 		}
 
 		// Mise a jour de la position de la balle.

@@ -434,16 +434,22 @@ class Ball extends Entity {
 		this.updateSpeed();
 
 		// Check top wall
-		if (this.y <= 10)
+		if (this.y <= 10) {
 			this.yVal = 1;
+			screenReader.getInstance().handleWallHit();
+		}
 
 		// Check bottom wall
-		if (this.y + this.height >= canvas.height - 10)
+		if (this.y + this.height >= canvas.height - 10) {
 			this.yVal = -1;
+			screenReader.getInstance().handleWallHit();
+		}
 
 		// Check player 2 goal
 		if (this.x <= 0) {
 			Game.player2Score += 1;
+
+			screenReader.getInstance().handleScoreP2Hit();
 
 			this.resetPosition(canvas);
 			if (!this.checkGameEnd("Joueur 2")) {
@@ -454,6 +460,8 @@ class Ball extends Entity {
 		// Check player 1 goal
 		if (this.x + this.width >= canvas.width) {
 			Game.player1Score += 1;
+
+			screenReader.getInstance().handleScoreP1Hit();
 
 			this.resetPosition(canvas);
 			if (!this.checkGameEnd("Joueur 1")) {
@@ -471,6 +479,8 @@ class Ball extends Entity {
 			this.xVal = 1;
 			this.yVal = normalizedY * 1.2;
 			this.lastTouchedBy = 'player1';
+
+			screenReader.getInstance().handleLeftPaddleHit();
 		}
 
 		// Collision with player 2
@@ -483,6 +493,8 @@ class Ball extends Entity {
 			this.xVal = -1;
 			this.yVal = normalizedY * 1.2;
 			this.lastTouchedBy = 'player2';
+
+			screenReader.getInstance().handleRightPaddleHit();
 		}
 
 		// Ensure constant velocity regardless of direction
