@@ -556,6 +556,23 @@ export function startGame(playerCount: number, matchType: MatchType) {
 	Game.player2Score = 0;
 	Game.setGameOver(false);
 
+	/**
+	 * @brief Calcul le delai du lecteur d'ecran.
+	 * @param text texte a definir le delai.
+	 */
+	function getScreenReaderDelay(text: string): number {
+		if (!ScreenReader.isEnabled())
+			return 100; // Delai mininal.
+
+		const wordsPerMinute = 180;
+		const wordsPerSecond = wordsPerMinute / 60;
+		const wordCount = text.split(' ').length;
+		const readingTimeMs = (wordCount / wordsPerSecond) * 1000;
+
+		// Marge de securite de 1.5sec.
+		return Math.max(readingTimeMs + 2000, 3000); // Minimum 3sec.
+	}
+
 	// Set-up l'esapce de jeu.
 	if (playerCount === 2) {
 		container.innerHTML = `
@@ -569,21 +586,29 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		disableUnrelatedButtons('pong');
 
 		if (matchType === 'normal') {
+			const delay = getScreenReaderDelay(t("pong_explanation"));
+
 			setTimeout(() => {
 				const game = new Game();
 
 				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
 
-				requestAnimationFrame(game.gameLoop.bind(game));
-			});
+				setTimeout(() => {
+					requestAnimationFrame(game.gameLoop.bind(game));
+				}, delay);
+			}, 100);
 		} else if (matchType === 'bonus') {
+			const delay = getScreenReaderDelay(t("pong_explanation"));
+
 			setTimeout(() => {
 				const game = new GameBonus();
 
 				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
 
-				requestAnimationFrame(game.gameLoop.bind(game));
-			});
+				setTimeout(() => {
+					requestAnimationFrame(game.gameLoop.bind(game));
+				}, delay);
+			}, 100);
 		}
 	} else if (playerCount === 4) {
 		container.innerHTML = `
@@ -599,21 +624,29 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		GameFour.player4Score = 0;
 
 		if (matchType === 'normal') {
+			const delay = getScreenReaderDelay(t("pong-four_explanation"));
+
 			setTimeout(() => {
 				const game = new GameFour();
 
 				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
 
-				requestAnimationFrame(game.gameLoop.bind(game));
-			});
+				setTimeout(() => {
+					requestAnimationFrame(game.gameLoop.bind(game));
+				}, delay);
+			}, 100);
 		} else if (matchType === 'bonus') {
+			const delay = getScreenReaderDelay(t("pong-four_explanation"));
+
 			setTimeout(() => {
 				const game = new GameFourBonus();
 
 				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
 
-				requestAnimationFrame(game.gameLoop.bind(game));
-			});
+				setTimeout(() => {
+					requestAnimationFrame(game.gameLoop.bind(game));
+				}, delay);
+			}, 100);
 		}
 	}
 }
