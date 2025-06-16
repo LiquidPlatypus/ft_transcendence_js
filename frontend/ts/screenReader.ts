@@ -19,6 +19,9 @@ export class screenReader {
 
 	private listenersInitialized: boolean = false;
 
+	private lastButtonAnnouncement: number = 0;
+	private readonly BUTTON_ANNOUNCEMENT_DELAY = 1500;
+
 	private constructor() {
 		this.speechSynthesis = window.speechSynthesis;
 		this.browserType = this.detectBrowser();
@@ -394,7 +397,20 @@ export class screenReader {
 			return;
 		}
 
+		// Modification : Vérifie si on peut interrompre une annonce de bouton récente
 		if (priority) {
+			const now = Date.now();
+			const timeSinceLastButton = now - this.lastButtonAnnouncement;
+
+			// Si une annonce de bouton a eu lieu récemment, on attend avant d'interrompre
+			if (timeSinceLastButton < this.BUTTON_ANNOUNCEMENT_DELAY) {
+				console.log(`🗣️ [speak] Annonce de bouton récente, délai avant interruption`);
+				setTimeout(() => {
+					this.speak(text, true);
+				}, this.BUTTON_ANNOUNCEMENT_DELAY - timeSinceLastButton);
+				return;
+			}
+
 			console.log(`🗣️ [speak] Message prioritaire - Annulation en cours`);
 			this.speechSynthesis.cancel();
 			this.queue = [];
