@@ -405,41 +405,42 @@ export class screenReader {
 	 * @param priority priorité du texte.
 	 */
 	public speak(text: string, priority: boolean = false): void {
-//		console.log(`🗣️ [speak] Demande: "${text}", Priority: ${priority}, Enabled: ${this.enabled}`);
+		console.log(`🗣️ [speak] Demande: "${text.substring(0, 30)}...", Priority: ${priority}, Enabled: ${this.enabled}`);
 
 		if (!this.enabled) {
-//			console.log(`🗣️ [speak] Lecteur désactivé, abandon`);
 			return;
 		}
 
-		// Modification : Vérifie si on peut interrompre une annonce de bouton récente
+		// If priority is true, cancel current speech and clear queue
 		if (priority) {
 			const now = Date.now();
 			const timeSinceLastButton = now - this.lastButtonAnnouncement;
 
-			// Si une annonce de bouton a eu lieu récemment, on attend avant d'interrompre
 			if (timeSinceLastButton < this.BUTTON_ANNOUNCEMENT_DELAY) {
-				console.log(`🗣️ [speak] Annonce de bouton récente, délai avant interruption`);
+				console.log(`🗣️ [speak] Annonce de bouton récente, délai avant interruption pour message prioritaire.`);
 				setTimeout(() => {
 					this.speak(text, true);
 				}, this.BUTTON_ANNOUNCEMENT_DELAY - timeSinceLastButton);
 				return;
 			}
 
-			console.log(`🗣️ [speak] Message prioritaire - Annulation en cours`);
-			this.speechSynthesis.cancel();
-			this.queue = [];
-			this.speaking = false;
+			console.log(`🗣️ [speak] Message prioritaire - Annulation en cours.`);
+			this.speechSynthesis.cancel(); // Cancel any ongoing speech
+			this.queue = []; // Clear the queue
+			this.speaking = false; // Ensure speaking is reset
+			this.clearSpeakTimeout(); // Clear any pending timeout
 		}
 
+		// Add to queue
 		this.queue.push(text);
-//		console.log(`🗣️ [speak] Ajouté à la queue. Taille: ${this.queue.length}`);
+		console.log(`🗣️ [speak] Ajouté à la queue. Taille: ${this.queue.length}`);
 
+		// If not currently speaking, start processing the queue
 		if (!this.speaking) {
-//			console.log(`🗣️ [speak] Pas de lecture en cours, démarrage`);
+			console.log(`🗣️ [speak] Pas de lecture en cours, démarrage de processQueue.`);
 			this.processQueue();
 		} else {
-//			console.log(`🗣️ [speak] Lecture en cours, ajout à la queue`);
+			console.log(`🗣️ [speak] Lecture en cours, ajout à la queue.`);
 		}
 	}
 
@@ -450,22 +451,26 @@ export class screenReader {
 		console.log(`📋 [processQueue] Queue: ${this.queue.length}, Speaking: ${this.speaking}`);
 
 		if (this.queue.length === 0) {
-			this.speaking = false;
+			this.speaking = false; // No more items to speak
+			console.log(`📋 [processQueue] File d'attente vide, speaking = false.`);
 			return;
 		}
 
-		this.speaking = true;
 		const text = this.queue.shift() || "";
+		if (!text) { // Should not happen with shift() on non-empty queue, but for safety
+			this.processQueue(); // Try next item
+			return;
+		}
 
-		// Diviser TOUS les textes longs (pas seulement Firefox)
+		// Divide long texts into chunks
 		if (text.length > 100) {
-			console.log(`📋 [processQueue] Texte long détecté (${text.length} chars), division`);
+			console.log(`📋 [processQueue] Texte long détecté (${text.length} chars), division.`);
 			const chunks = this.splitTextSafely(text);
 
-			// Remettre les chunks restants en début de queue
+			// Add remaining chunks back to the front of the queue
 			this.queue.unshift(...chunks.slice(1));
 
-			// Traiter le premier chunk
+			// Speak the first chunk
 			this.speakChunk(chunks[0]);
 		} else {
 			this.speakChunk(text);
@@ -524,9 +529,9 @@ export class screenReader {
 	 * @brief Pronoce un chunk de texte.
 	 * @param text texte a prononcer.
 	 */
-	private speakChunk(text: string, forceQueue: boolean = false, isRetry: boolean = false): void {
+	private speakChunk(text: string): void {
 		if (!this.enabled) {
-			this.clearSpeakTimeout(); // Clear any pending timeout if screen reader is disabled
+			this.clearSpeakTimeout();
 			return;
 		}
 
@@ -536,78 +541,80 @@ export class screenReader {
 			return;
 		}
 
-		// Clear any previous timeout for this speak operation
-		this.clearSpeakTimeout();
-
-		// Ensure we don't try to speak if already speaking and not forcing,
-		// or if the queue is empty and nothing is pending.
-		if (this.speaking && !forceQueue) {
-			console.log(`💬 [speakChunk] Déjà en train de parler ou en file d'attente. Texte: "${text.substring(0, 30)}..."`);
-			return;
-		}
-
-		// Cancel current speech before starting a new one if it's a forced speak (e.g., important announcement)
-		// or if we are restarting after an error/interruption.
-		if (this.speaking) {
-			console.log(`🔄 [speakChunk] Annulation avant lancement`);
-			this.speechSynthesis.cancel();
-			this.speaking = false;
-		}
+		this.clearSpeakTimeout(); // Clear any previous timeout for this speak operation
 
 		const utterance = new SpeechSynthesisUtterance(text);
-		this.currentUtterance = utterance; // Store the current utterance
+		this.currentUtterance = utterance;
 
-		// (Keep your existing voice, volume, rate, pitch settings)
-		utterance.voice = this.voice;
 		utterance.volume = this.volume;
 		utterance.rate = this.rate;
 		utterance.pitch = this.pitch;
 
+		if (this.voice) {
+			utterance.voice = this.voice;
+		}
+
+		const timeoutDuration = 15000;
+
+		// Set the timeout *before* calling speak
+		this.currentSpeakTimeoutId = window.setTimeout(() => {
+			console.error(`❌ [speakChunk] TIMEOUT après ${timeoutDuration}ms pour: "${text.substring(0, 50)}..."`);
+			console.warn(`❌ [speakChunk] État au timeout - speaking: ${this.speaking}, pending: ${this.speechSynthesis.pending}`);
+
+			// Important: If timeout occurs, assume speech failed, cancel, and move to next item
+			this.speechSynthesis.cancel();
+			this.speaking = false;
+			this.clearSpeakTimeout(); // Ensure the timeout ID is cleared
+			this.processQueue();
+		}, timeoutDuration);
+
 		utterance.onstart = () => {
-			console.log(`✅ [speakChunk] ONSTART: "${text.substring(0, 30)}..."`);
-			this.speaking = true;
+			console.log(`✅ [speakChunk] ONSTART: "${text.substring(0, 50)}..."`);
+			this.speaking = true; // Set speaking to true ONLY when speech actually starts
 			this.clearSpeakTimeout(); // Clear timeout once speech actually starts
 		};
 
 		utterance.onend = () => {
-			console.log(`✅ [speakChunk] ONEND: "${text.substring(0, 30)}..."`);
-			this.speaking = false;
+			console.log(`✅ [speakChunk] ONEND: "${text.substring(0, 50)}..."`);
+			this.speaking = false; // Set speaking to false on end
 			this.clearSpeakTimeout(); // Clear timeout on successful end
 			this.processQueue(); // Process the next item in the queue
 		};
 
 		utterance.onerror = (event) => {
-			console.error(`❌ [speakChunk] ONERROR: ${event.error} pour "${text.substring(0, 30)}..."`);
+			console.error(`❌ [speakChunk] ONERROR: ${event.error} pour "${text.substring(0, 50)}..."`);
 			this.clearSpeakTimeout(); // Clear timeout on error
 
 			if (event.error === 'interrupted') {
 				console.log(`🔄 [speakChunk] Reprise après erreur`);
-				// Do NOT call this.speechSynthesis.cancel() here. The speech is already interrupted.
-				// Just mark as not speaking and let processQueue handle the next (or retry) chunk.
+				// An 'interrupted' error means it stopped. We don't need to cancel again.
+				// Just mark as not speaking and let processQueue handle it (it will re-add if needed).
 				this.speaking = false;
-				this.processQueue(); // Try to process the queue again
+				this.processQueue();
 			} else {
 				console.error(`🔴 [speakChunk] Erreur non gérée: ${event.error}`);
 				this.speaking = false;
-				this.processQueue(); // Move to next item if it's a non-recoverable error
+				this.processQueue();
 			}
 		};
 
-		// Set a timeout for the utterance to prevent indefinite hangs
-		// This is the problematic timeout that caused "Bouton 4" issues.
-		// We will make it specific to the *current* utterance and clear it properly.
-		this.currentSpeakTimeoutId = window.setTimeout(() => {
-			console.warn(`❌ [speakChunk] TIMEOUT après 15000ms pour: "${text.substring(0, 30)}..."`);
-			console.warn(`❌ [speakChunk] État au timeout - speaking: ${this.speaking}, pending: ${this.speechSynthesis.pending}`);
+		utterance.onpause = () => {
+			console.log(`⏸️ [speakChunk] ONPAUSE: "${text.substring(0, 50)}..."`);
+		};
 
-			// If timeout occurs, assume something went wrong and cancel current speech
-			this.speechSynthesis.cancel();
-			this.speaking = false;
-			this.clearSpeakTimeout(); // Clear the timeout just in case
-			this.processQueue(); // Try to process the next item
-		}, 15000); // 15 seconds timeout
+		utterance.onresume = () => {
+			console.log(`▶️ [speakChunk] ONRESUME: "${text.substring(0, 50)}..."`);
+		};
 
-		this.speechSynthesis.speak(utterance);
+		try {
+			console.log(`🎤 [speakChunk] Appel à speechSynthesis.speak()`);
+			this.speechSynthesis.speak(utterance);
+		} catch (error) {
+			console.error(`❌ [speakChunk] Exception lors du lancement:`, error);
+			this.clearSpeakTimeout();
+			this.speaking = false; // Ensure speaking is false on immediate exception
+			setTimeout(() => this.processQueue(), 500); // Attempt to process queue after a small delay
+		}
 	}
 
 	private clearSpeakTimeout(): void {
