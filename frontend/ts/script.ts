@@ -625,6 +625,12 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		// Empeche d'appuyer sur les autres boutons en dehors de la div "Pong".
 		disableUnrelatedButtons('pong');
 
+		// Only set tournament mode if we're actually in a tournament
+		const inTournament = localStorage.getItem('currentTournamentId') !== null;
+		if (!inTournament) {
+			localStorage.removeItem('tournamentMode');
+		}
+
 		if (matchType === 'normal') {
 			setTimeout(() => {
 				const game = new Game();
@@ -679,6 +685,31 @@ export function startGame(playerCount: number, matchType: MatchType) {
 export function showHome() {
 	const appElement = document.getElementById('app');
 	if (appElement) {
+		// Clean up tournament mode and AI state
+		localStorage.removeItem('tournamentMode');
+		localStorage.removeItem('currentMatchId');
+		localStorage.removeItem('pendingMatchId');
+		localStorage.removeItem('semifinal1Id');
+		localStorage.removeItem('semifinal2Id');
+		localStorage.removeItem('semifinal1Winner');
+		localStorage.removeItem('semifinal1Loser');
+		localStorage.removeItem('semifinal2Winner');
+		localStorage.removeItem('semifinal2Loser');
+		localStorage.removeItem('player1Id');
+		localStorage.removeItem('player2Id');
+		localStorage.removeItem('player3Id');
+		localStorage.removeItem('player4Id');
+		localStorage.removeItem('currentTournamentId');
+		localStorage.removeItem('tournamentWinnerAlias');
+		localStorage.removeItem('isPlayer1AI');
+		localStorage.removeItem('isPlayer2AI');
+		localStorage.removeItem('isPlayer3AI');
+		localStorage.removeItem('isPlayer4AI');
+		localStorage.removeItem('player1Alias');
+		localStorage.removeItem('player2Alias');
+		localStorage.removeItem('player3Alias');
+		localStorage.removeItem('player4Alias');
+		
 		appElement.innerHTML = homePage();
 
 		const pongContainer = document.getElementById("Pong");

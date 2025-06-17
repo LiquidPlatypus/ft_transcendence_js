@@ -71,8 +71,8 @@ export class Game{
 			Paddle.setAIEnabled(true);
 		}
 
-		// Enable AI for player 2 if in tournament mode and player 2 is AI
-		if (tournamentMode && isPlayer2AI) {
+		// Enable AI for player 2 if it is AI
+		if (isPlayer2AI) {
 			Paddle2.setAIEnabled(true);
 		}
 	}
