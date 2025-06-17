@@ -106,6 +106,7 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType, m
 	disableUnrelatedButtons('pong');
 
 	const ScreenReader = screenReader.getInstance();
+	ScreenReader.cancelSpeech();
 	ScreenReader.announcePageChange(t("player_number_choice"));
 
 	// Bouton retour.
@@ -198,6 +199,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	disableUnrelatedButtons(gameType);
 
 	const ScreenReader = screenReader.getInstance();
+	ScreenReader.cancelSpeech();
 	ScreenReader.announcePageChange(t("player_alias_input"));
 
 	// Bouton retour avec ID spécifique au type de jeu.
@@ -657,6 +659,8 @@ export function startGame(playerCount: number, matchType: MatchType) {
 export function showHome() {
 	const appElement = document.getElementById('app');
 	if (appElement) {
+		const ScreenReader = screenReader.getInstance();
+		ScreenReader.cancelSpeech();
 		appElement.innerHTML = homePage();
 
 		const pongContainer = document.getElementById("Pong");

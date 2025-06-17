@@ -132,6 +132,7 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 	disableUnrelatedButtons(gameType);
 
 	const ScreenReader = screenReader.getInstance();
+	ScreenReader.cancelSpeech();
 	ScreenReader.announcePageChange(t("match_type_choice"));
 
 	// Bouton retour.
