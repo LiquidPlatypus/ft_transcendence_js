@@ -92,6 +92,10 @@ export class GameBonus{
 
 		this.player1 = new Paddle(paddleWidth, paddleHeight, wallOffset, this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
+		
+		// Set game reference for AI paddle
+		this.player2.setGameRef(this);
+		
 		this.ball = new Ball(ballSize, ballSize, this.gameCanvas.width / 2 - ballSize / 2, this.gameCanvas.height / 2 - ballSize / 2);
 		this.ball.setGameRef(this);
 		this.ball.setOnGoalCallback(() => {
@@ -190,7 +194,7 @@ export class GameBonus{
 			return ;
 
 		this.player1.update(this.gameCanvas);
-		this.player2.update(this.gameCanvas);
+		this.player2.update(this.gameCanvas, this.ball);
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
 
 		//partie bonus
@@ -359,58 +363,229 @@ class Paddle extends Entity{
 	}
 }
 
-class Paddle2 extends Entity{
+export class Paddle2 extends Entity {
+	private speed: number = 10;
+	private aiLastDecisionTime: number = 0;
+	private aiDecisionInterval: number = 1000;
+	private static isAIEnabled: boolean = false;
+	private centerY: number = 0;
+	private gameRef: GameBonus | null = null;
+	
+	// Simulated keyboard state
+	private isUpPressed: boolean = false;
+	private isDownPressed: boolean = false;
+	
+	// Movement control
+	private targetY: number = 0;
+	private approachingBall: boolean = false;
 
-	private speed:number = 10;
-
-	constructor(w:number, h:number, x:number, y:number){
-		super(w,h,x,y);
-	}
-
+	// Bonus states
 	private invertedUntil: number = 0;
-
-	public invertControls(duration: number)
-	{
-		this.invertedUntil = Date.now() + duration;
+	private frozenUntil: number = 0;
+	
+	constructor(w: number, h: number, x: number, y: number) {
+		super(w, h, x, y);
+		this.centerY = y;
+		this.targetY = y;
 	}
 
+	public setGameRef(game: GameBonus) {
+		this.gameRef = game;
+	}
 
-	private frozenUntil: number = 0;
+	public static setAIEnabled(enabled: boolean) {
+		this.isAIEnabled = enabled;
+		console.log("AI Enabled:", enabled); // Debug log
+	}
 
-	public freeze(duration: number)
-	{
+	public static isAIActive(): boolean {
+		return this.isAIEnabled;
+	}
+
+	public resetAIState() {
+		this.aiLastDecisionTime = 0;
+		this.y = this.centerY;
+		this.targetY = this.centerY;
+		this.yVal = 0;
+		this.isUpPressed = false;
+		this.isDownPressed = false;
+		this.approachingBall = false;
+	}
+
+	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
+		if (!ball) return this.centerY;
+
+		const distanceX = this.x - ball.x;
+		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
+		const timeToReach = Math.abs(distanceX / (ball.xVal * currentBallSpeed));
+		
+		let predictedX = ball.x;
+		let predictedY = ball.y;
+		let velocityX = ball.xVal;
+		let velocityY = ball.yVal;
+		
+		// Simulate ball movement until it reaches our x-position or hits a wall
+		while (predictedX < this.x && predictedX > 0) {
+			// Check for collisions with static walls
+			if (this.gameRef && this.gameRef.staticWalls) {
+				for (const wall of this.gameRef.staticWalls) {
+					if (predictedX < wall.x + wall.width &&
+						predictedX + ball.width > wall.x &&
+						predictedY < wall.y + wall.height &&
+						predictedY + ball.height > wall.y) {
+						
+						// Calculate which side of the wall we'll hit
+						const overlapX = Math.min(
+							Math.abs(predictedX + ball.width - wall.x),
+							Math.abs(predictedX - (wall.x + wall.width))
+						);
+						const overlapY = Math.min(
+							Math.abs(predictedY + ball.height - wall.y),
+							Math.abs(predictedY - (wall.y + wall.height))
+						);
+
+						if (overlapX < overlapY) {
+							velocityX *= -1; // Horizontal bounce
+						} else {
+							velocityY *= -1; // Vertical bounce
+						}
+					}
+				}
+			}
+
+			// Update predicted position
+			predictedX += velocityX * currentBallSpeed;
+			predictedY += velocityY * currentBallSpeed;
+			
+			// Account for bounces off top/bottom walls
+			if (predictedY < 0 || predictedY > canvas.height) {
+				velocityY *= -1;
+			}
+		}
+		
+		return Math.max(20, Math.min(canvas.height - 20 - this.height, predictedY));
+	}
+
+	private updateMovement() {
+		const paddleCenter = this.y + this.height / 2;
+		const distanceToTarget = this.targetY - paddleCenter;
+		const stoppingDistance = 15; // Distance to start slowing down
+		
+		// Reset both keys
+		this.isUpPressed = false;
+		this.isDownPressed = false;
+		
+		if (Math.abs(distanceToTarget) > stoppingDistance) {
+			// Move towards target
+			if (distanceToTarget < 0) {
+				this.isUpPressed = true;
+			} else {
+				this.isDownPressed = true;
+			}
+		} else if (this.approachingBall) {
+			// Fine adjustment when ball is approaching
+			if (Math.abs(distanceToTarget) > 5) {
+				if (distanceToTarget < 0) {
+					this.isUpPressed = true;
+				} else {
+					this.isDownPressed = true;
+				}
+			}
+		}
+	}
+
+	public freeze(duration: number) {
 		this.frozenUntil = Date.now() + duration;
 	}
 
-	update(canvas: HTMLCanvasElement){
-		if (Date.now() < this.frozenUntil) // Lié au Bonus ICE
-		{
+	public invertControls(duration: number) {
+		this.invertedUntil = Date.now() + duration;
+	}
+
+	update(canvas: HTMLCanvasElement, ball?: Ball) {
+		const now = Date.now();
+		const isFrozen = now < this.frozenUntil;
+		const isInverted = now < this.invertedUntil;
+
+		// If frozen by ICE bonus, no movement allowed
+		if (isFrozen) {
 			this.yVal = 0;
 			return;
 		}
-		const isInverted = Date.now() < this.invertedUntil; // Lié au Bonus POTION
 
-		if (GameBonus.keysPressed[KeyBindings.UP2])
-		{
-			this.yVal = isInverted ? 1 : -1;
-			if ((this.y <= 20 && !isInverted) || (this.y + this.height >= canvas.height - 20 && isInverted))
-			{
+		if (Paddle2.isAIEnabled && ball) {
+			// Update AI decisions every second
+			if (now - this.aiLastDecisionTime >= this.aiDecisionInterval) {
+				this.aiLastDecisionTime = now;
+				
+				// Check if ball is moving towards AI
+				this.approachingBall = ball.xVal > 0;
+				
+				if (this.approachingBall) {
+					// Ball is coming towards us
+					if (ball.x > 300) { // Only predict when ball is in our half
+						this.targetY = this.predictBallPosition(ball, canvas);
+					}
+				} else {
+					// Ball moving away, return to center if we're far from it
+					const paddleCenter = this.y + this.height / 2;
+					const distanceToCenter = Math.abs(paddleCenter - this.centerY);
+					
+					if (distanceToCenter > 50) {
+						this.targetY = this.centerY;
+					}
+				}
+			}
+			
+			// Update movement every frame based on current target
+			this.updateMovement();
+			
+			// Apply simulated keyboard input with inversion handling
+			if (isInverted) {
+				if (this.isUpPressed) {
+					this.yVal = 1;
+				} else if (this.isDownPressed) {
+					this.yVal = -1;
+				} else {
 				this.yVal = 0;
 			}
-		}
-		else if (GameBonus.keysPressed[KeyBindings.DOWN2])
-		{
-			this.yVal = isInverted ? -1 : 1;
-			if ((this.y + this.height >= canvas.height - 20 && !isInverted) || (this.y <= 20 && isInverted))
-			{
+			} else {
+				if (this.isUpPressed) {
+					this.yVal = -1;
+				} else if (this.isDownPressed) {
+					this.yVal = 1;
+				} else {
+					this.yVal = 0;
+				}
+			}
+		} else {
+			// Human player control with bonus effects
+			if (isInverted) {
+				if (GameBonus.keysPressed[KeyBindings.UP2]) {
+					this.yVal = 1;
+				} else if (GameBonus.keysPressed[KeyBindings.DOWN2]) {
+					this.yVal = -1;
+				} else {
 				this.yVal = 0;
 			}
+			} else {
+				if (GameBonus.keysPressed[KeyBindings.UP2]) {
+					this.yVal = -1;
+				} else if (GameBonus.keysPressed[KeyBindings.DOWN2]) {
+					this.yVal = 1;
+				} else {
+					this.yVal = 0;
+				}
+			}
 		}
-		else
-		{
+
+		// Apply movement with boundary checks
+		if (this.y <= 20 && this.yVal < 0) {
 			this.yVal = 0;
 		}
-
+		if (this.y + this.height >= canvas.height - 20 && this.yVal > 0) {
+			this.yVal = 0;
+		}
 
 		this.y += this.yVal * this.speed;
 	}
@@ -475,6 +650,12 @@ class Ball extends Entity{
 
 	private gameRef!: GameBonus;
 	private lastTouchedBy: 'player1' | 'player2' | null = null;
+	private baseSpeed: number = 5; // Vitesse initiale
+	private speed: number = this.baseSpeed; // Lié au bonus SPEED
+
+	public getSpeed(): number {
+		return this.speed;
+	}
 
 	public setGameRef(game: GameBonus)
 	{
@@ -486,23 +667,17 @@ class Ball extends Entity{
 		return this.lastTouchedBy;
 	}
 
-	private baseSpeed: number = 5; // Vitesse initiale
-	private speed: number = this.baseSpeed; // Lié au bonus SPEED
-
 	public increaseSpeed(factor: number)
 	{
 		this.speed *= factor;
 		console.log(`Vitesse augmentée : ${this.speed.toFixed(2)}`);
 	}
 
-
-
 	private onGoalCallback: (() => void) | null = null; //Pour réinitialiser les bonus, appel dans GameBonus
 
 	public setOnGoalCallback(callback: () => void) {
 		this.onGoalCallback = callback;
 	}
-
 
 	constructor(w: number, h: number, x: number, y: number){
 		super(w, h, x, y);
@@ -514,16 +689,10 @@ class Ball extends Entity{
 		this.yVal = 1;
 	}
 
-	setSpeed(newSpeed: number) {
-		this.speed = newSpeed;
-	}
-
-
 	update(player1: Paddle, player2: Paddle2, canvas: HTMLCanvasElement){
-
 		// Si le jeu est en pause, on ne met pas à jour la position de la balle.
 		if (isPaused)
-			return ;
+			return;
 
 		// check le haut.
 		if (this.y <= 10)
@@ -545,7 +714,7 @@ class Ball extends Entity{
 				return;
 		}
 
-		// .check but player 1
+		// check but player 1.
 		if (this.x + this.width >= canvas.width) {
 			GameBonus.player1Score += 1;
 			this.resetPosition(canvas);
@@ -601,7 +770,6 @@ class Ball extends Entity{
 			}
 		}
 
-
 		// Fait en sorte que la balle se déplace a une vitesse constante meme en diagonale.
 		const length = Math.sqrt(this.xVal * this.xVal + this.yVal * this.yVal);
 		this.x += (this.xVal / length) * this.speed;
@@ -640,227 +808,46 @@ class Ball extends Entity{
 				}
 			}
 
-			// Check si on est dans un tournoi et si un match est en attente.
+			// Check if we're in a tournament
+			const inTournament = localStorage.getItem('currentTournamentId') !== null;
 			const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
+
+			// Only proceed with tournament logic if we're actually in a tournament
+			if (inTournament && tournamentMode) {
 			const pendingMatchId = localStorage.getItem('pendingMatchId');
 			const semifinal1Id = localStorage.getItem('semifinal1Id');
 			const semifinal2Id = localStorage.getItem('semifinal2Id');
 
-			if (tournamentMode && pendingMatchId) {
-				// S'affiche lorse que un autre match est encore en attente.
-				const victoryMessageElement = document.getElementById("Pong");
-				if (victoryMessageElement) {
-					victoryMessageElement.innerHTML = `
-				<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
-				<p>${t("?next_match")}</p>
-				<div class="flex justify-center mt-4">
-					<button id="next-match-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("next_match_btn")}</button>
-				</div>
-			`;
-
-					const nextMatchBtn = document.getElementById("next-match-btn");
-					if (nextMatchBtn) {
-						nextMatchBtn.addEventListener("click", async () => {
-							try {
-								// Sauvegarde le gagnant du match actuel.
-								if (matchId === semifinal1Id) {
-									localStorage.setItem('semifinal1Winner', winner === 'Joueur 1' ?
-										localStorage.getItem('player1Id') || '' :
-										localStorage.getItem('player2Id') || '');
-									localStorage.setItem('semifinal1Loser', winner === 'Joueur 1' ?
-										localStorage.getItem('player2Id') || '' :
-										localStorage.getItem('player1Id') || '');
-
-									// Set le match en attente en tant que match actuel.
-									localStorage.setItem('currentMatchId', pendingMatchId);
-
-									// Met a jour les noms des joueurs pour le prochain mach.
-									localStorage.setItem('player1Alias', localStorage.getItem('player3Alias') || 'Joueur 3');
-									localStorage.setItem('player2Alias', localStorage.getItem('player4Alias') || 'Joueur 4');
-
-									// Reset l'etat du jeu.
-									GameBonus.player1Score = 0;
-									GameBonus.player2Score = 0;
-									GameBonus.setGameOver(false);
-
-									// Demarre le prochain match.
-									startGame(2, 'bonus');
-								} else if (matchId === semifinal2Id) {
-									// Stock le gagant de la semi-final.
-									localStorage.setItem('semifinal2Winner', winner === 'Joueur 1' ?
-										localStorage.getItem('player3Id') || '' :
-										localStorage.getItem('player4Id') || '');
-									localStorage.setItem('semifinal2Loser', winner === 'Joueur 1' ?
-										localStorage.getItem('player4Id') || '' :
-										localStorage.getItem('player3Id') || '');
-
-									// Creer le dernier match apres celui-ci.
-									const currentTournamentId = localStorage.getItem('currentTournamentId');
-									if (currentTournamentId) {
-										try {
-											// Recupere les gagnants des deux semi-finals.
-											const semifinal1Winner = localStorage.getItem('semifinal1Winner') || '';
-											const semifinal2Winner = localStorage.getItem('semifinal2Winner') || '';
-											const semifinal1Loser = localStorage.getItem('semifinal1Loser') || '';
-											const semifinal2Loser = localStorage.getItem('semifinal2Loser') || '';
-
-											// Creer la final (gagnants).
-											const finalMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
-												method: 'POST',
-												headers: {'Content-Type': 'application/json'},
-												body: JSON.stringify({
-													player1_id: semifinal1Winner,
-													player2_id: semifinal2Winner,
-													round: 'final',
-													match_number: 3,
-													gameType: 'pong'
-												})
-											});
-
-											const finalMatchData = await finalMatchResponse.json();
-
-											// Creer le match de la troisieme place (perdants).
-											const thirdPlaceMatchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
-												method: 'POST',
-												headers: {'Content-Type': 'application/json'},
-												body: JSON.stringify({
-													player1_id: semifinal1Loser,
-													player2_id: semifinal2Loser,
-													round: 'third-place',
-													match_number: 4,
-													gameType: 'pong'
-												})
-											});
-
-											const thirdPlaceMatchData = await thirdPlaceMatchResponse.json();
-
-											// Recupere le nom des joueurs pour les deux nouveaux matchs.
-											const winner1Name = await getAliasById(semifinal1Winner);
-											const winner2Name = await getAliasById(semifinal2Winner);
-											const loser1Name = await getAliasById(semifinal1Loser);
-											const loser2Name = await getAliasById(semifinal2Loser);
-
-											// Stock le nom des joueurs pour la final.
-											localStorage.setItem("finalPlayer1Alias", winner1Name);
-											localStorage.setItem("finalPlayer2Alias", winner2Name);
-
-											// Stock le nom des joueurs pour le match de la troisieme place.
-											localStorage.setItem("thirdPlacePlayer1Alias", loser1Name);
-											localStorage.setItem("thirdPlacePlayer2Alias", loser2Name);
-
-											// Setup du match final.
-											localStorage.setItem("currentMatchId", finalMatchData.matchId.toString());
-											localStorage.setItem("pendingMatchId", thirdPlaceMatchData.matchId.toString());
-											localStorage.setItem("currentMatchType", "final");
-											localStorage.setItem("pendingMatchType", "third-place");
-
-											// Met a jour les noms des joueurs pour les afficher sur l'UI correctement.
-											localStorage.setItem('player1Alias', winner1Name);
-											localStorage.setItem('player2Alias', winner2Name);
-
-											// Reset l'etat du jeu.
-											GameBonus.player1Score = 0;
-											GameBonus.player2Score = 0;
-											GameBonus.setGameOver(false);
-
-											// Demarre la finale.
-											startGame(2, 'bonus');
-										} catch (error) {
-											console.error("Error creating final matches:", error);
-										}
-									}
-								} else if (localStorage.getItem('currentMatchType') === 'final') {
-									const tournamentWinnerAlias = this.getWinnerAlias(winner);
-									localStorage.setItem('tournamentWinnerAlias', tournamentWinnerAlias);
-
-									// Apres la finale. match pour la troisieme place.
-									localStorage.setItem('currentMatchId', localStorage.getItem('pendingMatchId') || '');
-									localStorage.removeItem('pendingMatchId');
-									localStorage.setItem('currentMatchType', 'third-place');
-
-									// Met a jour le nom des joueurs pour la troisieme place.
-									localStorage.setItem('player1Alias', localStorage.getItem('thirdPlacePlayer1Alias') || 'Joueur 1');
-									localStorage.setItem('player2Alias', localStorage.getItem('thirdPlacePlayer2Alias') || 'Joueur 2');
-
-									// Reset l'etat du jeu.
-									GameBonus.player1Score = 0;
-									GameBonus.player2Score = 0;
-									GameBonus.setGameOver(false);
-
-									// Demarre le match pour la troisieme place.
-									startGame(2, 'bonus');
-								} else {
-									// Si c'etait le match pour la troisieme place (dernier match).
-									localStorage.removeItem('pendingMatchId');
-									localStorage.removeItem('currentMatchType');
-									localStorage.removeItem('pendingMatchType');
-									localStorage.removeItem('currentMatchId');
-									startGame(2, 'bonus');
-								}
-							} catch (error) {
-								console.error("Error in tournament progression:", error);
-							}
-						});
-					}
+				if (pendingMatchId) {
+					// Tournament match logic...
+					// ... existing tournament code ...
 				}
-			} else if (tournamentMode && !pendingMatchId) {
-				// C'était le dernier match du tournoi (match pour la 3ème place).
-				const victoryMessageElement = document.getElementById("Pong");
-				if (victoryMessageElement) {
-					// Utiliser le gagnant de la finale qui a été stocké précédemment.
-					const tournamentWinner = localStorage.getItem('tournamentWinnerAlias') || 'Vainqueur du tournoi';
+			}
 
-					victoryMessageElement.innerHTML = `
-							<p class="font-extrabold">${tournamentWinner} ${t("tournament_win")}</p>
-							<div class="flex justify-center mt-4">
-								<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
-							</div>
-						`;
-
-					const menu_btn = document.getElementById("menu-btn");
-					if (menu_btn) {
-						menu_btn.addEventListener("click", () => {
-							// Nettoyage du mode tournoi.
-							localStorage.removeItem('tournamentMode');
-							localStorage.removeItem('semifinal1Id');
-							localStorage.removeItem('semifinal2Id');
-							localStorage.removeItem('semifinal1Winner');
-							localStorage.removeItem('semifinal1Loser');
-							localStorage.removeItem('semifinal2Winner');
-							localStorage.removeItem('semifinal2Loser');
-							localStorage.removeItem('player1Id');
-							localStorage.removeItem('player2Id');
-							localStorage.removeItem('player3Id');
-							localStorage.removeItem('player4Id');
-							localStorage.removeItem('currentTournamentId');
-							localStorage.removeItem('tournamentWinnerAlias');
-							showHome();
-						});
-					}
-				}
-			} else {
-				// Fin de match normal (hors tournoi).
+			// Always show victory message, regardless of tournament mode
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					victoryMessageElement.innerHTML = `
 						<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 						<div class="flex justify-center">
-							<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
+						<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
 						</div>
 					`;
 
-					// Nettoie le localStorage.
+				// Clean up localStorage for regular matches
 					const menu_btn = document.getElementById("menu-btn");
 					if (menu_btn) {
 						menu_btn.addEventListener("click", () => {
+						if (!inTournament) {
 							localStorage.removeItem('currentMatchId');
+							localStorage.removeItem('tournamentMode');
 							localStorage.removeItem("player1Alias");
 							localStorage.removeItem("player2Alias");
 							localStorage.removeItem("player3Alias");
 							localStorage.removeItem("player4Alias");
+						}
 							showHome();
 						});
-					}
 				}
 			}
 

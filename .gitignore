@@ -1,3 +1,10 @@
 .env
 /frontend/dist/ts/*.js
 /frontend/dist/lang/*.js
+<<<<<<< HEAD
+node_modules/
+=======
+/backend/node_modules/
+/frontend/node_modules/
+/backend/pong.db/
+>>>>>>> 4a2da27fb6bdfe8994a5137dc3cb5a053c7ee7e5

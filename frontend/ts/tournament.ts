@@ -359,6 +359,14 @@ async function createMatch(player1Id: string, player2Id: string, round: string, 
 	try {
 		console.log(`Tentative de création de match: ${player1Id} vs ${player2Id} (round: ${round})`);
 
+		// Get player names to check if either is AI
+		const player1Name = localStorage.getItem(`player_${player1Id}_name`) || '';
+		const player2Name = localStorage.getItem(`player_${player2Id}_name`) || '';
+
+		// Store AI status for the match
+		localStorage.setItem('isPlayer1AI', (player1Name.toLowerCase() === 'ai').toString());
+		localStorage.setItem('isPlayer2AI', (player2Name.toLowerCase() === 'ai').toString());
+
 		const matchResponse = await fetch(`/api/tournaments/${currentTournamentId}/matches`, {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
@@ -396,7 +404,6 @@ async function createMatch(player1Id: string, player2Id: string, round: string, 
 
 			console.log(`Match créé avec ID: ${matchId}`);
 			localStorage.setItem('currentMatchId', matchId.toString());
-//			startGame(2);
 
 			return { id: matchId };
 		} else {
