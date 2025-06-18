@@ -30,7 +30,6 @@ export class screenReader {
 		this.browserType = this.detectBrowser();
 		this.isFirefox = this.browserType === 'firefox';
 
-//		console.log(`Navigateur detecte: ${this.browserType}`);
 		if (this.isFirefox)
 			this.setupFirefoxOptimizations();
 
@@ -71,7 +70,7 @@ export class screenReader {
 		this.speechSynthesis.cancel();
 		this.queue = [];
 		this.speaking = false;
-		this.clearSpeakTimeout(); // Clear any pending speak timeout
+		this.clearSpeakTimeout();
 	}
 
 	/**
@@ -90,7 +89,6 @@ export class screenReader {
 	 * @brief Configuration pour Firefox.
 	 */
 	private setupFirefoxOptimizations(): void {
-//		console.log('Application des optimisations du lecteur d\'écrans pour Firefox');
 
 		setTimeout(() => {
 			this.loadVoices();
@@ -111,8 +109,6 @@ export class screenReader {
 		const voices = this.speechSynthesis.getVoices();
 		const currentLang = getCurrentLang();
 
-//		console.log(`Voix disponibles dans ${this.browserType} (${voices.length}):`, voices.map(v => `${v.name} (${v.lang}) [Local: ${v.localService}]`));
-
 		// Map les langues aux codes de lange pour les voix.
 		const langMap: Record<string, string[]> = {
 			'fr': ['fr-FR', 'fr-CA', 'fr'],
@@ -122,13 +118,11 @@ export class screenReader {
 
 		const targetLangCodes = langMap[currentLang] || ['en'];
 
-		// Cherche une voix correspondant a la langue actuelle.
 		let selectedVoice = this.findBestVoiceForBrowser(voices, currentLang, targetLangCodes);
 		if (!selectedVoice && voices.length > 0)
 			selectedVoice = voices[0];
 
 		this.voice = selectedVoice;
-//		console.log(`Voix sélectionnée:`, {name: this.voice?.name, lang: this.voice?.lang, local: this.voice?.localService, browser: this.browserType});
 
 		this.adjustParametersForBrowserAndVoice(currentLang, this.voice);
 	}
@@ -147,7 +141,6 @@ export class screenReader {
 	}
 
 	private findBestFirefoxVoice(voices: SpeechSynthesisVoice[], lang: string, langCodes: string[]): SpeechSynthesisVoice{
-//		console.log('Recherche une voix optimisée pour Firefox');
 
 		const firefoxPreferred: Record<string, string[]> = {
 			'fr': [
@@ -176,10 +169,8 @@ export class screenReader {
 				v.name.toLowerCase().includes(prefName.toLowerCase()) &&
 				langCodes.some(code => v.lang.toLowerCase().includes(code.toLowerCase()))
 			);
-			if (voice) {
-//				console.log(`🎯 Voix Firefox préférée trouvée: ${voice.name}`);
+			if (voice)
 				return voice;
-			}
 		}
 
 		// 2. Priorise les voix locales (meilleures en général)
@@ -187,10 +178,8 @@ export class screenReader {
 			const localVoice = voices.find(voice =>
 				voice.lang === langCode && voice.localService
 			);
-			if (localVoice) {
-//				console.log(`🏠 Voix locale Firefox: ${localVoice.name}`);
+			if (localVoice)
 				return localVoice;
-			}
 		}
 
 		// 3. Correspondance exacte
@@ -217,8 +206,6 @@ export class screenReader {
 	 * @param langCodes code de langue.
 	 */
 	private findBestChromeVoice(voices: SpeechSynthesisVoice[], lang: string, langCodes: string[]): SpeechSynthesisVoice {
-//		console.log('🌐 Recherche voix optimisée Chrome');
-
 		// Chrome préfère les voix Google en ligne.
 		const chromePreferred: Record<string, string[]> = {
 			'fr': ['Google français', 'Microsoft Hortense', 'Amélie'],
@@ -232,10 +219,8 @@ export class screenReader {
 			const voice = voices.find(v =>
 				v.name.toLowerCase().includes(prefName.toLowerCase())
 			);
-			if (voice) {
-//				console.log(`🎯 Voix Chrome préférée: ${voice.name}`);
+			if (voice)
 				return voice;
-			}
 		}
 
 		// Fallback standard.
@@ -277,42 +262,31 @@ export class screenReader {
 
 		// Ajustement specifiques a Firefox.
 		if (this.isFirefox) {
-//			console.log('Application des ajustements spécifiques à Firefox');
-
 			// firefox avec eSpeak (Linux) - pas ouf.
 			if (voiceName.includes('espeak') || voiceName.includes('festival')) {
 				this.rate *= 0.7;
 				this.pitch = basePitch * 1.2;
 				this.volume = Math.min(1.0, this.volume * 1.1);
-//				console.log('Ajustement eSpeak/Festival appliqués');
 			}
 
 			// Firefox avec voix Microsoft (Windows).
-			else if (voiceName.includes('microsoft')) {
+			else if (voiceName.includes('microsoft'))
 				this.rate *= 0.95;
-//				console.log('Ajustements Microsoft Firefox appliqués');
-			}
 
 			// Autres voix Firefox.
-			else {
+			else
 				this.rate *= 0.85;
-//				console.log('Ajustements génériques Firefox appliqués');
-			}
 		}
 
 		// Ajustements Chrome/autres.
 		else {
-			if (voiceName.includes('google')) {
+			if (voiceName.includes('google'))
 				this.pitch = basePitch * 0.95;
-//				console.log('Ajustements Google appliqués');
-			}
 		}
 
 		// Limites de securite.
 		this.rate = Math.max(0.1, Math.min(10, this.rate));
 		this.pitch = Math.max(0, Math.min(2, this.pitch));
-
-//		console.log(` Paramètres finaux: rate=${this.rate.toFixed(2)}, pitch=${this.pitch.toFixed(2)}, volume=${this.volume.toFixed(2)}`);
 	}
 
 	/**
@@ -342,23 +316,18 @@ export class screenReader {
 	 * @private
 	 */
 	private getLocalizedMessage(key: string, fallback: string, vars?: Record<string, string | number | null>): string {
-//		console.log('🔍 getLocalizedMessage called with:', { key, fallback, vars });
 
 		try {
 			// Essaie d'abord d'obtenir la traduction sans variables.
 			const rawTranslation = t(key);
-//			console.log('📝 Raw translation result:', rawTranslation);
 
 			// Si on a une traduction valide (differente de la cle.)
 			if (rawTranslation && rawTranslation !== key) {
 				// Applique manuellement les variables.
 				if (vars) {
 					let text = rawTranslation;
-					for (const [k, v] of Object.entries(vars)) {
-//						console.log(`🔄 Replacing {{${k}}} with "${v}" in "${text}"`);
+					for (const [k, v] of Object.entries(vars))
 						text = text.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v));
-					}
-//					console.log('✅ Final translated text:', text);
 					return text;
 				}
 				return rawTranslation;
@@ -368,11 +337,8 @@ export class screenReader {
 			console.log('⚠️ No translation found, using fallback');
 			if (vars && fallback) {
 				let text = fallback;
-				for (const [k, v] of Object.entries(vars)) {
-//					console.log(`🔄 Fallback: Replacing {{${k}}} with "${v}" in "${text}"`);
+				for (const [k, v] of Object.entries(vars))
 					text = text.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v));
-				}
-//				console.log('✅ Final fallback text:', text);
 				return text;
 			}
 			return fallback;
@@ -411,7 +377,7 @@ export class screenReader {
 			return;
 		}
 
-		// If priority is true, cancel current speech and clear queue
+		// Si priorite, annule l'annonce en cours et nettoie la queue.
 		if (priority) {
 			const now = Date.now();
 			const timeSinceLastButton = now - this.lastButtonAnnouncement;
@@ -425,23 +391,22 @@ export class screenReader {
 			}
 
 			console.log(`🗣️ [speak] Message prioritaire - Annulation en cours.`);
-			this.speechSynthesis.cancel(); // Cancel any ongoing speech
-			this.queue = []; // Clear the queue
-			this.speaking = false; // Ensure speaking is reset
-			this.clearSpeakTimeout(); // Clear any pending timeout
+			this.speechSynthesis.cancel();
+			this.queue = [];
+			this.speaking = false;
+			this.clearSpeakTimeout();
 		}
 
-		// Add to queue
+		// Ajoute a la queue.
 		this.queue.push(text);
 		console.log(`🗣️ [speak] Ajouté à la queue. Taille: ${this.queue.length}`);
 
-		// If not currently speaking, start processing the queue
+		// Si aucune annonce en cours, demarre la queue.
 		if (!this.speaking) {
 			console.log(`🗣️ [speak] Pas de lecture en cours, démarrage de processQueue.`);
 			this.processQueue();
-		} else {
+		} else
 			console.log(`🗣️ [speak] Lecture en cours, ajout à la queue.`);
-		}
 	}
 
 	/**
@@ -457,8 +422,8 @@ export class screenReader {
 		}
 
 		const text = this.queue.shift() || "";
-		if (!text) { // Should not happen with shift() on non-empty queue, but for safety
-			this.processQueue(); // Try next item
+		if (!text) {
+			this.processQueue();
 			return;
 		}
 
@@ -466,15 +431,10 @@ export class screenReader {
 		if (text.length > 100) {
 			console.log(`📋 [processQueue] Texte long détecté (${text.length} chars), division.`);
 			const chunks = this.splitTextSafely(text);
-
-			// Add remaining chunks back to the front of the queue
 			this.queue.unshift(...chunks.slice(1));
-
-			// Speak the first chunk
 			this.speakChunk(chunks[0]);
-		} else {
+		} else
 			this.speakChunk(text);
-		}
 	}
 
 	private splitTextSafely(text: string): string[] {
@@ -511,9 +471,8 @@ export class screenReader {
 				if (currentChunk.length + word.length > maxLength && currentChunk.length > 0) {
 					chunks.push(currentChunk.trim());
 					currentChunk = word;
-				} else {
+				} else
 					currentChunk += (currentChunk.length > 0 ? ' ' : '') + word;
-				}
 			}
 
 			if (currentChunk.trim().length > 0) {
@@ -541,7 +500,7 @@ export class screenReader {
 			return;
 		}
 
-		this.clearSpeakTimeout(); // Clear any previous timeout for this speak operation
+		this.clearSpeakTimeout();
 
 		const utterance = new SpeechSynthesisUtterance(text);
 		this.currentUtterance = utterance;
@@ -556,39 +515,37 @@ export class screenReader {
 
 		const timeoutDuration = 15000;
 
-		// Set the timeout *before* calling speak
+		// Set le timeout avant d'appeler speak.
 		this.currentSpeakTimeoutId = window.setTimeout(() => {
 			console.error(`❌ [speakChunk] TIMEOUT après ${timeoutDuration}ms pour: "${text.substring(0, 50)}..."`);
 			console.warn(`❌ [speakChunk] État au timeout - speaking: ${this.speaking}, pending: ${this.speechSynthesis.pending}`);
 
-			// Important: If timeout occurs, assume speech failed, cancel, and move to next item
+			// Important: si timeout arrive, aassume que le speech a foire, annule, et passe au texte d'apres.
 			this.speechSynthesis.cancel();
 			this.speaking = false;
-			this.clearSpeakTimeout(); // Ensure the timeout ID is cleared
+			this.clearSpeakTimeout();
 			this.processQueue();
 		}, timeoutDuration);
 
 		utterance.onstart = () => {
 			console.log(`✅ [speakChunk] ONSTART: "${text.substring(0, 50)}..."`);
-			this.speaking = true; // Set speaking to true ONLY when speech actually starts
-			this.clearSpeakTimeout(); // Clear timeout once speech actually starts
+			this.speaking = true; // Met speaking a TRUE seulement si ca parle.
+			this.clearSpeakTimeout(); // Enleve timeout seulement quand le texte commence.
 		};
 
 		utterance.onend = () => {
 			console.log(`✅ [speakChunk] ONEND: "${text.substring(0, 50)}..."`);
-			this.speaking = false; // Set speaking to false on end
-			this.clearSpeakTimeout(); // Clear timeout on successful end
-			this.processQueue(); // Process the next item in the queue
+			this.speaking = false;
+			this.clearSpeakTimeout();
+			this.processQueue();
 		};
 
 		utterance.onerror = (event) => {
 			console.error(`❌ [speakChunk] ONERROR: ${event.error} pour "${text.substring(0, 50)}..."`);
-			this.clearSpeakTimeout(); // Clear timeout on error
+			this.clearSpeakTimeout();
 
 			if (event.error === 'interrupted') {
 				console.log(`🔄 [speakChunk] Reprise après erreur`);
-				// An 'interrupted' error means it stopped. We don't need to cancel again.
-				// Just mark as not speaking and let processQueue handle it (it will re-add if needed).
 				this.speaking = false;
 				this.processQueue();
 			} else {
@@ -612,8 +569,8 @@ export class screenReader {
 		} catch (error) {
 			console.error(`❌ [speakChunk] Exception lors du lancement:`, error);
 			this.clearSpeakTimeout();
-			this.speaking = false; // Ensure speaking is false on immediate exception
-			setTimeout(() => this.processQueue(), 500); // Attempt to process queue after a small delay
+			this.speaking = false;
+			setTimeout(() => this.processQueue(), 500);
 		}
 	}
 
