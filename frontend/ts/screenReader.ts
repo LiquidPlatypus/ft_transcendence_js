@@ -686,7 +686,7 @@ export class screenReader {
 		}
 
 		if (announcement) {
-			this.speak(announcement);
+			this.speak(announcement, true);
 		}
 	}
 
