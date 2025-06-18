@@ -5,10 +5,11 @@
 - DATABASE
 - MULTIPLAYER
 - ANOTHER GAME
+- AI
 - game customization
-- support all devices
 - expand browser compatibility
 - multiple language support
+- accessibility features
 - 
 
 
