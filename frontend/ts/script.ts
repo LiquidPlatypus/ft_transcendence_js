@@ -35,9 +35,14 @@ function initializeScreenReader() {
 
 			// Change le texte alternatif de l'image.
 			const img = screenReaderButton.querySelector('img');
-			if (img) {
-				img.alt = newState ? 'Désactiver le lecteur d\'écran' : 'Activer le lecteur d\'écran';
-			}
+			if (img)
+				img.alt = newState ? t("disable_screen_reader") : t("enable_screen_reader");
+
+			// Annonce activation/desactivation.
+			if (newState)
+				ScreenReader.speak(t("enable_screen_reader"), true);
+			else
+				ScreenReader.speak(t("disable_screen_reader"), true);
 		});
 	}
 

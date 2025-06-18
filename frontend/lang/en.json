@@ -65,7 +65,9 @@
 
   "high_contrast": "high contrast",
   "white": "white",
-  "screen_reader": "Enable screen reader",
+  "screen_reader": "screen reader",
+  "enable_screen_reader": "enable screen reader",
+  "disable_screen_reader": "disable screen reader",
 
   "normal_text": "normal text",
   "large_text": "large text",

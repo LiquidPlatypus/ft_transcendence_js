@@ -65,7 +65,9 @@
 
   "high_contrast": "contrast élevé",
   "white": "blanc",
-  "screen_reader": "Activer le lecteur d'écran",
+  "screen_reader": "lecteur d'écran",
+  "enable_screen_reader": "Activer le lecteur d'écran",
+  "disable_screen_reader": "Désactiver le lecteur d'écran",
 
   "normal_text": "texte normal",
   "large_text": "grand texte",
