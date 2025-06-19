@@ -68,6 +68,8 @@
   "screen_reader": "lector de pantalla",
   "enable_screen_reader": "activar el lector de pantalla",
   "disable_screen_reader": "desactivar el lector de pantalla",
+  "screen_reader_enabled": "lector de pantalla habilitado",
+  "screen_reader_disabled": "lector de pantalla desactivado",
 
   "normal_text": "texto normal",
   "large_text": "texto grande",

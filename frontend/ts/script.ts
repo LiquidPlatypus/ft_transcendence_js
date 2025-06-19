@@ -21,29 +21,93 @@ function initializeScreenReader() {
 	ScreenReader.initializeGlobalListeners();
 
 	// Recupere le bouton par son ID.
-	const screenReaderButton = document.getElementById('screen-reader-toggle');
+	const screenReaderButton: any = document.getElementById('screen-reader-toggle');
 
 	if (screenReaderButton) {
-		screenReaderButton.addEventListener('click', () => {
-			const newState = !ScreenReader.isEnabled();
-			ScreenReader.setEnabled(newState);
+		let isProcessing = false; // Flag pour eviter les clics multiples.
 
-			// Change l'apparence du bouton.
+		// Fonction pour mettre à jour l'état du bouton
+		function updateButtonState(newState: any) {
+			// Change l'apparence du bouton avec couleur différente selon l'état
 			screenReaderButton.className = newState ?
-				'transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent active' :
-				'transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent';
+				'transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent bg-green-500 text-white border-2 border-green-600 active' :
+				'transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent bg-gray-100 hover:bg-gray-200 border-2 border-gray-300';
 
 			// Change le texte alternatif de l'image.
 			const img = screenReaderButton.querySelector('img');
-			if (img)
+			if (img) {
 				img.alt = newState ? t("disable_screen_reader") : t("enable_screen_reader");
+			}
 
-			// Annonce activation/desactivation.
-			if (newState)
-				ScreenReader.speak(t("enable_screen_reader"), true);
-			else
-				ScreenReader.speak(t("disable_screen_reader"), true);
+			// Met à jour l'aria-label pour refléter l'action disponible
+			screenReaderButton.setAttribute('aria-label',
+				newState ? t("disable_screen_reader") : t("enable_screen_reader"));
+
+			// Met à jour l'aria-pressed pour l'accessibilité
+			screenReaderButton.setAttribute('aria-pressed', newState.toString());
+		}
+
+		// Listener pour l'événement focus (navigation avec TAB)
+		screenReaderButton.addEventListener('focus', () => {
+			if (isProcessing)
+				return ;
+
+			const currentState = ScreenReader.isEnabled();
+			const actionText = currentState ? t("disable_screen_reader") : t("enable_screen_reader");
+
+			// Annonce l'action qui sera effectuée si on appuie sur le bouton
+			ScreenReader.speak(`${t("screen_reader_button")}: ${actionText}`, false);
 		});
+
+		// Listener pour le clic
+		screenReaderButton.addEventListener('click', () => {
+			if (isProcessing) return; // Empêche les clics multiples
+
+			const currentState = ScreenReader.isEnabled();
+			const newState = !currentState;
+
+			isProcessing = true;
+			screenReaderButton.disabled = true;
+
+			if (newState) {
+				// Activation : on peut activer immédiatement
+				ScreenReader.setEnabled(true);
+				updateButtonState(true);
+				ScreenReader.speak(t("screen_reader_enabled"), true);
+
+				// Réactive le bouton après un court délai
+				setTimeout(() => {
+					isProcessing = false;
+					screenReaderButton.disabled = false;
+				}, 500);
+
+			} else {
+				// Désactivation : on annonce d'abord, puis on désactive après un délai
+				ScreenReader.speak(t("screen_reader_disabled"), true);
+				updateButtonState(false);
+
+				// Désactive le lecteur d'écran après que l'annonce soit terminée
+				setTimeout(() => {
+					ScreenReader.setEnabled(false);
+					isProcessing = false;
+					screenReaderButton.disabled = false;
+				}, 2000);
+			}
+		});
+
+		// Listener pour la touche Entrée (même comportement que le clic)
+		screenReaderButton.addEventListener('keydown', (event: any) => {
+			if (isProcessing)
+				return ;
+
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				screenReaderButton.click(); // Déclenche l'événement click
+			}
+		});
+
+		// Initialise l'état du bouton au chargement
+		updateButtonState(ScreenReader.isEnabled());
 	}
 
 	// Annonce le chargement de la page.

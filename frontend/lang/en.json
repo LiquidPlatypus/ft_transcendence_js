@@ -68,6 +68,8 @@
   "screen_reader": "screen reader",
   "enable_screen_reader": "enable screen reader",
   "disable_screen_reader": "disable screen reader",
+  "screen_reader_enabled": "screen reader enabled",
+  "screen_reader_disabled": "screen reader disabled",
 
   "normal_text": "normal text",
   "large_text": "large text",
