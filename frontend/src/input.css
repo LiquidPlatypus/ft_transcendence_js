@@ -104,6 +104,37 @@ body.theme-WHITE {
 	color: var(--color-hist-text);
 }
 
+/* Styles pour les sélections actives */
+.lang-active {
+	border: 3px solid #22c55e !important; /* Bordure verte pour la langue active */
+	box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+}
+
+.theme-active {
+	border: 3px solid #22c55e !important; /* Bordure verte pour le thème actif */
+	box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+}
+
+.theme-active > div {
+	border: 2px solid #22c55e !important; /* Bordure verte pour le div interne */
+}
+
+.text-size-active {
+	background-color: #22c55e !important; /* Fond vert pour la taille de texte active */
+	color: white !important;
+}
+
+.text-size-active > div {
+	background-color: #22c55e !important;
+	color: white !important;
+}
+
+/* Amélioration du focus pour les boutons de contrôle */
+.screen-reader-active {
+	background-color: #22c55e !important;
+	border-color: #16a34a !important;
+}
+
 /* PFC */
 
 #arena {
