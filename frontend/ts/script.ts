@@ -11,7 +11,6 @@ import {disableUnrelatedButtons, GameType, MatchType, matchTypeChoice} from "./U
 import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
-import { Paddle2 } from './mypong.js';
 import {screenReader} from "./screenReader.js";
 
 function initializeScreenReader() {

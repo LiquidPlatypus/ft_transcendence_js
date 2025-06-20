@@ -890,69 +890,6 @@ class Ball extends Entity{
 		this.y += (this.yVal / length) * this.currentSpeed;
 	}
 
-	async checkGameEnd(): Promise<boolean> {
-		const highestScore = Math.max(
-			GameFour.player1Score,
-			GameFour.player2Score,
-			GameFour.player3Score,
-			GameFour.player4Score
-		);
-
-		if (highestScore >= MAX_SCORE) {
-			// Determiner le gagnant.
-			let winner = "";
-			if (GameFour.player1Score >= MAX_SCORE) winner = "Joueur 1";
-			else if (GameFour.player2Score >= MAX_SCORE) winner = "Joueur 2";
-			else if (GameFour.player3Score >= MAX_SCORE) winner = "Joueur 3";
-			else if (GameFour.player4Score >= MAX_SCORE) winner = "Joueur 4";
-
-			// Enregistrer les scores.
-			const matchId = localStorage.getItem('currentMatchId');
-			if (matchId) {
-				try {
-					const response = await fetch("/api/players/match4/score", {
-						method: "POST",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({
-							matchId: parseInt(matchId),
-							player1Score: GameFour.player1Score,
-							player2Score: GameFour.player2Score,
-							player3Score: GameFour.player3Score,
-							player4Score: GameFour.player4Score
-						}),
-					});
-					const result = await response.json();
-					console.log("Résultat sauvegardé:", result);
-
-					// Supprimer l'ID du match du localStorage.
-					localStorage.removeItem('currentMatchId');
-				} catch (error) {
-					console.error("Erreur lors de l'enregistrement des scores:", error);
-				}
-			}
-
-			const victoryMessageElement = document.getElementById("Pong");
-			if (victoryMessageElement) {
-				victoryMessageElement.innerHTML = `
-					<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_lost")}</p>
-					<div class="flex justify-center">
-						<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
-					</div>
-				`;
-
-				// Import dynamique pour eviter les problemes de reference circulaire.
-				import('./script.js').then(module => {
-					const menu_btn = document.getElementById("menu-btn");
-					if (menu_btn)
-						menu_btn.addEventListener("click", () => module.showHome());
-				});
-			}
-			GameFour.setGameOver(true);
-			return true;
-		}
-		return false;
-	}
-
 	private getWinnerAlias(winner: string): string {
 		if (winner === "Joueur 1")
 			return localStorage.getItem('player1Alias') || 'Joueur 1';
