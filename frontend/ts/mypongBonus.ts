@@ -1,5 +1,6 @@
 import { showHome, startGame } from "./script.js";
 import { t } from "../lang/i18n.js"
+import {screenReader} from "./screenReader.js";
 
 enum KeyBindings{
 	UP = 87,
@@ -37,8 +38,9 @@ export class GameBonus{
 	private bonusStartTime: number = Date.now();
 	public staticWalls: StaticWall[] = []; // Liste pour le bonus Wall
 
-
 	private ball: Ball;
+
+	public static ScreenReader = screenReader.getInstance();
 
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
 		setTimeout(() =>
@@ -225,6 +227,8 @@ export class GameBonus{
 				this.ball.y + this.ball.height > bonus.y;
 
 			if (collision) {
+				screenReader.getInstance().handleBonusHit();
+
 				switch (bonus.type) {
 					case BonusType.WALL:
 						console.log("Mur activé : création d'un mur statique");
@@ -261,7 +265,6 @@ export class GameBonus{
 			requestAnimationFrame(() => this.gameLoop());
 			return;
 		}
-
 		this.update();
 		this.draw();
 		requestAnimationFrame(() => this.gameLoop());
@@ -695,16 +698,23 @@ class Ball extends Entity{
 			return;
 
 		// check le haut.
-		if (this.y <= 10)
+		if (this.y <= 10) {
 			this.yVal = 1;
+			screenReader.getInstance().handleWallHit();
+		}
 
 		// check le bas.
-		if (this.y + this.height >= canvas.height - 10)
+		if (this.y + this.height >= canvas.height - 10) {
 			this.yVal = -1;
+			screenReader.getInstance().handleWallHit();
+		}
 
 		// check but player 2.
 		if (this.x <= 0) {
 			GameBonus.player2Score += 1;
+
+			screenReader.getInstance().handleScoreP2Hit();
+
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -717,6 +727,9 @@ class Ball extends Entity{
 		// check but player 1.
 		if (this.x + this.width >= canvas.width) {
 			GameBonus.player1Score += 1;
+
+			screenReader.getInstance().handleScoreP1Hit();
+
 			this.resetPosition(canvas);
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -736,6 +749,8 @@ class Ball extends Entity{
 			this.xVal = 1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
 			this.lastTouchedBy = 'player1';
+
+			screenReader.getInstance().handleLeftPaddleHit();
 		}
 
 		// Collision avec joueur 2.
@@ -748,6 +763,8 @@ class Ball extends Entity{
 			this.xVal = -1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
 			this.lastTouchedBy = 'player2';
+
+			screenReader.getInstance().handleRightPaddleHit();
 		}
 
 		// Collision avec les murs statiques
@@ -760,6 +777,8 @@ class Ball extends Entity{
 				// Inversion de direction (effet "rebond") selon la direction de collision
 				const overlapX = (this.x + this.width / 2) - (wall.x + wall.width / 2);
 				const overlapY = (this.y + this.height / 2) - (wall.y + wall.height / 2);
+
+				screenReader.getInstance().handleWallHit();
 
 				if (Math.abs(overlapX) > Math.abs(overlapY)) {
 					this.xVal *= -1; // rebond horizontal
@@ -827,6 +846,12 @@ class Ball extends Entity{
 			// Always show victory message, regardless of tournament mode
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
+					const winnerAlias = this.getWinnerAlias(winner);
+
+					const screenReaderInstance = screenReader.getInstance();
+					screenReaderInstance.announceScore(GameBonus.player1Score, GameBonus.player2Score, null, null);
+					screenReaderInstance.speak(`${winnerAlias} ${t("as_won")}`);
+
 					victoryMessageElement.innerHTML = `
 						<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
 						<div class="flex justify-center">

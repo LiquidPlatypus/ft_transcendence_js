@@ -1,5 +1,5 @@
 import {startGame} from "./script.js";
-import {check} from "yargs";
+import {screenReader} from "./screenReader.js";
 
 // Id du tournoi.
 let currentTournamentId: string | null = null;

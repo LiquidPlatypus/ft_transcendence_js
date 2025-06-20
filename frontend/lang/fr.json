@@ -5,6 +5,7 @@
   "play": "Jouer",
   "history": "Historique",
   "history-4": "Hist. 4",
+  "history_4": "Historique 4 joueurs",
   "back": "Retour",
 
   "how_many_players": "Combien de joueurs ?",
@@ -36,7 +37,6 @@
   "error_match_creation": "Erreur lors de la création du match",
   "error_score_save": "Erreur lors de l'enregistrement du score",
   "wins_round": "gagne la manche !",
-  "player_wins_round": "Joueur {{player}} gagne la manche !",
 
   "select_game_mode": "Mode de jeu",
   "normal": "Normal",
@@ -44,5 +44,34 @@
 
   "rock": "Pierre",
   "paper": "Feuille",
-  "scissors": "Ciseaux"
+  "scissors": "Ciseaux",
+
+  "home": "dakeuy",
+  "match_type_choice": "Choix du type de match",
+  "player_number_choice": "Choix du nombre de joueurs",
+  "player_alias_input": "Choix des alias des joueurs",
+  "pong_game": "Partie de pong",
+  "pong_explanation": "Partie démarrée. Utilisez les touches W et S pour le joueur 1, flèches haut et bas pour le joueur 2.",
+  "player1": "Joueur 1",
+  "player2": "Joueur 2",
+  "player3": "Joueur 3",
+  "player4": "Joueur 4",
+  "pong-four": "Partie de pong à quatre",
+  "pong-four_explanation": "Partie démarrée. Utilisez W et S pour le joueur 1, flèches haut et bas pour le joueur 2, I et O pour le joueur 3, C et V pour le joueur 4",
+  "pfc_explanation": "Partie démarrée. Joueur 1: Q pour pierre, W pour feuille, E pour ciseaux. Joueur 2: J pour pierre, K pour feuille, L pour ciseaux.",
+  "choose": "a choisi",
+  "pageLoaded": "Page {{pageName}} chargée",
+  "chrome_recommendation": "Veuillez utiliser Chrome<br>pour une meilleure expérience<br>avec le lecteur d'écran",
+
+  "high_contrast": "contrast élevé",
+  "white": "blanc",
+  "screen_reader": "lecteur d'écran",
+  "enable_screen_reader": "Activer le lecteur d'écran",
+  "disable_screen_reader": "Désactiver le lecteur d'écran",
+  "screen_reader_enabled": "lecteur d'écran activé",
+  "screen_reader_disabled": "lecteur d'écran désactivé",
+
+  "normal_text": "texte normal",
+  "large_text": "grand texte",
+  "bold_text": "texte gras"
 }

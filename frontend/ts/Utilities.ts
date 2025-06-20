@@ -1,6 +1,7 @@
 import {ButtonType, showPlayerCountSelection, showAliasInputs} from "./script.js";
 import {updateDisabledButtonStyles} from "./themeSwitcher.js";
 import {t} from "../lang/i18n.js";
+import {screenReader} from "./screenReader.js";
 
 /**
  * @brief Desactive ou active les boutons au besoin.
@@ -118,7 +119,7 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 	// Creer les boutons de selection du type de match.
 	container.innerHTML = `
 		<div class="flex flex-col items-center gap-4">
-			<button id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
+			<button aria-label="${t("back")}" id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
 			<h2 class="text-xl font-semibold">${t("select_game_mode")}</h2>
 		</div>
 		<div class="flex justify-center gap-4 mt-4">
@@ -129,6 +130,10 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 
 	// Empeche d'appuyer sur tout les autres boutons en dehors de la div actuelle.
 	disableUnrelatedButtons(gameType);
+
+	const ScreenReader = screenReader.getInstance();
+	ScreenReader.cancelSpeech();
+	ScreenReader.announcePageChange(t("match_type_choice"));
 
 	// Bouton retour.
 	const backButton = document.getElementById(`back-button-${gameType}`);

@@ -1,8 +1,11 @@
 import { t } from "../lang/i18n.js"
+import {screenReader} from "./screenReader.js";
+import {erase} from "sisteransi";
+import line = erase.line;
 
 enum KeyBindings{
-	UPONE = 87, //A
-	DOWNONE = 81, //Q
+	UPONE = 87, //W
+	DOWNONE = 83, //S
 	UPTWO = 38, //fleche haut
 	DOWNTWO = 40, //fleche bas
 	RIGHTONE = 79, //O
@@ -45,11 +48,13 @@ export class GameFourBonus {
 
 	private ball: Ball;
 
+	public static ScreenReader = screenReader.getInstance();
+
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
 		setTimeout(() => {
 			const ballPos = this.ball.getPosition();
 			const safeDistance = 30;
-			
+
 			if (Math.abs(ballPos.x - x) > safeDistance || Math.abs(ballPos.y - y) > safeDistance) {
 				const wall = new StaticWall(x, y);
 				this.staticWalls.push(wall);
@@ -105,7 +110,7 @@ export class GameFourBonus {
 		this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.player3 = new Paddle3(paddleHeight, paddleWidth, this.gameCanvas.width / 2 - paddleHeight / 2, wallOffset);
 		this.player4 = new Paddle4(paddleHeight, paddleWidth, this.gameCanvas.width / 2 - paddleHeight / 2, this.gameCanvas.height - (wallOffset + paddleWidth));
-		
+
 		// AI will be enabled by the player selection screen if toggled
 		// Set game reference for each paddle
 		this.player2.setGameRef(this);
@@ -119,6 +124,16 @@ export class GameFourBonus {
 			this.bonusStartTime = Date.now(); // Redémarre le chrono
 			this.lastBonusTime = 0; // Réinitialise le timer de cooldown
 		})
+	}
+
+	getCanvasColors() {
+		const styles = getComputedStyle(document.body);
+		return {
+			bgColor: styles.getPropertyValue('--canvas-bg-color').trim() || '#000',
+			lineColor: styles.getPropertyValue('--canvas-line-color').trim() || '#fff',
+			textColor: styles.getPropertyValue('--canvas-text-color').trim() || '#fff',
+			entityColor: styles.getPropertyValue('--canvas-entity-color').trim() || '#fff',
+		};
 	}
 
 	drawBoardDetails(){
@@ -221,6 +236,8 @@ export class GameFourBonus {
 				this.ball.y + this.ball.height > bonus.y;
 
 			if (collision) {
+				screenReader.getInstance().handleBonusHit();
+
 				switch (bonus.type) {
 					case BonusType.WALL:
 						console.log("Mur activé : création d'un mur statique");
@@ -369,19 +386,19 @@ export class Paddle2 extends Entity{
 	private static isAIEnabled: boolean = false;
 	private centerY: number = 0;
 	private gameRef: GameFourBonus | null = null;
-	
+
 	// Simulated keyboard state
 	private isUpPressed: boolean = false;
 	private isDownPressed: boolean = false;
-	
+
 	// Movement control
 	private targetY: number = 0;
 	private approachingBall: boolean = false;
-	
+
 	// Bonus states
 	private invertedUntil: number = 0;
 	private frozenUntil: number = 0;
-	
+
 	constructor(w: number, h: number, x: number, y: number) {
 		super(w, h, x, y);
 		this.centerY = y;
@@ -424,12 +441,12 @@ export class Paddle2 extends Entity{
 		const distanceX = this.x - ball.x;
 		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
 		const timeToReach = Math.abs(distanceX / (ball.xVal * currentBallSpeed));
-		
+
 		let predictedX = ball.x;
 		let predictedY = ball.y;
 		let velocityX = ball.xVal;
 		let velocityY = ball.yVal;
-		
+
 		// Simulate ball movement until it reaches our x-position or hits a wall
 		while (predictedX < this.x && predictedX > 0) {
 			// Check for collisions with static walls
@@ -439,7 +456,7 @@ export class Paddle2 extends Entity{
 						predictedX + ball.width > wall.x &&
 						predictedY < wall.y + wall.height &&
 						predictedY + ball.height > wall.y) {
-						
+
 						// Calculate which side of the wall we'll hit
 						const overlapX = Math.min(
 							Math.abs(predictedX + ball.width - wall.x),
@@ -462,13 +479,13 @@ export class Paddle2 extends Entity{
 			// Update predicted position
 			predictedX += velocityX * currentBallSpeed;
 			predictedY += velocityY * currentBallSpeed;
-			
+
 			// Account for bounces off top/bottom walls
 			if (predictedY < 0 || predictedY > canvas.height) {
 				velocityY *= -1;
 			}
 		}
-		
+
 		return Math.max(20, Math.min(canvas.height - 20 - this.height, predictedY));
 	}
 
@@ -476,11 +493,11 @@ export class Paddle2 extends Entity{
 		const paddleCenter = this.y + this.height / 2;
 		const distanceToTarget = this.targetY - paddleCenter;
 		const deadzone = 5; // Add deadzone to prevent wiggling
-		
+
 		// Reset both keys
 		this.isUpPressed = false;
 		this.isDownPressed = false;
-		
+
 		// Only move if we're outside the deadzone
 		if (Math.abs(distanceToTarget) > deadzone) {
 			if (distanceToTarget < 0) {
@@ -493,7 +510,7 @@ export class Paddle2 extends Entity{
 
 	update(canvas: HTMLCanvasElement, ball?: Ball) {
 		const now = Date.now();
-		
+
 		// Don't move if frozen by ICE power-up
 		if (now < this.frozenUntil) {
 			this.yVal = 0;
@@ -502,11 +519,11 @@ export class Paddle2 extends Entity{
 
 		if (Paddle2.isAIEnabled && ball && !isPaused) {
 			const currentTime = Date.now();
-			
+
 			if (currentTime - this.aiLastDecisionTime >= this.aiDecisionInterval) {
 				this.aiLastDecisionTime = currentTime;
 				this.approachingBall = ball.xVal > 0;
-				
+
 				if (this.approachingBall) {
 					// Always predict when ball is moving towards us
 					this.targetY = this.predictBallPosition(ball, canvas);
@@ -514,18 +531,18 @@ export class Paddle2 extends Entity{
 					// Return to center more aggressively
 					const paddleCenter = this.y + this.height / 2;
 					const distanceToCenter = Math.abs(paddleCenter - this.centerY);
-					
+
 					if (distanceToCenter > 20) { // More aggressive return to center
 						this.targetY = this.centerY;
 					}
 				}
 			}
-			
+
 			this.updateMovement();
-			
+
 			// Handle POTION power-up (inverted controls)
 			const isInverted = now < this.invertedUntil;
-			
+
 			if (this.isUpPressed) {
 				this.yVal = isInverted ? 1 : -1;
 			} else if (this.isDownPressed) {
@@ -562,19 +579,19 @@ export class Paddle3 extends Entity{
 	private static isAIEnabled: boolean = false;
 	private centerX: number = 0;
 	private gameRef: GameFourBonus | null = null;
-	
+
 	// Simulated keyboard state
 	private isLeftPressed: boolean = false;
 	private isRightPressed: boolean = false;
-	
+
 	// Movement control
 	private targetX: number = 0;
 	private approachingBall: boolean = false;
-	
+
 	// Bonus states
 	private invertedUntil: number = 0;
 	private frozenUntil: number = 0;
-	
+
 	constructor(w: number, h: number, x: number, y: number) {
 		super(w, h, x, y);
 		this.centerX = x;
@@ -617,12 +634,12 @@ export class Paddle3 extends Entity{
 		const distanceY = ball.y - this.y;
 		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
 		const timeToReach = Math.abs(distanceY / (ball.yVal * currentBallSpeed));
-		
+
 		let predictedX = ball.x;
 		let predictedY = ball.y;
 		let velocityX = ball.xVal;
 		let velocityY = ball.yVal;
-		
+
 		// Simulate ball movement until it reaches our y-position or hits a wall
 		while (predictedY > this.y && predictedY < canvas.height) {
 			// Check for collisions with static walls
@@ -632,7 +649,7 @@ export class Paddle3 extends Entity{
 						predictedX + ball.width > wall.x &&
 						predictedY < wall.y + wall.height &&
 						predictedY + ball.height > wall.y) {
-						
+
 						// Calculate which side of the wall we'll hit
 						const overlapX = Math.min(
 							Math.abs(predictedX + ball.width - wall.x),
@@ -655,13 +672,13 @@ export class Paddle3 extends Entity{
 			// Update predicted position
 			predictedX += velocityX * currentBallSpeed;
 			predictedY += velocityY * currentBallSpeed;
-			
+
 			// Account for bounces off side walls
 			if (predictedX < 0 || predictedX > canvas.width) {
 				velocityX *= -1;
 			}
 		}
-		
+
 		return Math.max(20, Math.min(canvas.width - 20 - this.width, predictedX));
 	}
 
@@ -669,11 +686,11 @@ export class Paddle3 extends Entity{
 		const paddleCenter = this.x + this.width / 2;
 		const distanceToTarget = this.targetX - paddleCenter;
 		const deadzone = 5; // Add deadzone to prevent wiggling
-		
+
 		// Reset both keys
 		this.isLeftPressed = false;
 		this.isRightPressed = false;
-		
+
 		// Only move if we're outside the deadzone
 		if (Math.abs(distanceToTarget) > deadzone) {
 			if (distanceToTarget < 0) {
@@ -686,7 +703,7 @@ export class Paddle3 extends Entity{
 
 	update(canvas: HTMLCanvasElement, ball?: Ball) {
 		const now = Date.now();
-		
+
 		// Don't move if frozen by ICE power-up
 		if (now < this.frozenUntil) {
 			this.xVal = 0;
@@ -695,11 +712,11 @@ export class Paddle3 extends Entity{
 
 		if (Paddle3.isAIEnabled && ball && !isPaused) {
 			const currentTime = Date.now();
-			
+
 			if (currentTime - this.aiLastDecisionTime >= this.aiDecisionInterval) {
 				this.aiLastDecisionTime = currentTime;
 				this.approachingBall = ball.yVal < 0;
-				
+
 				if (this.approachingBall) {
 					// Always predict when ball is moving towards us
 					this.targetX = this.predictBallPosition(ball, canvas);
@@ -707,18 +724,18 @@ export class Paddle3 extends Entity{
 					// Return to center more aggressively
 					const paddleCenter = this.x + this.width / 2;
 					const distanceToCenter = Math.abs(paddleCenter - this.centerX);
-					
+
 					if (distanceToCenter > 20) { // More aggressive return to center
 						this.targetX = this.centerX;
 					}
 				}
 			}
-			
+
 			this.updateMovement();
-			
+
 			// Handle POTION power-up (inverted controls)
 			const isInverted = now < this.invertedUntil;
-			
+
 			if (this.isLeftPressed) {
 				this.xVal = isInverted ? 1 : -1;
 			} else if (this.isRightPressed) {
@@ -755,19 +772,19 @@ export class Paddle4 extends Entity{
 	private static isAIEnabled: boolean = false;
 	private centerX: number = 0;
 	private gameRef: GameFourBonus | null = null;
-	
+
 	// Simulated keyboard state
 	private isLeftPressed: boolean = false;
 	private isRightPressed: boolean = false;
-	
+
 	// Movement control
 	private targetX: number = 0;
 	private approachingBall: boolean = false;
-	
+
 	// Bonus states
 	private invertedUntil: number = 0;
 	private frozenUntil: number = 0;
-	
+
 	constructor(w: number, h: number, x: number, y: number) {
 		super(w, h, x, y);
 		this.centerX = x;
@@ -810,12 +827,12 @@ export class Paddle4 extends Entity{
 		const distanceY = this.y - ball.y;
 		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
 		const timeToReach = Math.abs(distanceY / (ball.yVal * currentBallSpeed));
-		
+
 		let predictedX = ball.x;
 		let predictedY = ball.y;
 		let velocityX = ball.xVal;
 		let velocityY = ball.yVal;
-		
+
 		// Simulate ball movement until it reaches our y-position or hits a wall
 		while (predictedY < this.y && predictedY > 0) {
 			// Check for collisions with static walls
@@ -825,7 +842,7 @@ export class Paddle4 extends Entity{
 						predictedX + ball.width > wall.x &&
 						predictedY < wall.y + wall.height &&
 						predictedY + ball.height > wall.y) {
-						
+
 						// Calculate which side of the wall we'll hit
 						const overlapX = Math.min(
 							Math.abs(predictedX + ball.width - wall.x),
@@ -848,13 +865,13 @@ export class Paddle4 extends Entity{
 			// Update predicted position
 			predictedX += velocityX * currentBallSpeed;
 			predictedY += velocityY * currentBallSpeed;
-			
+
 			// Account for bounces off side walls
 			if (predictedX < 0 || predictedX > canvas.width) {
 				velocityX *= -1;
 			}
 		}
-		
+
 		return Math.max(20, Math.min(canvas.width - 20 - this.width, predictedX));
 	}
 
@@ -862,11 +879,11 @@ export class Paddle4 extends Entity{
 		const paddleCenter = this.x + this.width / 2;
 		const distanceToTarget = this.targetX - paddleCenter;
 		const deadzone = 5; // Add deadzone to prevent wiggling
-		
+
 		// Reset both keys
 		this.isLeftPressed = false;
 		this.isRightPressed = false;
-		
+
 		// Only move if we're outside the deadzone
 		if (Math.abs(distanceToTarget) > deadzone) {
 			if (distanceToTarget < 0) {
@@ -879,7 +896,7 @@ export class Paddle4 extends Entity{
 
 	update(canvas: HTMLCanvasElement, ball?: Ball) {
 		const now = Date.now();
-		
+
 		// Don't move if frozen by ICE power-up
 		if (now < this.frozenUntil) {
 			this.xVal = 0;
@@ -888,11 +905,11 @@ export class Paddle4 extends Entity{
 
 		if (Paddle4.isAIEnabled && ball && !isPaused) {
 			const currentTime = Date.now();
-			
+
 			if (currentTime - this.aiLastDecisionTime >= this.aiDecisionInterval) {
 				this.aiLastDecisionTime = currentTime;
 				this.approachingBall = ball.yVal > 0;
-				
+
 				if (this.approachingBall) {
 					// Always predict when ball is moving towards us
 					this.targetX = this.predictBallPosition(ball, canvas);
@@ -900,18 +917,18 @@ export class Paddle4 extends Entity{
 					// Return to center more aggressively
 					const paddleCenter = this.x + this.width / 2;
 					const distanceToCenter = Math.abs(paddleCenter - this.centerX);
-					
+
 					if (distanceToCenter > 20) { // More aggressive return to center
 						this.targetX = this.centerX;
 					}
 				}
 			}
-			
+
 			this.updateMovement();
-			
+
 			// Handle POTION power-up (inverted controls)
 			const isInverted = now < this.invertedUntil;
-			
+
 			if (this.isLeftPressed) {
 				this.xVal = isInverted ? 1 : -1;
 			} else if (this.isRightPressed) {
@@ -1094,6 +1111,12 @@ class Ball extends Entity{
 
 			const victoryMessageElement = document.getElementById("Pong");
 			if (victoryMessageElement) {
+				const winnerAlias = this.getWinnerAlias(winner);
+
+				const screenReaderInstance = screenReader.getInstance();
+				screenReaderInstance.announceScore(GameFourBonus.player1Score, GameFourBonus.player2Score, GameFourBonus.player3Score, GameFourBonus.player4Score);
+				screenReaderInstance.speak(`${winnerAlias} ${t("as_lost")}`);
+
 				victoryMessageElement.innerHTML = `
 					<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_lost")}</p>
 					<div class="flex justify-center">
@@ -1121,6 +1144,9 @@ class Ball extends Entity{
 		// Verification des buts dans les camps respectifs.
 		if (this.x <= 0) {
 			GameFourBonus.player1Score += 1;
+
+			screenReader.getInstance().handleScoreP1Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -1134,6 +1160,9 @@ class Ball extends Entity{
 
 		if (this.x + this.width >= canvas.width) {
 			GameFourBonus.player2Score += 1;
+
+			screenReader.getInstance().handleScoreP2Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -1148,6 +1177,9 @@ class Ball extends Entity{
 
 		if (this.y <= 0) {
 			GameFourBonus.player3Score += 1;
+
+			screenReader.getInstance().handleScoreP3Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -1162,6 +1194,9 @@ class Ball extends Entity{
 
 		if (this.y + this.height >= canvas.height) {
 			GameFourBonus.player4Score += 1;
+
+			screenReader.getInstance().handleScoreP4Hit();
+
 			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
@@ -1183,6 +1218,8 @@ class Ball extends Entity{
 			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale.
 			this.xVal = 1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+
+			screenReader.getInstance().handleLeftPaddleHit();
 		}
 
 		// Collision avec jooueur 2.
@@ -1194,6 +1231,8 @@ class Ball extends Entity{
 			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale.
 			this.xVal = -1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
+
+			screenReader.getInstance().handleRightPaddleHit();
 		}
 
 		// Collision avec joueur 3 (paddle vertical).
@@ -1205,6 +1244,8 @@ class Ball extends Entity{
 			let normalizedX = relativeX / (player3.width / 2);
 			this.yVal = 1;
 			this.xVal = normalizedX * 1.2;
+
+			screenReader.getInstance().handleUpPaddleHit();
 		}
 
 		// Collision avec joueur 4 (paddle vertical).
@@ -1216,6 +1257,8 @@ class Ball extends Entity{
 			let normalizedX = relativeX / (player4.width / 2);
 			this.yVal = -1;
 			this.xVal = normalizedX * 1.2;
+
+			screenReader.getInstance().handleDownPaddleHit();
 		}
 
 		// Collision avec les murs statiques
@@ -1228,6 +1271,8 @@ class Ball extends Entity{
 				// Inversion de direction (effet "rebond") selon la direction de collision
 				const overlapX = (this.x + this.width / 2) - (wall.x + wall.width / 2);
 				const overlapY = (this.y + this.height / 2) - (wall.y + wall.height / 2);
+
+				screenReader.getInstance().handleWallHit();
 
 				if (Math.abs(overlapX) > Math.abs(overlapY)) {
 					this.xVal *= -1; // rebond horizontal

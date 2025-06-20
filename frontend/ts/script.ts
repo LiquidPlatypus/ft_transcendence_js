@@ -11,6 +11,108 @@ import {disableUnrelatedButtons, GameType, MatchType, matchTypeChoice} from "./U
 import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
+import { Paddle2 } from './mypong.js';
+import {screenReader} from "./screenReader.js";
+
+function initializeScreenReader() {
+	const ScreenReader = screenReader.getInstance();
+
+	// Initialise les listeners globaux pour la navigation au clavier
+	ScreenReader.initializeGlobalListeners();
+
+	// Recupere le bouton par son ID.
+	const screenReaderButton: any = document.getElementById('screen-reader-toggle');
+
+	if (screenReaderButton) {
+		let isProcessing = false; // Flag pour eviter les clics multiples.
+
+		// Fonction pour mettre à jour l'état du bouton
+		function updateButtonState(newState: any) {
+			// Change l'apparence du bouton avec couleur différente selon l'état
+			screenReaderButton.className = newState ?
+				'transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent bg-green-500 text-white border-2 border-green-600 active' :
+				'transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent bg-gray-100 hover:bg-gray-200 border-2 border-gray-300';
+
+			// Change le texte alternatif de l'image.
+			const img = screenReaderButton.querySelector('img');
+			if (img) {
+				img.alt = newState ? t("disable_screen_reader") : t("enable_screen_reader");
+			}
+
+			// Met à jour l'aria-label pour refléter l'action disponible
+			screenReaderButton.setAttribute('aria-label',
+				newState ? t("disable_screen_reader") : t("enable_screen_reader"));
+
+			// Met à jour l'aria-pressed pour l'accessibilité
+			screenReaderButton.setAttribute('aria-pressed', newState.toString());
+		}
+
+		// Listener pour l'événement focus (navigation avec TAB)
+		screenReaderButton.addEventListener('focus', () => {
+			if (isProcessing)
+				return ;
+
+			const currentState = ScreenReader.isEnabled();
+			const actionText = currentState ? t("disable_screen_reader") : t("enable_screen_reader");
+
+			// Annonce l'action qui sera effectuée si on appuie sur le bouton
+			ScreenReader.speak(`${t("screen_reader_button")}: ${actionText}`, false);
+		});
+
+		// Listener pour le clic
+		screenReaderButton.addEventListener('click', () => {
+			if (isProcessing) return; // Empêche les clics multiples
+
+			const currentState = ScreenReader.isEnabled();
+			const newState = !currentState;
+
+			isProcessing = true;
+			screenReaderButton.disabled = true;
+
+			if (newState) {
+				// Activation : on peut activer immédiatement
+				ScreenReader.setEnabled(true);
+				updateButtonState(true);
+				ScreenReader.speak(t("screen_reader_enabled"), true);
+
+				// Réactive le bouton après un court délai
+				setTimeout(() => {
+					isProcessing = false;
+					screenReaderButton.disabled = false;
+				}, 500);
+
+			} else {
+				// Désactivation : on annonce d'abord, puis on désactive après un délai
+				ScreenReader.speak(t("screen_reader_disabled"), true);
+				updateButtonState(false);
+
+				// Désactive le lecteur d'écran après que l'annonce soit terminée
+				setTimeout(() => {
+					ScreenReader.setEnabled(false);
+					isProcessing = false;
+					screenReaderButton.disabled = false;
+				}, 2000);
+			}
+		});
+
+		// Listener pour la touche Entrée (même comportement que le clic)
+		screenReaderButton.addEventListener('keydown', (event: any) => {
+			if (isProcessing)
+				return ;
+
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				screenReaderButton.click(); // Déclenche l'événement click
+			}
+		});
+
+		// Initialise l'état du bouton au chargement
+		updateButtonState(ScreenReader.isEnabled());
+	}
+
+	// Annonce le chargement de la page.
+	ScreenReader.announcePageChange(t("home"));
+}
 
 // Ecouteur d'evenements.
 document.addEventListener('DOMContentLoaded', async () => {
@@ -26,6 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		initTheme();
 		attachTextListeners();
 		initText()
+		initializeScreenReader();
 	}
 })
 
@@ -59,7 +162,7 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType, m
 	// Creer les boutons de selection du nombre de joueurs.
 	container.innerHTML = `
 		<div class="flex flex-col items-center gap-4">
-			<button id="back-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
+			<button aria-label="${t("back")}" id="back-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
 			<h2 class="text-xl font-semibold">${t("how_many_players")}</h2>
 		</div>
 		<div class="flex justify-center gap-4 mt-4">
@@ -70,6 +173,10 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType, m
 
 	// Empeche d'appuyer sur tout les autres boutons en dehors de la div de Pong.
 	disableUnrelatedButtons('pong');
+
+	const ScreenReader = screenReader.getInstance();
+	ScreenReader.cancelSpeech();
+	ScreenReader.announcePageChange(t("player_number_choice"));
 
 	// Bouton retour.
 	const backButton = document.getElementById("back-button");
@@ -124,13 +231,13 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	// Creer les champs pour rentrer les alias selon le nombre de joueurs.
 	let inputsHTML = "";
 	for (let i = 1; i <= playerCount; i++) {
-		if ((i === 2 && gameType === 'pong' && playerCount === 2) || 
+		if ((i === 2 && gameType === 'pong' && playerCount === 2) ||
 			(i >= 2 && i <= 4 && gameType === 'pong' && playerCount === 4)) {
 			// Add AI toggle for player 2 in 2-player mode, and players 2,3,4 in 4-player mode
 			inputsHTML += `
 				<div class="mt-2 w-full">
 					<div class="flex items-center w-full">
-						<input type="text" id="playerAlias${i}" class="border p-2 rounded-l flex-1" placeholder="Player ${i}">
+						<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded-l w-[calc(100%-100px)]" placeholder="Player ${i}">
 						<button id="aiToggleBtn${i}" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
 					</div>
 				</div>
@@ -138,7 +245,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 		} else {
 			inputsHTML += `
 				<div class="mt-2 w-full">
-					<input type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="Player ${i}">
+					<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="Player ${i}">
 				</div>
 			`;
 		}
@@ -147,7 +254,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	// Creer la div complete.
 	container.innerHTML = `
 		<div class="flex flex-col item-center gap-4">
-			<button id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
+			<button aria-label="${t("back")}" id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
 			<h2 class="text-xl font-semibold">${t("players_names")}</h2>
 		</div>
 		<div class="flex flex-col items-center w-full mb-2">
@@ -160,6 +267,10 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 
 	// Empeche d'appuyer sur les autres boutons en dehors de la div appropriée.
 	disableUnrelatedButtons(gameType);
+
+	const ScreenReader = screenReader.getInstance();
+	ScreenReader.cancelSpeech();
+	ScreenReader.announcePageChange(t("player_alias_input"));
 
 	// Bouton retour avec ID spécifique au type de jeu.
 	const backButton = document.getElementById(`back-button-${gameType}`);
@@ -217,7 +328,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			if (buttonType === 'match') {
 				if (playerCount === 2) {
 					const player2Input = document.getElementById('playerAlias2') as HTMLInputElement;
-					
+
 					startButton.onclick = async () => {
 						const alias1Elem = document.getElementById('playerAlias1') as HTMLInputElement;
 						const alias1 = alias1Elem ? alias1Elem.value.trim() : '';
@@ -291,9 +402,9 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 						const isAI3Enabled = alias3Elem?.disabled || false;
 						const isAI4Enabled = alias4Elem?.disabled || false;
 
-						if (!alias1 || 
-							(!isAI2Enabled && !alias2) || 
-							(!isAI3Enabled && !alias3) || 
+						if (!alias1 ||
+							(!isAI2Enabled && !alias2) ||
+							(!isAI3Enabled && !alias3) ||
 							(!isAI4Enabled && !alias4)) {
 							alert('Please enter player names');
 							return;
@@ -341,7 +452,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 								body: JSON.stringify({name: alias4}),
 							}).then(res => res.json());
 
-							if (player1Response.success && player2Response.success && 
+							if (player1Response.success && player2Response.success &&
 								player3Response.success && player4Response.success) {
 								const matchResponse = await fetch('/api/players/match4', {
 									method: 'POST',
@@ -436,7 +547,7 @@ export async function showHistory(event: Event, gameType: string) {
 		const headerDiv = document.createElement('div');
 		headerDiv.className = 'flex items-center justify-center gap-2 mb-4 mt-2';
 		headerDiv.innerHTML = `
-			<button id="back-button-${gameType}" class="little_btn rounded-lg border p-4 shadow flex items-center justify-center w-8 h-8"><span class="inline-block">&lt;</span></button>
+			<button aria-label="${t("back")}" id="back-button-${gameType}" class="little_btn rounded-lg border p-4 shadow flex items-center justify-center w-8 h-8"><span class="inline-block">&lt;</span></button>
 			<h2 class="text-xl font-semibold">${t("history")} ${gameType}</h2>
 		`;
 		historyContainer.appendChild(headerDiv);
@@ -535,6 +646,9 @@ export async function showHistory(event: Event, gameType: string) {
 		// Empeche d'appuyer sur les boutons en dehors des div d'historiques.
 		disableUnrelatedButtons(gameType === 'pong' || gameType === 'fourpong' ? 'pfc' : 'pong');
 
+		const ScreenReader = screenReader.getInstance();
+		ScreenReader.announcePageChange(t("history"));
+
 		// Bouton retour.
 		const backButton = document.getElementById(`back-button-${gameType}`);
 		if (backButton) {
@@ -600,6 +714,8 @@ export function startGame(playerCount: number, matchType: MatchType) {
 	if (!container)
 		return;
 
+	const ScreenReader = screenReader.getInstance();
+
 	console.log("Starting game with players:");
 	console.log("Player 1:", localStorage.getItem('player1Alias'));
 	console.log("Player 2:", localStorage.getItem('player2Alias'));
@@ -612,6 +728,23 @@ export function startGame(playerCount: number, matchType: MatchType) {
 	Game.player1Score = 0;
 	Game.player2Score = 0;
 	Game.setGameOver(false);
+
+	/**
+	 * @brief Calcul le delai du lecteur d'ecran.
+	 * @param text texte a definir le delai.
+	 */
+	function getScreenReaderDelay(text: string): number {
+		if (!ScreenReader.isEnabled())
+			return 100; // Delai mininal.
+
+		const wordsPerMinute = 180;
+		const wordsPerSecond = wordsPerMinute / 60;
+		const wordCount = text.split(' ').length;
+		const readingTimeMs = (wordCount / wordsPerSecond) * 1000;
+
+		// Marge de securite de 1.5sec.
+		return Math.max(readingTimeMs + 2000, 3000); // Minimum 3sec.
+	}
 
 	// Set-up l'esapce de jeu.
 	if (playerCount === 2) {
@@ -632,25 +765,41 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		}
 
 		if (matchType === 'normal') {
+			const delay = getScreenReaderDelay(t("pong_explanation"));
+
 			setTimeout(() => {
 				const game = new Game();
+
+				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
+
 				// Check if AI was enabled in player selection
 				const player2Input = document.getElementById('playerAlias2') as HTMLInputElement;
 				if (player2Input?.disabled) {
 					Paddle2.setAIEnabled(true);
 				}
-				requestAnimationFrame(game.gameLoop.bind(game));
-			});
+
+				setTimeout(() => {
+					requestAnimationFrame(game.gameLoop.bind(game));
+				}, delay);
+			}, 100);
 		} else if (matchType === 'bonus') {
+			const delay = getScreenReaderDelay(t("pong_explanation"));
+
 			setTimeout(() => {
 				const game = new GameBonus();
+
+				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
+
 				// Check if AI was enabled in player selection
 				const player2Input = document.getElementById('playerAlias2') as HTMLInputElement;
 				if (player2Input?.disabled) {
 					Paddle2Bonus.setAIEnabled(true);
 				}
-				requestAnimationFrame(game.gameLoop.bind(game));
-			});
+
+				setTimeout(() => {
+					requestAnimationFrame(game.gameLoop.bind(game));
+				}, delay);
+			}, 100);
 		}
 	} else if (playerCount === 4) {
 		container.innerHTML = `
@@ -666,15 +815,29 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		GameFour.player4Score = 0;
 
 		if (matchType === 'normal') {
+			const delay = getScreenReaderDelay(t("pong-four_explanation"));
+
 			setTimeout(() => {
 				const game = new GameFour();
-				requestAnimationFrame(game.gameLoop.bind(game));
-			});
+
+				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
+
+				setTimeout(() => {
+					requestAnimationFrame(game.gameLoop.bind(game));
+				}, delay);
+			}, 100);
 		} else if (matchType === 'bonus') {
+			const delay = getScreenReaderDelay(t("pong-four_explanation"));
+
 			setTimeout(() => {
 				const game = new GameFourBonus();
-				requestAnimationFrame(game.gameLoop.bind(game));
-			});
+
+				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
+
+				setTimeout(() => {
+					requestAnimationFrame(game.gameLoop.bind(game));
+				}, delay);
+			}, 100);
 		}
 	}
 }
@@ -685,6 +848,9 @@ export function startGame(playerCount: number, matchType: MatchType) {
 export function showHome() {
 	const appElement = document.getElementById('app');
 	if (appElement) {
+		const ScreenReader = screenReader.getInstance();
+		ScreenReader.cancelSpeech();
+
 		// Clean up tournament mode and AI state
 		localStorage.removeItem('tournamentMode');
 		localStorage.removeItem('currentMatchId');
@@ -709,7 +875,7 @@ export function showHome() {
 		localStorage.removeItem('player2Alias');
 		localStorage.removeItem('player3Alias');
 		localStorage.removeItem('player4Alias');
-		
+
 		appElement.innerHTML = homePage();
 
 		const pongContainer = document.getElementById("Pong");
@@ -724,6 +890,6 @@ export function showHome() {
 		attachHomePageListeners();
 		attachLanguageListeners();
 		attachTextListeners();
+		initializeScreenReader();
 	}
 }
-

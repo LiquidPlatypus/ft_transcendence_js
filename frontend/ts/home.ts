@@ -6,13 +6,13 @@ export function homePage() {
 		<div class="fixed top-4 right-4 z-10">
 			<!-- Boutons pour choisir sa langue. -->
 			<div class="flex gap-2">
-				<button class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="fr">
+				<button aria-label="français" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="fr">
 					<img src="../static/fr.png" alt="français" class="w-8 h-6 rounded object-cover">
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="en">
+				<button aria-label="english" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="en">
 					<img src="../static/en.png" alt="English" class="w-8 h-6 rounded object-cover">
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="es">
+				<button aria-label="español" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="es">
 					<img src="../static/es.png" alt="español" class="w-8 h-6 rounded object-cover">
 				</button>
 			</div>
@@ -21,16 +21,16 @@ export function homePage() {
 		<div class="fixed top-4 left-4 z-10">
 		<!-- Boutons pour choisir son theme. -->
 			<div class="flex gap-2">
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-theme="CP">
+				<button aria-label="catpuccin" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-theme="CP">
 					<div class="w-8 h-6 bg-catpuccin border-2 border-black rounded transition hover:ring-2 hover:ring-accent"></div>
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-theme="HC">
+				<button aria-label="${t("high_contrast")}" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-theme="HC">
 					<div class="w-8 h-6 bg-green-600 text-white rounded transition hover:ring-2 hover:ring-accent">HC</div>
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-theme="OLED">
+				<button aria-label="oled" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-theme="OLED">
 					<div class="w-8 h-6 bg-black rounded transition hover:ring-2 hover:ring-accent"></div>
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-theme="WHITE">
+				<button aria-label="${t("white")}" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-theme="WHITE">
 					<div class="w-8 h-6 bg-gray-100 border border-gray-300 rounded transition hover:ring-2 hover:ring-accent"></div>
 				</button>
 			</div>
@@ -39,16 +39,32 @@ export function homePage() {
 		<div class="fixed top-11 left-4 z-10">
 		<!-- Boutons pour choisir la taille du texte. -->
 			<div class="flex gap-2">
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="normal">
+				<button aria-label="${t("normal_text")}" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-text="normal">
 					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent text-sm flex items-center justify-center">Tx</div>
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="large">
+				<button aria-label="${t("large_text")}" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-text="large">
 					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent text-base flex items-center justify-center">Lg</div>
 				</button>
-				<button class="transition rounded hover:brightness-110 focus:outline-none" data-text="bold">
+				<button aria-label="${t("bold_text")}" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-text="bold">
 					<div class="w-8 h-6 text-green rounded transition hover:ring-2 hover:ring-accent font-bold flex items-center justify-center">Bl</div>
 				</button>
 			</div>
+		</div>
+		
+		<div class="fixed top-18 left-4 z-10">
+			<!-- Bouton pour activer le lecteur d'écran -->
+			<button id="screen-reader-toggle" 
+					class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent bg-gray-100 hover:bg-gray-200 border-2 border-gray-300"
+					aria-label="${t("enable_screen_reader")}"
+					title="Activer/Désactiver le lecteur d'écran"
+					role="switch"
+					aria-pressed="false">
+				<img src="../static/megaphone.png" 
+					 alt="${t("enable_screen_reader")}" 
+					 class="w-8 h-6 rounded object-cover"
+					 aria-hidden="true">
+			</button>
+			<p>${t("chrome_recommendation")}</p>
 		</div>
 
 		<!-- Div centrant les elements au centre. -->
@@ -82,7 +98,7 @@ export function homePage() {
 				<div class="mt-4 grid grid-cols-1 lg:grid-cols-2 justify-center gap-10 flex-shrink-0">
 					<div id="history-pong" class="ml-4 grid grid-cols-1 lg:grid-cols-2 justify-center max-h-60 overflow-y-auto">
 						<button id="pong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history")}</button>
-						<button id="fourpong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history-4")}</button>
+						<button aria-label="${t("history_4")}" id="fourpong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history-4")}</button>
 					</div>
 					<div id="history-pfc" class="flex flex-cols items-center max-h-60 overflow-y-auto">
 						<button id="pfc-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history")}</button>

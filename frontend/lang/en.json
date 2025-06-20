@@ -5,6 +5,7 @@
   "play": "Play",
   "history": "History",
   "history-4": "History 4",
+  "histpry_4": "four player history",
   "back": "Back",
 
   "how_many_players": "How many players?",
@@ -36,7 +37,6 @@
   "error_match_creation": "Error during match creation",
   "error_score_save": "Error during score registration",
   "wins_round": "win the round !",
-  "player_wins_round": "Player {{player}} win the round !",
 
   "select_game_mode": "Game mode",
   "normal": "Normal",
@@ -44,5 +44,34 @@
 
   "rock": "Rock",
   "paper": "Paper",
-  "scissors": "Scissors"
+  "scissors": "Scissors",
+
+  "home": "Home",
+  "match_type_choice": "Match type choice",
+  "player_number_choice": "Player count choice",
+  "player_alias_input": "Player aliases input",
+  "pong_game": "Pong game",
+  "pong_explanation": "Game launched. use W and S for player 1, up and down arrows for player 2.",
+  "player1": "Player 1",
+  "player2": "Player 2",
+  "player3": "Player 3",
+  "player4": "Player 4",
+  "pong-four": "Four players pong",
+  "pong-four_explanation": "Game launched. use W and S for player 1, up and down arrows for player 2, I and O for player 3, C and V for player 4",
+  "pfc_explanation": "Game launched. player 1: Q for stone, W for paper , E for scissors. player 2: J for stone, K for paper, L for scissors.",
+  "choose": "choosed",
+  "pageLoaded": "Page {{pageName}} loaded",
+  "chrome_recommendation": "Please use Chrome<br>for a better experience<br>with the screen reader",
+
+  "high_contrast": "high contrast",
+  "white": "white",
+  "screen_reader": "screen reader",
+  "enable_screen_reader": "enable screen reader",
+  "disable_screen_reader": "disable screen reader",
+  "screen_reader_enabled": "screen reader enabled",
+  "screen_reader_disabled": "screen reader disabled",
+
+  "normal_text": "normal text",
+  "large_text": "large text",
+  "bold_text": "bold text"
 }
