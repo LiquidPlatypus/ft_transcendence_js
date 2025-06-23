@@ -158,10 +158,12 @@ export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
 			const game = target.dataset.game as GameType;
 
 			if (game === 'pong') {
+				navigate('/pong/'+matchType+'/playerSize');
 				import('./script.js').then(module => {
 					module.showPlayerCountSelection(buttonType, matchType);
 				});
 			} else if (game === 'pfc') {
+				navigate('/chifoumi/select/players');
 				import('./script.js').then(module => {
 					module.showAliasInputs(2, buttonType, matchType, game);
 				});
