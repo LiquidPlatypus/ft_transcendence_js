@@ -1,5 +1,7 @@
 import { startGame } from "./script.js";
 import {MatchType} from "./Utilities.js";
+import {t} from "../lang/i18n.js";
+import {isValidString} from "./sanitize.js";
 
 /**
  * @brief Creer les matchs a 2 joueurs.
@@ -17,6 +19,11 @@ export async function showMatch(matchType: MatchType) {
 	const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
 	const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;
 	console.log(`Match entre ${player1} et ${player2}`);
+
+	if (!isValidString(player1) || !isValidString(player2)) {
+		alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
+		return ;
+	}
 
 	// Stock les alias pour l'affichage en match.
 	localStorage.setItem('player1Alias', player1);
@@ -77,6 +84,11 @@ export async function showFourPlayersMatch(matchType: MatchType) {
 	const player3 = (document.getElementById('playerAlias3') as HTMLInputElement).value;
 	const player4 = (document.getElementById('playerAlias4') as HTMLInputElement).value;
 	console.log(`Match entre ${player1}, ${player2}, ${player3} et ${player4}`);
+
+	if (!isValidString(player1) || !isValidString(player2) || !isValidString(player3) || !isValidString(player4)) {
+		alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
+		return ;
+	}
 
 	// Stock les alias pour l'affichage en match.
 	localStorage.setItem('player1Alias', player1);
