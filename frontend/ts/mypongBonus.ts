@@ -1,6 +1,7 @@
 import { showHome, startGame } from "./script.js";
 import { t } from "../lang/i18n.js"
 import {screenReader} from "./screenReader.js";
+import {navigate, onNavigate} from "./popstate.js";
 
 enum KeyBindings{
 	UP = 87,
@@ -106,6 +107,55 @@ export class GameBonus{
 			this.lastBonusTime = 0; // Réinitialise le timer de cooldown
 		})
 
+		window.addEventListener("popstate", this.handlePopState.bind(this));
+
+		this.cleanupNavigateListener = onNavigate(() => {
+			if (!GameBonus.isGameOver()) {
+				GameBonus.setGameOver(true);
+				this.handlePlayerLeave();
+			}
+		});
+	}
+
+	private cleanupNavigateListener: (() => void) | null = null; // Pour stocker la fonction de désabonnement
+
+	private handlePlayerLeave() {
+		const victoryMessageElement = document.getElementById("");
+		if (victoryMessageElement) {
+			const menu_btn = document.getElementById("menu-btn");
+			if (menu_btn) {
+				menu_btn.addEventListener("click", () => {
+					// Nettoyer le stockage local si nécessaire
+					localStorage.removeItem('currentMatchId');
+					localStorage.removeItem("player1Alias");
+					localStorage.removeItem("player2Alias");
+					localStorage.removeItem("player3Alias");
+					localStorage.removeItem("player4Alias");
+					localStorage.removeItem('tournamentMode');
+					localStorage.removeItem('semifinal1Id');
+					localStorage.removeItem('semifinal2Id');
+					localStorage.removeItem('semifinal1Winner');
+					localStorage.removeItem('semifinal1Loser');
+					localStorage.removeItem('semifinal2Winner');
+					localStorage.removeItem('semifinal2Loser');
+					localStorage.removeItem('player1Id');
+					localStorage.removeItem('player2Id');
+					localStorage.removeItem('player3Id');
+					localStorage.removeItem('player4Id');
+					localStorage.removeItem('currentTournamentId');
+					localStorage.removeItem('tournamentWinnerAlias');
+					navigate('/home');
+					showHome();
+				});
+			}
+		}
+		GameBonus.setGameOver(true);
+	}
+
+	private handlePopState() {
+		if (!GameBonus.isGameOver()) {
+			GameBonus.setGameOver(true);
+		}
 	}
 
 	getCanvasColors() {
@@ -871,8 +921,10 @@ class Ball extends Entity{
 							localStorage.removeItem("player3Alias");
 							localStorage.removeItem("player4Alias");
 						}
-							showHome();
-						});
+
+						navigate('/home');
+						showHome();
+					});
 				}
 			}
 

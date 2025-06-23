@@ -1,6 +1,7 @@
 import { showHome, startGame } from "./script.js";
 import { t } from "../lang/i18n.js"
 import {screenReader} from "./screenReader.js";
+import {navigate, onNavigate} from "./popstate.js";
 
 enum KeyBindings{
 	UP = 87,
@@ -27,6 +28,8 @@ export class Game{
 
 	private ball: Ball;
 
+	private cleanupNavigateListener: (() => void) | null = null; // Pour stocker la fonction de désabonnement
+
 	public static ScreenReader = screenReader.getInstance();
 
 	constructor() {
@@ -47,6 +50,15 @@ export class Game{
 
 		window.addEventListener("keyup", function(e){
 			Game.keysPressed[e.which] = false;
+		});
+
+		window.addEventListener("popstate", this.handlePopState.bind(this));
+
+		this.cleanupNavigateListener = onNavigate(() => {
+			if (!Game.isGameOver()) {
+				Game.setGameOver(true);
+				this.handlePlayerLeave();
+			}
 		});
 
 		const paddleWidth:number = 20, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
@@ -74,6 +86,45 @@ export class Game{
 		// Enable AI for player 2 if it is AI
 		if (isPlayer2AI) {
 			Paddle2.setAIEnabled(true);
+		}
+	}
+
+	private handlePlayerLeave() {
+		const victoryMessageElement = document.getElementById("Pong");
+		if (victoryMessageElement) {
+			const menu_btn = document.getElementById("menu-btn");
+			if (menu_btn) {
+				menu_btn.addEventListener("click", () => {
+					// Nettoyer le stockage local si nécessaire
+					localStorage.removeItem('currentMatchId');
+					localStorage.removeItem("player1Alias");
+					localStorage.removeItem("player2Alias");
+					localStorage.removeItem("player3Alias");
+					localStorage.removeItem("player4Alias");
+					localStorage.removeItem('tournamentMode');
+					localStorage.removeItem('semifinal1Id');
+					localStorage.removeItem('semifinal2Id');
+					localStorage.removeItem('semifinal1Winner');
+					localStorage.removeItem('semifinal1Loser');
+					localStorage.removeItem('semifinal2Winner');
+					localStorage.removeItem('semifinal2Loser');
+					localStorage.removeItem('player1Id');
+					localStorage.removeItem('player2Id');
+					localStorage.removeItem('player3Id');
+					localStorage.removeItem('player4Id');
+					localStorage.removeItem('currentTournamentId');
+					localStorage.removeItem('tournamentWinnerAlias');
+					navigate('/home');
+					showHome();
+				});
+			}
+		}
+		Game.setGameOver(true);
+	}
+
+	private handlePopState() {
+		if (!Game.isGameOver()) {
+			Game.setGameOver(true);
 		}
 	}
 
@@ -144,6 +195,7 @@ export class Game{
 		this.gameContext.fillText(Game.player1Score.toString(), this.gameCanvas.width / 4, 55);
 		this.gameContext.fillText(Game.player2Score.toString(), (3 * this.gameCanvas.width) / 4, 55);
 	}
+
 	draw() {
 		if (!this.gameContext || !this.gameCanvas)
 			return ;
@@ -158,6 +210,7 @@ export class Game{
 		this.player2.draw(this.gameContext);
 		this.ball.draw(this.gameContext);
 	}
+
 	update() {
 		if (!this.gameCanvas)
 			return ;
@@ -166,6 +219,7 @@ export class Game{
 		this.player2.update(this.gameCanvas, this.ball);
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
 	}
+
 	gameLoop() {
 		if (gameOver) return;
 
@@ -755,6 +809,8 @@ class Ball extends Entity {
 							localStorage.removeItem('currentMatchType');
 							localStorage.removeItem('pendingMatchType');
 							localStorage.removeItem('currentMatchId');
+
+							navigate('/home');
 							showHome();
 						});
 					}
@@ -943,6 +999,7 @@ class Ball extends Entity {
 							localStorage.removeItem("player2Alias");
 							localStorage.removeItem("player3Alias");
 							localStorage.removeItem("player4Alias");
+							navigate('/home');
 							showHome();
 						});
 					}

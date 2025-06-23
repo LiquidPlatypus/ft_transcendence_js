@@ -2,6 +2,7 @@ import { showHome } from "./script.js";
 import {t} from "../lang/i18n.js";
 import {MatchType} from "./Utilities.js";
 import {screenReader} from "./screenReader.js"
+import {navigate} from "./popstate.js";
 
 type Choix = 'pierre' | 'feuille' | 'ciseaux';
 
@@ -9,6 +10,8 @@ let scoreJ1 = 0;
 let scoreJ2 = 0;
 let choixJ1: Choix | null = null;
 let choixJ2: Choix | null = null;
+
+let handleKeydownGlobal: (e: KeyboardEvent) => void;
 
 const symbols: Record<Choix, string> = {
 	pierre: "🪨",
@@ -21,59 +24,60 @@ const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseau
 
 const ScreenReader = screenReader.getInstance();
 
-/**
- * @brief Lance le pfc et la logique du back.
- * @param startButton bouton start.
- * @param matchType normal/bonus.
- */
 export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
-		const player1 = (document.getElementById("playerAlias1") as HTMLInputElement).value;
-		const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
-		console.log(`Match entre ${player1} et ${player2}`);
-
-		// Stock les alias dans le localStorage.
-		localStorage.setItem('player1Alias', player1);
-		localStorage.setItem('player2Alias', player2);
-
-		try {
-			// Creer les joueurs dans le back.
-			const player1Response = await fetch('api/players', {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({name: player1}),
-			}).then(res => res.json());
-
-			const player2Response = await fetch('api/players', {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({name: player2}),
-			}).then(res => res.json());
-
-			if (player1Response.success && player2Response.success) {
-				// Creer le match dans le back.
-				const matchResponse = await fetch("api/players/match", {
-					method: 'POST',
-					headers: {'Content-Type': 'application/json'},
-					body: JSON.stringify({
-						player1Id: player1Response.id,
-						player2Id: player2Response.id,
-						gameType: 'pfc'
-					}),
-				}).then(res => res.json());
-
-				if (matchResponse.success) {
-					localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-					if (matchType === 'normal')
-						init();
-					else if (matchType === 'bonus')
-						init_bonus();
-				}
-			}
-		} catch (error) {
-			console.error(`${t("error_match_creation")}`, error);
-		}
+		console.log("start_pf called with matchType:", matchType);
+		navigate('/chifoumi/game/' + matchType);
+		showPFCMatch(matchType);
 	});
+}
+
+export async function showPFCMatch(matchType: MatchType) {
+	const player1 = (document.getElementById("playerAlias1") as HTMLInputElement).value;
+	const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
+	console.log(`Match entre ${player1} et ${player2}`);
+
+	// Stock les alias dans le localStorage.
+	localStorage.setItem('player1Alias', player1);
+	localStorage.setItem('player2Alias', player2);
+
+	try {
+		// Creer les joueurs dans le back.
+		const player1Response = await fetch('api/players', {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({name: player1}),
+		}).then(res => res.json());
+
+		const player2Response = await fetch('api/players', {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({name: player2}),
+		}).then(res => res.json());
+
+		if (player1Response.success && player2Response.success) {
+			// Creer le match dans le back.
+			const matchResponse = await fetch("api/players/match", {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({
+					player1Id: player1Response.id,
+					player2Id: player2Response.id,
+					gameType: 'pfc'
+				}),
+			}).then(res => res.json());
+
+			if (matchResponse.success) {
+				localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
+				if (matchType === 'normal')
+					init();
+				else if (matchType === 'bonus')
+					init_bonus();
+			}
+		}
+	} catch (error) {
+		console.error(`${t("error_match_creation")}`, error);
+	}
 }
 
 function creerElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, textContent?: string): HTMLElementTagNameMap[K] {
@@ -132,7 +136,7 @@ function init() {
 	const vainqueur = creerElement("div", "", "");
 	vainqueur.id = "vainqueur";
 
-	container.append(instructions1, instructions2, arena, resultat, scores, vainqueur);
+	container.append(title, instructions1, instructions2, arena, resultat, scores, vainqueur);
 
 	ScreenReader.announceGameEvent(t("pfc_explanation"));
 
@@ -187,6 +191,7 @@ function init() {
 		}
 	}
 
+	handleKeydownGlobal = handleKeydown;
 	document.addEventListener("keydown", handleKeydown);
 
 	function verifierVainqueur(div: HTMLElement) {
@@ -213,6 +218,7 @@ function init() {
 		returnButton.id = "return-button";
 		div.appendChild(returnButton);
 		returnButton.addEventListener("click", () => {
+			navigate('/home');
 			showHome();
 		});
 
@@ -378,6 +384,7 @@ function init_bonus() {
 		}
 	}
 
+	handleKeydownGlobal = handleKeydown;
 	document.addEventListener("keydown", handleKeydown);
 
 	function verifierVainqueur(div: HTMLElement) {
@@ -397,6 +404,7 @@ function init_bonus() {
 		returnButton.id = "return-button";
 		div.appendChild(returnButton);
 		returnButton.addEventListener("click", () => {
+			navigate('/home');
 			showHome();
 		});
 
