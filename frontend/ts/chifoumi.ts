@@ -3,6 +3,7 @@ import {t} from "../lang/i18n.js";
 import {MatchType} from "./Utilities.js";
 import {screenReader} from "./screenReader.js"
 import {navigate} from "./popstate.js";
+import {isValidString} from "./sanitize.js";
 
 type Choix = 'pierre' | 'feuille' | 'ciseaux';
 
@@ -36,6 +37,11 @@ export async function showPFCMatch(matchType: MatchType) {
 	const player1 = (document.getElementById("playerAlias1") as HTMLInputElement).value;
 	const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
 	console.log(`Match entre ${player1} et ${player2}`);
+
+	if (!isValidString(player1) || !isValidString(player2)) {
+		alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
+		return ;
+	}
 
 	// Stock les alias dans le localStorage.
 	localStorage.setItem('player1Alias', player1);
