@@ -12,6 +12,7 @@ import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
 import { Paddle2 } from './mypong.js';
+import {navigate} from "./popstate.js";
 
 // Ecouteur d'evenements.
 document.addEventListener('DOMContentLoaded', async () => {
@@ -38,7 +39,7 @@ export type ButtonType = 'match' | 'tournoi'
  * @param buttonType type de match (simple/tournoi).
  * @param matchType normal/bonus.
  */
-export function showPlayerCountSelection(event: Event, buttonType: ButtonType, matchType: MatchType) {
+export function showPlayerCountSelection(buttonType: ButtonType, matchType: MatchType) {
 	// Recupere le contenu de la div "Pong".
 	const container = document.getElementById("Pong");
 	if (!container)
@@ -76,7 +77,8 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType, m
 	const backButton = document.getElementById("back-button");
 	if (backButton) {
 		backButton.addEventListener("click", () => {
-			matchTypeChoice(event, buttonType, 'pong');
+
+			matchTypeChoice(buttonType, 'pong');
 		});
 	}
 
@@ -85,6 +87,7 @@ export function showPlayerCountSelection(event: Event, buttonType: ButtonType, m
 		btn.addEventListener("click", (event) => {
 			const target = event.target as HTMLButtonElement;
 			const playerCount = parseInt(target.dataset.count || "2", 10);
+			navigate('/pong/'+matchType+'/select/players/' +(playerCount === 2 ? 'two' : 'four'));
 			showAliasInputs(playerCount, buttonType, matchType, 'pong');
 		});
 	});
@@ -166,14 +169,19 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	if (backButton) {
 		if (buttonType === 'match' && gameType === 'pong')
 			backButton.addEventListener("click", (event) => {
-				showPlayerCountSelection(event, buttonType, matchType);
+				navigate('/pong/'+matchType+'/select/players/' +(playerCount === 2 ? 'two' : 'four'));
+				showPlayerCountSelection(buttonType, matchType);
 			});
 		else if (buttonType === 'match' && gameType === 'pfc')
 			backButton.addEventListener("click", (event) => {
-				matchTypeChoice(event, buttonType, 'pfc');
+				navigate('/chifoumi/select/type');
+				matchTypeChoice(buttonType, 'pfc');
 			})
 		else if (buttonType === 'tournoi')
-			backButton.addEventListener("click", (event) => showHome());
+			backButton.addEventListener("click", (event) => {
+				navigate('/home');
+				showHome();
+			});
 	}
 
 	// Set up AI toggle if in pong mode with 2 players
@@ -292,7 +300,7 @@ interface Match {
  * @param gameType type de jeu (pong/pfc).
  * @param playerCount nombre de joueurs.
  */
-export async function showHistory(event: Event, gameType: string) {
+export async function showHistory(gameType: string) {
 	// Recupere le contenu de la div "history" en fonction du type de jeu.
 	const historyContainer = document.getElementById(`history-${gameType === 'fourpong' ? 'pong' : gameType}`);
 	if (!historyContainer)
@@ -458,19 +466,19 @@ export async function showHistory(event: Event, gameType: string) {
 				// Reattache l'ecouteur pour le bouton hist.
 				const pongHistBtn = document.getElementById('pong-hist-btn');
 				if (pongHistBtn) {
-					pongHistBtn.addEventListener("click", (e) => showHistory(e, 'pong'));
+					pongHistBtn.addEventListener("click", (e) => showHistory('pong'));
 					pongHistBtn.classList.remove('hidden');
 				}
 
 				const fourpongHistBtn = document.getElementById('fourpong-hist-btn');
 				if (fourpongHistBtn) {
-					fourpongHistBtn.addEventListener("click", (e) => showHistory(e, 'fourpong'));
+					fourpongHistBtn.addEventListener("click", (e) => showHistory('fourpong'));
 					fourpongHistBtn.classList.remove('hidden');
 				}
 
 				const pfcHistBtn = document.getElementById('pfc-hist-btn');
 				if (pfcHistBtn) {
-					pfcHistBtn.addEventListener("click", (e) => showHistory(e, 'pfc'));
+					pfcHistBtn.addEventListener("click", (e) => showHistory('pfc'));
 					pfcHistBtn.classList.remove('hidden');
 				}
 

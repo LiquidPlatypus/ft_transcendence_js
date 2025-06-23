@@ -1,4 +1,5 @@
 import { t } from '../lang/i18n.js'
+import {navigate} from "./popstate.js";
 
 export function homePage() {
 	// Page d'acceuil du site.

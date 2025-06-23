@@ -21,6 +21,7 @@ interface PlayerResponse {
  * @param event
  */
 export async function startTournament(event: Event): Promise<void> {
+	;
 	event.preventDefault();
 
 	const button = event.target as HTMLButtonElement;

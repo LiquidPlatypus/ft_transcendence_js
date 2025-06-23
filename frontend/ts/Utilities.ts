@@ -1,6 +1,7 @@
 import {ButtonType, showPlayerCountSelection, showAliasInputs} from "./script.js";
 import {updateDisabledButtonStyles} from "./themeSwitcher.js";
 import {t} from "../lang/i18n.js";
+import { navigate } from "./popstate.js";
 
 /**
  * @brief Desactive ou active les boutons au besoin.
@@ -90,7 +91,7 @@ export type GameType = 'pong' | 'pfc'
  * @param buttonType type de match (simple/tournoi).
  * @param gameType type de jeu (pong/pfc).
  */
-export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: GameType) {
+export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
 	// Seectionne le bon conteneur en fonction du type de jeu
 	const containerID = gameType === 'pong' ? "Pong" : "pfc";
 	const container = document.getElementById(containerID);
@@ -137,6 +138,7 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 			// Retour à la page d'accueil
 			const appElement = document.getElementById('app');
 			if (appElement) {
+				navigate('/home');
 				import('./script.js').then(module => {
 					module.showHome();
 				});
@@ -152,10 +154,12 @@ export function matchTypeChoice(event: Event, buttonType: ButtonType, gameType: 
 			const game = target.dataset.game as GameType;
 
 			if (game === 'pong') {
+				navigate('/pong/'+matchType+'/playerSize');
 				import('./script.js').then(module => {
-					module.showPlayerCountSelection(event, buttonType, matchType);
+					module.showPlayerCountSelection(buttonType, matchType);
 				});
 			} else if (game === 'pfc') {
+				navigate('/chifoumi/select/players');
 				import('./script.js').then(module => {
 					module.showAliasInputs(2, buttonType, matchType, game);
 				});

@@ -69,7 +69,7 @@ function updateTextStyles() {
 }
 
 /**
- * @brief Attache les ecouteurs d'evenements aux boutons de textes.
+ * @brief Attache les listeners aux boutons de textes.
  */
 export function attachTextListeners() {
 	const textButtons = document.querySelectorAll('[data-text]');
