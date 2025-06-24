@@ -65,6 +65,7 @@ export class Game{
 
 		this.player1 = new Paddle(paddleWidth, paddleHeight, wallOffset, this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
+
 		this.ball = new Ball(ballSize, ballSize, this.gameCanvas.width / 2 - ballSize / 2, this.gameCanvas.height / 2 - ballSize / 2);
 
 		// Check if we're in tournament mode and if players are AI
@@ -114,6 +115,10 @@ export class Game{
 					localStorage.removeItem('player4Id');
 					localStorage.removeItem('currentTournamentId');
 					localStorage.removeItem('tournamentWinnerAlias');
+					localStorage.removeItem('isPlayer1AI');
+					localStorage.removeItem('isPlayer2AI');
+					Paddle.setAIEnabled(false);
+					Paddle2.setAIEnabled(false);
 					navigate('/home');
 					showHome();
 				});
@@ -125,6 +130,34 @@ export class Game{
 	private handlePopState() {
 		if (!Game.isGameOver()) {
 			Game.setGameOver(true);
+		}
+
+		localStorage.removeItem('currentMatchId');
+		localStorage.removeItem("player1Alias");
+		localStorage.removeItem("player2Alias");
+		localStorage.removeItem("player3Alias");
+		localStorage.removeItem("player4Alias");
+		localStorage.removeItem('tournamentMode');
+		localStorage.removeItem('semifinal1Id');
+		localStorage.removeItem('semifinal2Id');
+		localStorage.removeItem('semifinal1Winner');
+		localStorage.removeItem('semifinal1Loser');
+		localStorage.removeItem('semifinal2Winner');
+		localStorage.removeItem('semifinal2Loser');
+		localStorage.removeItem('player1Id');
+		localStorage.removeItem('player2Id');
+		localStorage.removeItem('player3Id');
+		localStorage.removeItem('player4Id');
+		localStorage.removeItem('currentTournamentId');
+		localStorage.removeItem('tournamentWinnerAlias');
+		localStorage.removeItem('isPlayer1AI');
+		localStorage.removeItem('isPlayer2AI');
+		Paddle.setAIEnabled(false);
+		Paddle2.setAIEnabled(false);
+
+		if (this.cleanupNavigateListener) {
+			this.cleanupNavigateListener();
+			this.cleanupNavigateListener = null;
 		}
 	}
 
@@ -809,6 +842,10 @@ class Ball extends Entity {
 							localStorage.removeItem('currentMatchType');
 							localStorage.removeItem('pendingMatchType');
 							localStorage.removeItem('currentMatchId');
+							localStorage.removeItem('isPlayer1AI');
+							localStorage.removeItem('isPlayer2AI');
+							Paddle.setAIEnabled(false);
+							Paddle2.setAIEnabled(false);
 
 							navigate('/home');
 							showHome();
@@ -999,6 +1036,10 @@ class Ball extends Entity {
 							localStorage.removeItem("player2Alias");
 							localStorage.removeItem("player3Alias");
 							localStorage.removeItem("player4Alias");
+							localStorage.removeItem('isPlayer1AI');
+							localStorage.removeItem('isPlayer2AI');
+							Paddle.setAIEnabled(false);
+							Paddle2.setAIEnabled(false);
 							navigate('/home');
 							showHome();
 						});

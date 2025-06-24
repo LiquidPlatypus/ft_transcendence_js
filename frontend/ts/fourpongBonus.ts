@@ -104,6 +104,8 @@ export class GameFourBonus {
 			GameFourBonus.keysPressed[e.which] = false;
 		});
 
+		window.addEventListener("popstate", this.handlePopState.bind(this));
+
 		let paddleWidth:number = 15, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
 
 		this.player1 = new Paddle(paddleWidth, paddleHeight, wallOffset, this.gameCanvas.height / 2 - paddleWidth / 2 - paddleHeight / 2);
@@ -160,6 +162,12 @@ export class GameFourBonus {
 					localStorage.removeItem('player4Id');
 					localStorage.removeItem('currentTournamentId');
 					localStorage.removeItem('tournamentWinnerAlias');
+					localStorage.removeItem('isPlayer2AI');
+					localStorage.removeItem('isPlayer3AI');
+					localStorage.removeItem('isPlayer4AI');
+					Paddle2.setAIEnabled(false);
+					Paddle3.setAIEnabled(false);
+					Paddle4.setAIEnabled(false);
 					navigate('/home');
 					showHome();
 				});
@@ -171,6 +179,36 @@ export class GameFourBonus {
 	private handlePopState() {
 		if (!GameFourBonus.isGameOver()) {
 			GameFourBonus.setGameOver(true);
+		}
+
+		localStorage.removeItem('currentMatchId');
+		localStorage.removeItem("player1Alias");
+		localStorage.removeItem("player2Alias");
+		localStorage.removeItem("player3Alias");
+		localStorage.removeItem("player4Alias");
+		localStorage.removeItem('tournamentMode');
+		localStorage.removeItem('semifinal1Id');
+		localStorage.removeItem('semifinal2Id');
+		localStorage.removeItem('semifinal1Winner');
+		localStorage.removeItem('semifinal1Loser');
+		localStorage.removeItem('semifinal2Winner');
+		localStorage.removeItem('semifinal2Loser');
+		localStorage.removeItem('player1Id');
+		localStorage.removeItem('player2Id');
+		localStorage.removeItem('player3Id');
+		localStorage.removeItem('player4Id');
+		localStorage.removeItem('currentTournamentId');
+		localStorage.removeItem('tournamentWinnerAlias');
+		localStorage.removeItem('isPlayer2AI');
+		localStorage.removeItem('isPlayer3AI');
+		localStorage.removeItem('isPlayer4AI');
+		Paddle2.setAIEnabled(false);
+		Paddle3.setAIEnabled(false);
+		Paddle4.setAIEnabled(false);
+
+		if (this.cleanupNavigateListener) {
+			this.cleanupNavigateListener();
+			this.cleanupNavigateListener = null;
 		}
 	}
 
