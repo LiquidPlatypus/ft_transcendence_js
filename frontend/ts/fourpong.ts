@@ -52,6 +52,16 @@ export class GameFour {
 		isPaused = false;
 	}
 
+	public static resetGlobalState() {
+		gameOver = false;
+		isPaused = false;
+		// Add any other global/static resets if needed
+	}
+
+	private keydownHandler: (e: KeyboardEvent) => void;
+	private keyupHandler: (e: KeyboardEvent) => void;
+	private popstateHandler: (e: PopStateEvent) => void;
+
 	constructor(){
 		GameFour.resetGameState();  // Reset state when creating new game
 		const canvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
@@ -68,15 +78,12 @@ export class GameFour {
 		// Cache colors on init
 		this.cachedColors = this.getCanvasColors();
 
-		window.addEventListener("keydown", function(e){
-			GameFour.keysPressed[e.which] = true;
-		});
-
-		window.addEventListener("keyup", function(e){
-			GameFour.keysPressed[e.which] = false;
-		});
-
-		window.addEventListener("popstate", this.handlePopState.bind(this));
+		this.keydownHandler = (e) => { GameFour.keysPressed[e.which] = true; };
+		this.keyupHandler = (e) => { GameFour.keysPressed[e.which] = false; };
+		this.popstateHandler = this.handlePopState.bind(this);
+		window.addEventListener("keydown", this.keydownHandler);
+		window.addEventListener("keyup", this.keyupHandler);
+		window.addEventListener("popstate", this.popstateHandler);
 
 		let paddleWidth:number = 15, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
 
@@ -278,6 +285,12 @@ export class GameFour {
 
 	public static isGameOver(): boolean {
 		return gameOver;
+	}
+
+	public cleanup() {
+		window.removeEventListener("keydown", this.keydownHandler);
+		window.removeEventListener("keyup", this.keyupHandler);
+		window.removeEventListener("popstate", this.popstateHandler);
 	}
 }
 

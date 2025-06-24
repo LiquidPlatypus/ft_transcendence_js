@@ -50,6 +50,10 @@ export class GameFourBonus {
 
 	public static ScreenReader = screenReader.getInstance();
 
+	private keydownHandler: (e: KeyboardEvent) => void;
+	private keyupHandler: (e: KeyboardEvent) => void;
+	private popstateHandler: (e: PopStateEvent) => void;
+
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
 		setTimeout(() => {
 			const ballPos = this.ball.getPosition();
@@ -96,15 +100,12 @@ export class GameFourBonus {
 
 		this.gameContext.font = "30px Orbitron";
 
-		window.addEventListener("keydown", function(e){
-			GameFourBonus.keysPressed[e.which] = true;
-		});
-
-		window.addEventListener("keyup", function(e){
-			GameFourBonus.keysPressed[e.which] = false;
-		});
-
-		window.addEventListener("popstate", this.handlePopState.bind(this));
+		this.keydownHandler = (e) => { GameFourBonus.keysPressed[e.which] = true; };
+		this.keyupHandler = (e) => { GameFourBonus.keysPressed[e.which] = false; };
+		this.popstateHandler = this.handlePopState.bind(this);
+		window.addEventListener("keydown", this.keydownHandler);
+		window.addEventListener("keyup", this.keyupHandler);
+		window.addEventListener("popstate", this.popstateHandler);
 
 		let paddleWidth:number = 15, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
 
@@ -372,6 +373,22 @@ export class GameFourBonus {
 
 	public static isGameOver(): boolean {
 		return gameOver;
+	}
+
+	public cleanup() {
+		window.removeEventListener("keydown", this.keydownHandler);
+		window.removeEventListener("keyup", this.keyupHandler);
+		window.removeEventListener("popstate", this.popstateHandler);
+	}
+
+	public static resetGlobalState() {
+		gameOver = false;
+		isPaused = false;
+		GameFourBonus.player1Score = 0;
+		GameFourBonus.player2Score = 0;
+		GameFourBonus.player3Score = 0;
+		GameFourBonus.player4Score = 0;
+		// Add any other global/static resets if needed
 	}
 }
 

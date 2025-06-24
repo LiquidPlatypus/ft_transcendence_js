@@ -43,6 +43,10 @@ export class GameBonus{
 
 	public static ScreenReader = screenReader.getInstance();
 
+	private keydownHandler: (e: KeyboardEvent) => void;
+	private keyupHandler: (e: KeyboardEvent) => void;
+	private popstateHandler: (e: PopStateEvent) => void;
+
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
 		setTimeout(() =>
 		{
@@ -83,13 +87,12 @@ export class GameBonus{
 
 		this.gameContext.font = "30px Orbitron";
 
-		window.addEventListener("keydown", function(e){
-			GameBonus.keysPressed[e.which] = true;
-		});
-
-		window.addEventListener("keyup", function(e){
-			GameBonus.keysPressed[e.which] = false;
-		});
+		this.keydownHandler = (e) => { GameBonus.keysPressed[e.which] = true; };
+		this.keyupHandler = (e) => { GameBonus.keysPressed[e.which] = false; };
+		this.popstateHandler = this.handlePopState.bind(this);
+		window.addEventListener("keydown", this.keydownHandler);
+		window.addEventListener("keyup", this.keyupHandler);
+		window.addEventListener("popstate", this.popstateHandler);
 
 		const paddleWidth:number = 20, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
 
@@ -106,8 +109,6 @@ export class GameBonus{
 			this.bonusStartTime = Date.now(); // Redémarre le chrono
 			this.lastBonusTime = 0; // Réinitialise le timer de cooldown
 		})
-
-		window.addEventListener("popstate", this.handlePopState.bind(this));
 
 		this.cleanupNavigateListener = onNavigate(() => {
 			if (!GameBonus.isGameOver()) {
@@ -184,6 +185,8 @@ export class GameBonus{
 			this.cleanupNavigateListener();
 			this.cleanupNavigateListener = null;
 		}
+
+		this.cleanup();
 	}
 
 	getCanvasColors() {
@@ -355,6 +358,20 @@ export class GameBonus{
 
 	public static isGameOver(): boolean {
 		return gameOver;
+	}
+
+	public cleanup() {
+		window.removeEventListener("keydown", this.keydownHandler);
+		window.removeEventListener("keyup", this.keyupHandler);
+		window.removeEventListener("popstate", this.popstateHandler);
+	}
+
+	public static resetGlobalState() {
+		gameOver = false;
+		isPaused = false;
+		GameBonus.player1Score = 0;
+		GameBonus.player2Score = 0;
+		// Add any other global/static resets if needed
 	}
 }
 

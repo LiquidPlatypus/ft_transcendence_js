@@ -32,6 +32,10 @@ export class Game{
 
 	public static ScreenReader = screenReader.getInstance();
 
+	private keydownHandler: (e: KeyboardEvent) => void;
+	private keyupHandler: (e: KeyboardEvent) => void;
+	private popstateHandler: (e: PopStateEvent) => void;
+
 	constructor() {
 		const canvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
 		if (!canvas)
@@ -44,15 +48,12 @@ export class Game{
 
 		this.gameContext.font = "30px Orbitron";
 
-		window.addEventListener("keydown", function(e){
-			Game.keysPressed[e.which] = true;
-		});
-
-		window.addEventListener("keyup", function(e){
-			Game.keysPressed[e.which] = false;
-		});
-
-		window.addEventListener("popstate", this.handlePopState.bind(this));
+		this.keydownHandler = (e) => { Game.keysPressed[e.which] = true; };
+		this.keyupHandler = (e) => { Game.keysPressed[e.which] = false; };
+		this.popstateHandler = this.handlePopState.bind(this);
+		window.addEventListener("keydown", this.keydownHandler);
+		window.addEventListener("keyup", this.keyupHandler);
+		window.addEventListener("popstate", this.popstateHandler);
 
 		this.cleanupNavigateListener = onNavigate(() => {
 			if (!Game.isGameOver()) {
@@ -273,6 +274,18 @@ export class Game{
 
 	public static isGameOver(): boolean {
 		return gameOver;
+	}
+
+	public cleanup() {
+		window.removeEventListener("keydown", this.keydownHandler);
+		window.removeEventListener("keyup", this.keyupHandler);
+		window.removeEventListener("popstate", this.popstateHandler);
+	}
+
+	public static resetGlobalState() {
+		gameOver = false;
+		isPaused = false;
+		// Add any other global/static resets if needed
 	}
 }
 

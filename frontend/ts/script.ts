@@ -14,6 +14,9 @@ import {attachTextListeners, initText} from "./textSwitcher.js";
 import {screenReader} from "./screenReader.js";
 import {navigate} from "./popstate.js";
 
+// At the top of the file, add a global variable to store the current game instance
+let currentGameInstance: any = null;
+
 function initializeScreenReader() {
 	const ScreenReader = screenReader.getInstance();
 
@@ -682,6 +685,27 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		console.log("Player 4:", localStorage.getItem('player4Alias'));
 	}
 
+	// Cleanup previous game instance if it exists
+	if (currentGameInstance && typeof currentGameInstance.cleanup === 'function') {
+		currentGameInstance.cleanup();
+		currentGameInstance = null;
+	}
+
+	// Reset global/static state for the correct game mode
+	if (playerCount === 2) {
+		if (matchType === 'normal') {
+			Game.resetGlobalState();
+		} else if (matchType === 'bonus') {
+			GameBonus.resetGlobalState();
+		}
+	} else if (playerCount === 4) {
+		if (matchType === 'normal') {
+			GameFour.resetGlobalState();
+		} else if (matchType === 'bonus') {
+			GameFourBonus.resetGlobalState();
+		}
+	}
+
 	// Reset les scores avant de commencer un match.
 	Game.player1Score = 0;
 	Game.player2Score = 0;
@@ -726,7 +750,7 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			const delay = getScreenReaderDelay(t("pong_explanation"));
 
 			setTimeout(() => {
-				const game = new Game();
+				currentGameInstance = new Game();
 
 				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
 
@@ -737,14 +761,14 @@ export function startGame(playerCount: number, matchType: MatchType) {
 				}
 
 				setTimeout(() => {
-					requestAnimationFrame(game.gameLoop.bind(game));
+					requestAnimationFrame(currentGameInstance.gameLoop.bind(currentGameInstance));
 				}, delay);
 			}, 100);
 		} else if (matchType === 'bonus') {
 			const delay = getScreenReaderDelay(t("pong_explanation"));
 
 			setTimeout(() => {
-				const game = new GameBonus();
+				currentGameInstance = new GameBonus();
 
 				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
 
@@ -755,7 +779,7 @@ export function startGame(playerCount: number, matchType: MatchType) {
 				}
 
 				setTimeout(() => {
-					requestAnimationFrame(game.gameLoop.bind(game));
+					requestAnimationFrame(currentGameInstance.gameLoop.bind(currentGameInstance));
 				}, delay);
 			}, 100);
 		}
@@ -776,24 +800,24 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			const delay = getScreenReaderDelay(t("pong-four_explanation"));
 
 			setTimeout(() => {
-				const game = new GameFour();
+				currentGameInstance = new GameFour();
 
 				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
 
 				setTimeout(() => {
-					requestAnimationFrame(game.gameLoop.bind(game));
+					requestAnimationFrame(currentGameInstance.gameLoop.bind(currentGameInstance));
 				}, delay);
 			}, 100);
 		} else if (matchType === 'bonus') {
 			const delay = getScreenReaderDelay(t("pong-four_explanation"));
 
 			setTimeout(() => {
-				const game = new GameFourBonus();
+				currentGameInstance = new GameFourBonus();
 
 				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
 
 				setTimeout(() => {
-					requestAnimationFrame(game.gameLoop.bind(game));
+					requestAnimationFrame(currentGameInstance.gameLoop.bind(currentGameInstance));
 				}, delay);
 			}, 100);
 		}
