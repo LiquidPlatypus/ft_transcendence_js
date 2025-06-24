@@ -89,43 +89,38 @@ export class Game{
 		}
 	}
 
-	private handlePlayerLeave() {
-		const victoryMessageElement = document.getElementById("Pong");
-		if (victoryMessageElement) {
-			const menu_btn = document.getElementById("menu-btn");
-			if (menu_btn) {
-				menu_btn.addEventListener("click", () => {
-					// Nettoyer le stockage local si nécessaire
-					localStorage.removeItem('currentMatchId');
-					localStorage.removeItem("player1Alias");
-					localStorage.removeItem("player2Alias");
-					localStorage.removeItem("player3Alias");
-					localStorage.removeItem("player4Alias");
-					localStorage.removeItem('tournamentMode');
-					localStorage.removeItem('semifinal1Id');
-					localStorage.removeItem('semifinal2Id');
-					localStorage.removeItem('semifinal1Winner');
-					localStorage.removeItem('semifinal1Loser');
-					localStorage.removeItem('semifinal2Winner');
-					localStorage.removeItem('semifinal2Loser');
-					localStorage.removeItem('player1Id');
-					localStorage.removeItem('player2Id');
-					localStorage.removeItem('player3Id');
-					localStorage.removeItem('player4Id');
-					localStorage.removeItem('currentTournamentId');
-					localStorage.removeItem('tournamentWinnerAlias');
-					navigate('/home');
-					showHome();
-				});
-			}
-		}
-		Game.setGameOver(true);
-	}
-
 	private handlePopState() {
 		if (!Game.isGameOver()) {
 			Game.setGameOver(true);
 		}
+		if (this.cleanupNavigateListener) {
+			this.cleanupNavigateListener();
+			this.cleanupNavigateListener = null;
+		}
+	}
+
+	private handlePlayerLeave() {
+		localStorage.removeItem('currentMatchId');
+		localStorage.removeItem("player1Alias");
+		localStorage.removeItem("player2Alias");
+		localStorage.removeItem("player3Alias");
+		localStorage.removeItem("player4Alias");
+		localStorage.removeItem('tournamentMode');
+		localStorage.removeItem('semifinal1Id');
+		localStorage.removeItem('semifinal2Id');
+		localStorage.removeItem('semifinal1Winner');
+		localStorage.removeItem('semifinal1Loser');
+		localStorage.removeItem('semifinal2Winner');
+		localStorage.removeItem('semifinal2Loser');
+		localStorage.removeItem('player1Id');
+		localStorage.removeItem('player2Id');
+		localStorage.removeItem('player3Id');
+		localStorage.removeItem('player4Id');
+		localStorage.removeItem('currentTournamentId');
+		localStorage.removeItem('tournamentWinnerAlias');
+		navigate('/home');
+		showHome();
+		Game.setGameOver(true);
 	}
 
 	getCanvasColors() {
