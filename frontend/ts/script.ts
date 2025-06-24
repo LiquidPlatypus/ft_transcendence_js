@@ -181,7 +181,7 @@ export function showPlayerCountSelection(buttonType: ButtonType, matchType: Matc
 	const backButton = document.getElementById("back-button");
 	if (backButton) {
 		backButton.addEventListener("click", () => {
-			matchTypeChoice(buttonType, 'pong');
+			window.history.back();
 		});
 	}
 
@@ -275,21 +275,10 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	// Bouton retour avec ID spécifique au type de jeu.
 	const backButton = document.getElementById(`back-button-${gameType}`);
 	if (backButton) {
-		if (buttonType === 'match' && gameType === 'pong')
-			backButton.addEventListener("click", (event) => {
-				navigate('/pong/'+matchType+'/select/players/' +(playerCount === 2 ? 'two' : 'four'));
-				showPlayerCountSelection(buttonType, matchType);
-			});
-		else if (buttonType === 'match' && gameType === 'pfc')
-			backButton.addEventListener("click", (event) => {
-				navigate('/chifoumi/select/type');
-				matchTypeChoice(buttonType, 'pfc');
-			})
-		else if (buttonType === 'tournoi')
-			backButton.addEventListener("click", (event) => {
-				navigate('/home');
-				showHome();
-			});
+		backButton.addEventListener("click", (event) => {
+				window.history.back();
+		});
+
 	}
 
 	// Set up AI toggles for all applicable players
@@ -657,42 +646,7 @@ export async function showHistory(gameType: string) {
 		const backButton = document.getElementById(`back-button-${gameType}`);
 		if (backButton) {
 			backButton.addEventListener("click", () => {
-				disableUnrelatedButtons('home');
-
-				// Restaure le contenu original.
-				historyContainer.innerHTML = originalHTML;
-				// Restaure les classes CSS originales
-				historyContainer.className = originalClasses;
-
-				// Reaffiche les boutons d'historiques.
-				if (pong_hist_btn)
-					pong_hist_btn.classList.remove('hidden');
-
-				if (fourpong_hist_btn)
-					fourpong_hist_btn.classList.remove('hidden');
-
-				if (pfc_hist_btn)
-					pfc_hist_btn.classList.remove('hidden');
-
-				// Reattache l'ecouteur pour le bouton hist.
-				const pongHistBtn = document.getElementById('pong-hist-btn');
-				if (pongHistBtn) {
-					pongHistBtn.addEventListener("click", (e) => showHistory('pong'));
-					pongHistBtn.classList.remove('hidden');
-				}
-
-				const fourpongHistBtn = document.getElementById('fourpong-hist-btn');
-				if (fourpongHistBtn) {
-					fourpongHistBtn.addEventListener("click", (e) => showHistory('fourpong'));
-					fourpongHistBtn.classList.remove('hidden');
-				}
-
-				const pfcHistBtn = document.getElementById('pfc-hist-btn');
-				if (pfcHistBtn) {
-					pfcHistBtn.addEventListener("click", (e) => showHistory('pfc'));
-					pfcHistBtn.classList.remove('hidden');
-				}
-
+				window.history.back();
 			});
 		}
 	} catch (error) {

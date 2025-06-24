@@ -81,12 +81,12 @@ const routes: Record<string, RouteHandler> = {
 };
 export function navigate(path: string) {
 	if (path === '/home') {
-		history.replaceState({ path }, '', window.location.pathname); // pas de retour possible
+		history.replaceState({ path }, '', window.location.pathname);
 	} else {
 		history.pushState({ path }, '', window.location.pathname); // ajoute une entrée
 	}
 	// Déclenchez les écouteurs *avant* d'appeler handleRoute, car handleRoute change le contenu
-	navigateListeners.forEach(listener => listener()); // NOUVEAU LIGNE
+	navigateListeners.forEach(listener => listener());
 	handleRoute(path);
 }
 type NavigateListener = () => void;
