@@ -59,7 +59,7 @@ export class GameFour {
 			throw new Error("Element canvas non-trouve");
 
 		this.gameCanvas = canvas;
-		this.gameContext = this.gameCanvas.getContext("2d", { alpha: false });
+		this.gameContext = this.gameCanvas.getContext("2d");
 		if (!this.gameContext)
 			throw new Error("Impossible de recuperer 2D rendering context");
 
