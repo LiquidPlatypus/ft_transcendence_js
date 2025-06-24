@@ -52,7 +52,7 @@ export class GameBonus{
 			{
 				this.staticWalls.shift();
 			}
-		}, 200) // Ajout différé
+		}, 300) // Ajout différé
 	}
 
 	private freezePlayers(except: 'player1' | 'player2' | null)  //Bonus ICE
