@@ -6,76 +6,61 @@ type RouteHandler = () => void;
 
 const routes: Record<string, RouteHandler> = {
 	'/home': () => {
-		console.log("Navigating to Home");
 		showHome();
 	},
 
 	'/pong/history/two': () => {
-		console.log("Navigating to Two Players Pong History");
 		showHistory('pong');
 	},
 	'/pong/history/four': () => {
-		console.log("Navigating to Four Players Pong History");
 		showHistory('fourpong');
 	},
 
 	'/pong/select/type': () => {
-		console.log("Navigating to Pong Type Selection");
 		matchTypeChoice('match', 'pong');
 	},
 
 	'/pong/normal/playerSize': () => {
-		console.log("Navigating to Pong Player Count Selection");
 		showPlayerCountSelection('match', 'normal');
 	},
 
 	'/pong/bonus/playerSize': () => {
-		console.log("Navigating to Pong Player Count Selection");
 		showPlayerCountSelection('match', 'bonus');
 	},
 
 	'/pong/normal/select/players/two': () => {
-		console.log("Navigating to Pong Name Selection for Two Players");
 		showAliasInputs(2, 'match', 'normal', 'pong');
 	},
 
 	'/pong/normal/select/players/four': () => {
-		console.log("Navigating to Pong Name Selection for Four Players");
 		showAliasInputs(4, 'match', 'normal', 'pong');
 	},
 
 	'/pong/bonus/select/players/two': () => {
-		console.log("Navigating to Pong Bonus Name Selection for Two Players");
 		showAliasInputs(2, 'match', 'bonus', 'pong');
 	},
 
 	'/pong/bonus/select/players/four': () => {
-		console.log("Navigating to Pong Bonus Name Selection for Four Players");
 		showAliasInputs(4, 'match', 'bonus', 'pong');
 	},
 
 	'/chifoumi/history': () => {
-		console.log("Navigating to Chifoumi History");
 		showHistory('pfc');
 	},
 
 	'/chifoumi/select/type': () => {
-		console.log("Navigating to Chifoumi Type Selection");
 		matchTypeChoice('match', 'pfc');
 	},
 
 	'/chifoumi/select/players': () => {
-		console.log("Navigating to Chifoumi Name Selection");
 		showAliasInputs(2, 'match', 'normal', 'pfc');
 	},
 
 	'/chifoumi/game/normal': () => {
-		console.log("Navigating to Chifoumi Normal Game");
 		showPFCMatch('normal');
 	},
 
 	'/chifoumi/game/bonus': () => {
-		console.log("Navigating to Chifoumi Bonus Game");
 		showPFCMatch('bonus');
 	},
 };
@@ -108,7 +93,6 @@ function handleRoute(path: string) {
 	if (handler) {
 		handler();
 	} else {
-		console.error(`No route handler found for ${path}`);
 		navigate('/home');
 		showHome();
 	}
