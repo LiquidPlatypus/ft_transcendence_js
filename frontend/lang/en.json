@@ -37,6 +37,8 @@
   "error_match_creation": "Error during match creation",
   "error_score_save": "Error during score registration",
   "wins_round": "win the round !",
+  "wins_equalized": "¡gana la ronda con el bonus ecualizador!",
+  "bonus_equalizer": "ecualizador adicional",
 
   "select_game_mode": "Game mode",
   "normal": "Normal",
