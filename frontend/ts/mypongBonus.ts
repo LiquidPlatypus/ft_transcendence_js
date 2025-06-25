@@ -56,7 +56,7 @@ export class GameBonus{
 			{
 				this.staticWalls.shift();
 			}
-		}, 200) // Ajout différé
+		}, 300) // Ajout différé
 	}
 
 	private freezePlayers(except: 'player1' | 'player2' | null)  //Bonus ICE
@@ -869,17 +869,50 @@ class Ball extends Entity{
 				this.y < wall.y + wall.height &&
 				this.y + this.height > wall.y) {
 
-				// Inversion de direction (effet "rebond") selon la direction de collision
-				const overlapX = (this.x + this.width / 2) - (wall.x + wall.width / 2);
-				const overlapY = (this.y + this.height / 2) - (wall.y + wall.height / 2);
+				// Calculer les centres pour déterminer la direction de collision
+				const ballCenterX = this.x + this.width / 2;
+				const ballCenterY = this.y + this.height / 2;
+				const wallCenterX = wall.x + wall.width / 2;
+				const wallCenterY = wall.y + wall.height / 2;
+
+				// Calculer les distances
+				const deltaX = ballCenterX - wallCenterX;
+				const deltaY = ballCenterY - wallCenterY;
+
+				// Calculer les chevauchements
+				const overlapX = (this.width + wall.width) / 2 - Math.abs(deltaX);
+				const overlapY = (this.height + wall.height) / 2 - Math.abs(deltaY);
 
 				screenReader.getInstance().handleWallHit();
 
-				if (Math.abs(overlapX) > Math.abs(overlapY)) {
-					this.xVal *= -1; // rebond horizontal
+				// Déterminer quelle face du mur a été touchée et repositionner la balle
+				if (overlapX < overlapY) {
+					// Collision horizontale
+					this.xVal *= -1;
+
+					// Repositionner la balle pour éviter qu'elle reste collée
+					if (deltaX > 0) {
+						// Balle à droite du mur
+						this.x = wall.x + wall.width + 1;
+					} else {
+						// Balle à gauche du mur
+						this.x = wall.x - this.width - 1;
+					}
 				} else {
-					this.yVal *= -1; // rebond vertical
+					// Collision verticale
+					this.yVal *= -1;
+
+					// Repositionner la balle pour éviter qu'elle reste collée
+					if (deltaY > 0) {
+						// Balle en bas du mur
+						this.y = wall.y + wall.height + 1;
+					} else {
+						// Balle en haut du mur
+						this.y = wall.y - this.height - 1;
+					}
 				}
+
+				// Sortir de la boucle après la première collision pour éviter les conflits
 				break;
 			}
 		}
