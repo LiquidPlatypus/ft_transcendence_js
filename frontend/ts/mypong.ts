@@ -907,6 +907,11 @@ class Ball extends Entity {
 									localStorage.setItem('player1Alias', localStorage.getItem('player3Alias') || 'Joueur 3');
 									localStorage.setItem('player2Alias', localStorage.getItem('player4Alias') || 'Joueur 4');
 
+									// Met a jour les infos AI pour le prochain match.
+									const player3Id = localStorage.getItem('player3Id') || '';
+									const player4Id = localStorage.getItem('player4Id') || '';
+									await updateAIStatus(player3Id, player4Id);
+
 									// Reset l'etat du jeu.
 									Game.player1Score = 0;
 									Game.player2Score = 0;
@@ -987,6 +992,9 @@ class Ball extends Entity {
 											localStorage.setItem('player1Alias', loser1Name);
 											localStorage.setItem('player2Alias', loser2Name);
 
+											// Met a jour les informations AI pour le match de 3ème place.
+											await updateAIStatus(semifinal1Loser, semifinal2Loser);
+
 											// Reset l'état du jeu.
 											Game.player1Score = 0;
 											Game.player2Score = 0;
@@ -1008,6 +1016,11 @@ class Ball extends Entity {
 									// Met à jour le nom des joueurs pour la finale.
 									localStorage.setItem('player1Alias', localStorage.getItem('finalPlayer1Alias') || 'Joueur 1');
 									localStorage.setItem('player2Alias', localStorage.getItem('finalPlayer2Alias') || 'Joueur 2');
+
+									// Met a jour les infos AI pour la finale.
+									const semifinal1Winner = localStorage.getItem('semifinal1Winner') || '';
+									const semifinal2Winner = localStorage.getItem('semifinal2Winner') || '';
+									await updateAIStatus(semifinal1Winner, semifinal2Winner);
 
 									// Reset l'état du jeu.
 									Game.player1Score = 0;
@@ -1101,4 +1114,36 @@ async function getAliasById(playerId: string | null): Promise<string> {
 		console.error(`Error fetching alias for player ${playerId}:`, e);
 		return "Joueur ?";
 	}
+}
+
+/**
+ * @brief Recupere les infos AI d'un joueur.
+ * @param playerId id du joueur.
+ */
+async function getPlayerAIStatus(playerId: string): Promise<boolean> {
+	try {
+		const response = await fetch(`/api/players/${playerId}`);
+		const playerData = await response.json();
+		return playerData.isAI || false; // Supposant que l'API retourne cette info
+	} catch (error) {
+		console.error("Erreur lors de la récupération du statut AI:", error);
+		return false;
+	}
+}
+
+/**
+ * @brief Met a jour les infos AI d'un joueur.
+ * @param player1Id id du joueur 1.
+ * @param player2Id id du joueur 2.
+ */
+async function updateAIStatus(player1Id: string, player2Id: string) {
+	const player1IsAI = await getPlayerAIStatus(player1Id);
+	const player2IsAI = await getPlayerAIStatus(player2Id);
+
+	localStorage.setItem('isPlayer1AI', player1IsAI.toString());
+	localStorage.setItem('isPlayer2AI', player2IsAI.toString());
+
+	// Mettre à jour les paddles
+	Paddle.setAIEnabled(player1IsAI);
+	Paddle2.setAIEnabled(player2IsAI);
 }
