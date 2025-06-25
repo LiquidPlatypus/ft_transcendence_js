@@ -164,6 +164,8 @@ function init() {
 
 			afficherCombat(fightZone, fightJ1, fightJ2, choixJ1, choixJ2);
 			setTimeout(() => {
+				const result = comparer(choixJ1!, choixJ2!);
+
 				const choixJ1Traduit = t(getChoixTranslationKey(choixJ1!));
 				const choixJ2Traduit = t(getChoixTranslationKey(choixJ2!));
 
@@ -175,12 +177,11 @@ function init() {
 				ScreenReader.announceGameEvent(`${player1Alias} ${chooseText} ${choixJ1}`);
 				ScreenReader.announceGameEvent(`${player2Alias} ${chooseText} ${choixJ2}`);
 
-				const result = comparer(choixJ1!, choixJ2!);
-
 				resultat.textContent = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} => ${result}`;
 				scores.textContent = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
 					verifierVainqueur(vainqueur);
+				
 				setTimeout(() => {
 					fightZone.classList.remove("fight-in");
 					fightJ1.textContent = "";
