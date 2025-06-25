@@ -97,6 +97,12 @@ export class Game{
 			const menu_btn = document.getElementById("menu-btn");
 			if (menu_btn) {
 				menu_btn.addEventListener("click", () => {
+					const lang: any = localStorage.getItem('lang');
+					const text: any = localStorage.getItem('textSize');
+					const theme: any = localStorage.getItem('theme');
+
+					localStorage.clear()
+
 					// Nettoyer le stockage local si nécessaire
 					localStorage.removeItem('currentMatchId');
 					localStorage.removeItem("player1Alias");
@@ -120,6 +126,11 @@ export class Game{
 					localStorage.removeItem('isPlayer2AI');
 					Paddle.setAIEnabled(false);
 					Paddle2.setAIEnabled(false);
+
+					localStorage.setItem('lang', lang);
+					localStorage.setItem('text', text);
+					localStorage.setItem('theme', theme);
+
 					navigate('/home');
 					showHome();
 				});
@@ -132,6 +143,12 @@ export class Game{
 		if (!Game.isGameOver()) {
 			Game.setGameOver(true);
 		}
+
+		const lang: any = localStorage.getItem('lang');
+		const text: any = localStorage.getItem('textSize');
+		const theme: any = localStorage.getItem('theme');
+
+		localStorage.clear()
 
 		localStorage.removeItem('currentMatchId');
 		localStorage.removeItem("player1Alias");
@@ -155,6 +172,10 @@ export class Game{
 		localStorage.removeItem('isPlayer2AI');
 		Paddle.setAIEnabled(false);
 		Paddle2.setAIEnabled(false);
+
+		localStorage.setItem('lang', lang);
+		localStorage.setItem('text', text);
+		localStorage.setItem('theme', theme);
 
 		if (this.cleanupNavigateListener) {
 			this.cleanupNavigateListener();
@@ -833,6 +854,13 @@ class Ball extends Entity {
 					const menu_btn = document.getElementById("menu-btn");
 					if (menu_btn) {
 						menu_btn.addEventListener("click", () => {
+
+							const lang: any = localStorage.getItem('lang');
+							const text: any = localStorage.getItem('textSize');
+							const theme: any = localStorage.getItem('theme');
+
+							localStorage.clear();
+
 							// Nettoyage du mode tournoi
 							localStorage.removeItem('tournamentMode');
 							localStorage.removeItem('semifinal1Id');
@@ -859,6 +887,10 @@ class Ball extends Entity {
 							localStorage.removeItem('isPlayer2AI');
 							Paddle.setAIEnabled(false);
 							Paddle2.setAIEnabled(false);
+
+							localStorage.setItem('lang', lang);
+							localStorage.setItem('text', text);
+							localStorage.setItem('theme', theme);
 
 							navigate('/home');
 							showHome();
