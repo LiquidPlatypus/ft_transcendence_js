@@ -197,7 +197,7 @@ function init() {
 					choixJ2 = null;
 					isWaiting = false;
 				}, 1000);
-			}, 800);
+			}, 500);
 		}
 	}
 
@@ -210,17 +210,19 @@ function init() {
 		const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
 		if (container) {
-			container.innerHTML = ""; // Clear the game UI
-			const winnerMsg = creerElement("div", "", scoreJ1 >= 5 ? player1Alias + t("as_won") : player2Alias + t("as_won"));
-			container.appendChild(winnerMsg);
-
-			const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
-			returnButton.id = "return-button";
-			container.appendChild(returnButton);
-			returnButton.addEventListener("click", () => {
-				navigate('/home');
-				showHome();
-			});
+			container.innerHTML = `
+				<p class="font-extrabold text-2xl mb-4">${scoreJ1 >= 5 ? player1Alias + t("as_won") : player2Alias + t("as_won")}</p>
+				<div class="flex justify-center mt-4">
+					<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
+				</div>
+			`;
+			const returnButton = document.getElementById("menu-btn");
+			if (returnButton) {
+				returnButton.addEventListener("click", () => {
+					navigate('/home');
+					showHome();
+				});
+			}
 		}
 
 		document.removeEventListener("keydown", handleKeydown);
@@ -387,8 +389,8 @@ function init_bonus() {
 					choixJ1 = null;
 					choixJ2 = null;
 					isWaiting = false;
-				}, 2000); // 2 secondes d'attente avant le prochain round
-			}, 800); // délai d'affichage du résultat
+				}, 1000);
+			}, 500);
 		}
 	}
 
@@ -401,27 +403,23 @@ function init_bonus() {
 			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-			ScreenReader.announceScore(scoreJ1, scoreJ2, null, null);
-
-			if (scoreJ1 >= 5) {
-				div.textContent = player1Alias + t("as_won");
-				ScreenReader.announceGameEvent(`${player1Alias} ${t("as_won")}`);
-			}
-			else {
-				div.textContent = player2Alias + t("as_won");
-				ScreenReader.announceGameEvent(`${player2Alias} ${t("as_won")}`);
+			if (container) {
+				container.innerHTML = `
+					<p class="font-extrabold text-2xl mb-4">${scoreJ1 >= 5 ? player1Alias + t("as_won") : player2Alias + t("as_won")}</p>
+					<div class="flex justify-center mt-4">
+						<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
+					</div>
+				`;
+				const returnButton = document.getElementById("menu-btn");
+				if (returnButton) {
+					returnButton.addEventListener("click", () => {
+						navigate('/home');
+						showHome();
+					});
+				}
 			}
 
 			document.removeEventListener("keydown", handleKeydown);
-
-			const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
-
-			returnButton.id = "return-button";
-			div.appendChild(returnButton);
-			returnButton.addEventListener("click", () => {
-				navigate('/home');
-				showHome();
-			});
 
 			const matchId = localStorage.getItem('currentMatchId');
 			if (matchId) {
@@ -437,9 +435,6 @@ function init_bonus() {
 					console.error(`${t("error_score_save")}:`, error);
 				});
 			}
-
-			scoreJ1 = 0;
-			scoreJ2 = 0;
 		}
 	}
 
