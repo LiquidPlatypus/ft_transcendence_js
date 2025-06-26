@@ -37,6 +37,8 @@
   "error_match_creation": "Error durante la creación de partidas",
   "error_score_save": "Error durante el registro de partituras",
   "wins_round": "¡gana la ronda!",
+  "wins_equalized": "gagne la manche avec bonus égalisateur!",
+  "bonus_equalizer": "bonus égalisateur",
 
   "select_game_mode": "Modo de juego",
   "normal": "Normal",

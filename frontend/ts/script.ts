@@ -833,6 +833,12 @@ export function showHome() {
 		const ScreenReader = screenReader.getInstance();
 		ScreenReader.cancelSpeech();
 
+		const lang: any = localStorage.getItem('lang');
+		const text: any = localStorage.getItem('textSize');
+		const theme: any = localStorage.getItem('theme');
+
+		localStorage.clear();
+
 		// Clean up tournament mode and AI state
 		localStorage.removeItem('tournamentMode');
 		localStorage.removeItem('currentMatchId');
@@ -857,6 +863,10 @@ export function showHome() {
 		localStorage.removeItem('player2Alias');
 		localStorage.removeItem('player3Alias');
 		localStorage.removeItem('player4Alias');
+
+		localStorage.setItem('lang', lang);
+		localStorage.setItem('text', text);
+		localStorage.setItem('theme', theme);
 
 		appElement.innerHTML = homePage();
 

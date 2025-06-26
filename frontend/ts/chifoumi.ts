@@ -169,6 +169,8 @@ function init() {
 
 			afficherCombat(fightZone, fightJ1, fightJ2, choixJ1, choixJ2);
 			setTimeout(() => {
+				const result = comparer(choixJ1!, choixJ2!);
+
 				const choixJ1Traduit = t(getChoixTranslationKey(choixJ1!));
 				const choixJ2Traduit = t(getChoixTranslationKey(choixJ2!));
 
@@ -180,18 +182,11 @@ function init() {
 				ScreenReader.announceGameEvent(`${player1Alias} ${chooseText} ${choixJ1}`);
 				ScreenReader.announceGameEvent(`${player2Alias} ${chooseText} ${choixJ2}`);
 
-				const result = comparer(choixJ1!, choixJ2!);
-
-				resultat.innerHTML = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit}<br>${result}`;
+				resultat.innerHTML = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} <br> ${result}`;
 				scores.innerHTML = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
-
-				if (scoreJ1 >= 5 || scoreJ2 >= 5) {
-					setTimeout(() => {
-						verifierVainqueur();
-					}, 1000); // Show winner after 1s
-					return;
-				}
-
+				if (scoreJ1 >= 5 || scoreJ2 >= 5)
+					verifierVainqueur(vainqueur);
+				
 				setTimeout(() => {
 					fightZone.classList.remove("fight-in");
 					fightJ1.textContent = "";
@@ -373,7 +368,11 @@ function init_bonus() {
 				const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 				const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-				resultat.innerHTML = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit}<br>${result}`;
+				const chooseText = t("choose");
+				ScreenReader.announceGameEvent(`${player1Alias} ${chooseText} ${choixJ1}`);
+				ScreenReader.announceGameEvent(`${player2Alias} ${chooseText} ${choixJ2}`);
+
+				resultat.innerHTML = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} <br> ${result}`;
 				scores.innerHTML = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
@@ -402,6 +401,7 @@ function init_bonus() {
 			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
+<<<<<<< HEAD
 			if (container) {
 				container.innerHTML = ""; // Clear the game UI
 				const winnerMsg = creerElement("div", "", scoreJ1 >= 5 ? player1Alias + t("as_won") : player2Alias + t("as_won"));
@@ -430,44 +430,86 @@ function init_bonus() {
 				}),
 			}).catch(error => {
 				console.error(`${t("error_score_save")}:`, error);
+=======
+			ScreenReader.announceScore(scoreJ1, scoreJ2, null, null);
+
+			if (scoreJ1 >= 5) {
+				div.textContent = player1Alias + t("as_won");
+				ScreenReader.announceGameEvent(`${player1Alias} ${t("as_won")}`);
+			}
+			else {
+				div.textContent = player2Alias + t("as_won");
+				ScreenReader.announceGameEvent(`${player2Alias} ${t("as_won")}`);
+			}
+
+			document.removeEventListener("keydown", handleKeydown);
+
+			const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
+
+			returnButton.id = "return-button";
+			div.appendChild(returnButton);
+			returnButton.addEventListener("click", () => {
+				navigate('/home');
+				showHome();
+>>>>>>> a3ac76f17c4f4303bf52fd8067f34e6578efeff5
 			});
+
+			const matchId = localStorage.getItem('currentMatchId');
+			if (matchId) {
+				fetch('api/players/match/score', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						matchId: parseInt(matchId),
+						player1Score: scoreJ1,
+						player2Score: scoreJ2
+					}),
+				}).catch(error => {
+					console.error(`${t("error_score_save")}:`, error);
+				});
+			}
+
+			scoreJ1 = 0;
+			scoreJ2 = 0;
+		}
+	}
+
+	function comparer_bonus(c1: Choix, c2: Choix): string {
+		// Récupération des alias des joueurs.
+		const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
+		const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
+
+		if (c1 === c2) {
+			let bonusText = "";
+
+			if (scoreJ1 + 2 <= scoreJ2) {
+				scoreJ1++;
+				ScreenReader.announceGameEvent(`${player1Alias} ${t("wins_equalized")}`);
+				bonusText = ` (${t("bonus_equalizer", {player: player1Alias}) || `Bonus ${player1Alias}`}!)`;
+			} else if (scoreJ2 + 2 <= scoreJ1) {
+				scoreJ2++;
+				ScreenReader.announceGameEvent(`${player2Alias} ${t("wins_equalized")}`);
+				bonusText = ` (${t("bonus_equalizer", {player: player2Alias}) || `Bonus ${player2Alias}`}!)`;
+			} else {
+				return t("equality") || "Égalité !";
+			}
+
+			ScreenReader.announceGameEvent(t("equality"));
+			return (t("equality") || "Égalité !") + bonusText;
 		}
 
-		scoreJ1 = 0;
-		scoreJ2 = 0;
-	}
-}
-
-function comparer_bonus(c1: Choix, c2: Choix): string {
-	// Récupération des alias des joueurs.
-	const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
-	const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
-
-	if (c1 === c2) {
-		let bonusText = "";
-
-		if (scoreJ1 + 2 <= scoreJ2) {
+		if (
+			(c1 === "pierre" && c2 === "ciseaux") ||
+			(c1 === "feuille" && c2 === "pierre") ||
+			(c1 === "ciseaux" && c2 === "feuille")
+		) {
 			scoreJ1++;
-			bonusText = ` (${t("bonus_equalizer", {player: player1Alias}) || `Bonus ${player1Alias}`}!)`;
-		} else if (scoreJ2 + 2 <= scoreJ1) {
-			scoreJ2++;
-			bonusText = ` (${t("bonus_equalizer", {player: player2Alias}) || `Bonus ${player2Alias}`}!)`;
+			ScreenReader.announceGameEvent(`${player1Alias} ${t("wins_round")}`);
+			return `${player1Alias} ${t("wins_round")}` || `${player1Alias} gagne la manche !`;
 		} else {
-			return t("equality") || "Égalité !";
+			scoreJ2++;
+			ScreenReader.announceGameEvent(`${player2Alias} ${t("wins_round")}`);
+			return `${player2Alias} ${t("wins_round")}` || `${player2Alias} gagne la manche !`;
 		}
-
-		return (t("equality") || "Égalité !") + bonusText;
-	}
-
-	if (
-		(c1 === "pierre" && c2 === "ciseaux") ||
-		(c1 === "feuille" && c2 === "pierre") ||
-		(c1 === "ciseaux" && c2 === "feuille")
-	) {
-		scoreJ1++;
-		return `${player1Alias} ${t("wins_round")}` || `${player1Alias} gagne la manche !`;
-	} else {
-		scoreJ2++;
-		return `${player2Alias} ${t("wins_round")}` || `${player2Alias} gagne la manche !`;
 	}
 }
