@@ -97,6 +97,11 @@ function creerElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?:
  * @brief Gere le pfc.
  */
 function init() {
+	scoreJ1 = 0;
+	scoreJ2 = 0;
+	choixJ1 = null;
+	choixJ2 = null;
+
 	const container = document.getElementById("pfc");
 	if (!container)
 		return ;
@@ -177,10 +182,16 @@ function init() {
 
 				const result = comparer(choixJ1!, choixJ2!);
 
-				resultat.textContent = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} => ${result}`;
-				scores.textContent = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
-				if (scoreJ1 >= 5 || scoreJ2 >= 5)
-					verifierVainqueur(vainqueur);
+				resultat.innerHTML = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit}<br>${result}`;
+				scores.innerHTML = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
+
+				if (scoreJ1 >= 5 || scoreJ2 >= 5) {
+					setTimeout(() => {
+						verifierVainqueur();
+					}, 1000); // Show winner after 1s
+					return;
+				}
+
 				setTimeout(() => {
 					fightZone.classList.remove("fight-in");
 					fightJ1.textContent = "";
@@ -191,46 +202,36 @@ function init() {
 					choixJ2 = null;
 					isWaiting = false;
 				}, 1000);
-				choixJ1 = null;
-				choixJ2 = null;
 			}, 800);
 		}
 	}
 
+	document.removeEventListener("keydown", handleKeydownGlobal);
 	handleKeydownGlobal = handleKeydown;
 	document.addEventListener("keydown", handleKeydown);
 
-	function verifierVainqueur(div: HTMLElement) {
-		if (scoreJ1 >= 5 || scoreJ2 >= 5) {
-			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
-			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
+	function verifierVainqueur() {
+		const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
+		const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-			ScreenReader.announceScore(scoreJ1, scoreJ2, null, null);
+		if (container) {
+			container.innerHTML = ""; // Clear the game UI
+			const winnerMsg = creerElement("div", "", scoreJ1 >= 5 ? player1Alias + t("as_won") : player2Alias + t("as_won"));
+			container.appendChild(winnerMsg);
 
-			if (scoreJ1 >= 5) {
-				div.textContent = player1Alias + t("as_won");
-				ScreenReader.announceGameEvent(`${player1Alias} ${t("as_won")}`);
-			}
-			else {
-				div.textContent = player2Alias + t("as_won");
-				ScreenReader.announceGameEvent(`${player2Alias} ${t("as_won")}`);
-			}
+			const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
+			returnButton.id = "return-button";
+			container.appendChild(returnButton);
+			returnButton.addEventListener("click", () => {
+				navigate('/home');
+				showHome();
+			});
 		}
 
 		document.removeEventListener("keydown", handleKeydown);
 
-		const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
-
-		returnButton.id = "return-button";
-		div.appendChild(returnButton);
-		returnButton.addEventListener("click", () => {
-			navigate('/home');
-			showHome();
-		});
-
 		const matchId = localStorage.getItem('currentMatchId');
 		if (matchId) {
-			// Envoie le score dans le back.
 			fetch('api/players/match/score', {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
@@ -243,9 +244,6 @@ function init() {
 				console.error(`${t("error_score_save")}:`, error);
 			});
 		}
-
-		scoreJ1 = 0;
-		scoreJ2 = 0;
 	}
 }
 
@@ -295,6 +293,11 @@ function getChoixTranslationKey(choix: Choix): string {
 
 
 function init_bonus() {
+	scoreJ1 = 0;
+	scoreJ2 = 0;
+	choixJ1 = null;
+	choixJ2 = null;
+
 	const container = document.getElementById("pfc");
 	if (!container)
 		return ;
@@ -370,8 +373,8 @@ function init_bonus() {
 				const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 				const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-				resultat.textContent = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} => ${result}`;
-				scores.textContent = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
+				resultat.innerHTML = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit}<br>${result}`;
+				scores.innerHTML = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
 					verifierVainqueur(vainqueur);
@@ -390,6 +393,7 @@ function init_bonus() {
 		}
 	}
 
+	document.removeEventListener("keydown", handleKeydownGlobal);
 	handleKeydownGlobal = handleKeydown;
 	document.addEventListener("keydown", handleKeydown);
 
@@ -398,21 +402,21 @@ function init_bonus() {
 			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-			if (scoreJ1 >= 5)
-				div.textContent = player1Alias + t("as_won");
-			else
-				div.textContent = player2Alias + t("as_won");
+			if (container) {
+				container.innerHTML = ""; // Clear the game UI
+				const winnerMsg = creerElement("div", "", scoreJ1 >= 5 ? player1Alias + t("as_won") : player2Alias + t("as_won"));
+				container.appendChild(winnerMsg);
+
+				const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
+				returnButton.id = "return-button";
+				container.appendChild(returnButton);
+				returnButton.addEventListener("click", () => {
+					navigate('/home');
+					showHome();
+				});
+			}
 		}
 		document.removeEventListener("keydown", handleKeydown);
-
-		const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
-
-		returnButton.id = "return-button";
-		div.appendChild(returnButton);
-		returnButton.addEventListener("click", () => {
-			navigate('/home');
-			showHome();
-		});
 
 		const matchId = localStorage.getItem('currentMatchId');
 		if (matchId) {
