@@ -185,7 +185,7 @@ function init() {
 				resultat.innerHTML = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} <br> ${result}`;
 				scores.innerHTML = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
-					verifierVainqueur(vainqueur);
+					verifierVainqueur();
 				
 				setTimeout(() => {
 					fightZone.classList.remove("fight-in");
@@ -401,36 +401,6 @@ function init_bonus() {
 			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-<<<<<<< HEAD
-			if (container) {
-				container.innerHTML = ""; // Clear the game UI
-				const winnerMsg = creerElement("div", "", scoreJ1 >= 5 ? player1Alias + t("as_won") : player2Alias + t("as_won"));
-				container.appendChild(winnerMsg);
-
-				const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
-				returnButton.id = "return-button";
-				container.appendChild(returnButton);
-				returnButton.addEventListener("click", () => {
-					navigate('/home');
-					showHome();
-				});
-			}
-		}
-		document.removeEventListener("keydown", handleKeydown);
-
-		const matchId = localStorage.getItem('currentMatchId');
-		if (matchId) {
-			fetch('api/players/match/score', {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({
-					matchId: parseInt(matchId),
-					player1Score: scoreJ1,
-					player2Score: scoreJ2
-				}),
-			}).catch(error => {
-				console.error(`${t("error_score_save")}:`, error);
-=======
 			ScreenReader.announceScore(scoreJ1, scoreJ2, null, null);
 
 			if (scoreJ1 >= 5) {
@@ -451,7 +421,6 @@ function init_bonus() {
 			returnButton.addEventListener("click", () => {
 				navigate('/home');
 				showHome();
->>>>>>> a3ac76f17c4f4303bf52fd8067f34e6578efeff5
 			});
 
 			const matchId = localStorage.getItem('currentMatchId');
