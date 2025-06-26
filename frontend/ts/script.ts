@@ -376,9 +376,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 									startGame(2, matchType);
 								}
 							}
-						} catch (error) {
-							console.error('Error creating match:', error);
-						}
+						} catch (error) {}
 					};
 				} else if (playerCount === 4) {
 					startButton.onclick = async () => {
@@ -465,9 +463,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 									startGame(4, matchType);
 								}
 							}
-						} catch (error) {
-							console.error('Error creating match:', error);
-						}
+						} catch (error) {}
 					};
 				}
 			} else if (buttonType === 'tournoi') {
@@ -650,7 +646,6 @@ export async function showHistory(gameType: string) {
 			});
 		}
 	} catch (error) {
-		console.error("Erreur lors de la récupération de l'historique:", error);
 		historyContainer.innerHTML = `
 			<div class="flex items-center justify-center gap-2 mb-4">
 				<button id="back-button-${gameType}" class="little_btn rounded-lg border p-2 shadow"><</button>
@@ -673,14 +668,6 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		return;
 
 	const ScreenReader = screenReader.getInstance();
-
-	console.log("Starting game with players:");
-	console.log("Player 1:", localStorage.getItem('player1Alias'));
-	console.log("Player 2:", localStorage.getItem('player2Alias'));
-	if (playerCount === 4) {
-		console.log("Player 3:", localStorage.getItem('player3Alias'));
-		console.log("Player 4:", localStorage.getItem('player4Alias'));
-	}
 
 	// Reset les scores avant de commencer un match.
 	Game.player1Score = 0;

@@ -750,7 +750,6 @@ class Ball extends Entity{
 				// Increase speed if not at max
 				if (this.currentSpeed < this.MAX_SPEED) {
 					this.currentSpeed += this.SPEED_INCREASE_AMOUNT;
-					console.log(`Ball speed increased to: ${this.currentSpeed}`);
 				}
 			}
 		}
@@ -788,13 +787,9 @@ class Ball extends Entity{
 						}),
 					});
 					const result = await response.json();
-					console.log("Résultat sauvegardé:", result);
-
 					// Supprimer l'ID du match du localStorage.
 					localStorage.removeItem('currentMatchId');
-				} catch (error) {
-					console.error("Erreur lors de l'enregistrement des scores:", error);
-				}
+				} catch (error) {}
 			}
 
 			const victoryMessageElement = document.getElementById("Pong");

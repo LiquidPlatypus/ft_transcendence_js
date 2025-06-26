@@ -18,7 +18,6 @@ export async function showMatch(matchType: MatchType) {
 	// Stock les alias des joueurs.
 	const player1 = (document.getElementById('playerAlias1') as HTMLInputElement).value;
 	const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;
-	console.log(`Match entre ${player1} et ${player2}`);
 
 	if (!isValidString(player1) || !isValidString(player2)) {
 		alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
@@ -61,9 +60,7 @@ export async function showMatch(matchType: MatchType) {
 				startGame(2, matchType);
 			}
 		}
-	} catch (error) {
-		console.error("Erreur lors de la création du match:", error);
-	}
+	} catch (error) {}
 }
 
 /**
@@ -83,7 +80,6 @@ export async function showFourPlayersMatch(matchType: MatchType) {
 	const player2 = (document.getElementById('playerAlias2') as HTMLInputElement).value;
 	const player3 = (document.getElementById('playerAlias3') as HTMLInputElement).value;
 	const player4 = (document.getElementById('playerAlias4') as HTMLInputElement).value;
-	console.log(`Match entre ${player1}, ${player2}, ${player3} et ${player4}`);
 
 	if (!isValidString(player1) || !isValidString(player2)) {
 		alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
@@ -141,7 +137,5 @@ export async function showFourPlayersMatch(matchType: MatchType) {
 				startGame(4, matchType);
 			}
 		}
-	} catch (error) {
-		console.error("Erreur lors de la création du match:", error);
-	}
+	} catch (error) {}
 }

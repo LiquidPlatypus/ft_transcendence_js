@@ -66,8 +66,6 @@ export const getTournamentPlayers = (tournamentId) => {
  * @returns {number | bigint}
  */
 export const createMatch = (tournamentId, player1Id, player2Id) => {
-	console.log("CREATION MATCH :", { tournamentId, player1Id, player2Id });
-
 	const stmt = db.prepare('INSERT INTO matches (tournament_id, player1_id, player2_id) VALUES (?, ?, ?)');
 	const result = stmt.run(tournamentId, player1Id, player2Id);
 	return result.lastInsertRowid;

@@ -27,7 +27,6 @@ const ScreenReader = screenReader.getInstance();
 
 export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
-		console.log("start_pf called with matchType:", matchType);
 		navigate('/chifoumi/game/' + matchType);
 		showPFCMatch(matchType);
 	});
@@ -36,7 +35,6 @@ export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 export async function showPFCMatch(matchType: MatchType) {
 	const player1 = (document.getElementById("playerAlias1") as HTMLInputElement).value;
 	const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
-	console.log(`Match entre ${player1} et ${player2}`);
 
 	if (!isValidString(player1) || !isValidString(player2)) {
 		alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
@@ -81,9 +79,7 @@ export async function showPFCMatch(matchType: MatchType) {
 					init_bonus();
 			}
 		}
-	} catch (error) {
-		console.error(`${t("error_match_creation")}`, error);
-	}
+	} catch (error) {}
 }
 
 function creerElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, textContent?: string): HTMLElementTagNameMap[K] {
@@ -239,9 +235,7 @@ function init() {
 					player1Score: scoreJ1,
 					player2Score: scoreJ2
 				}),
-			}).catch(error => {
-				console.error(`${t("error_score_save")}:`, error);
-			});
+			}).catch(error => {});
 		}
 
 		scoreJ1 = 0;
@@ -424,9 +418,7 @@ function init_bonus() {
 					player1Score: scoreJ1,
 					player2Score: scoreJ2
 				}),
-			}).catch(error => {
-				console.error(`${t("error_score_save")}:`, error);
-			});
+			}).catch(error => {});
 		}
 
 		scoreJ1 = 0;

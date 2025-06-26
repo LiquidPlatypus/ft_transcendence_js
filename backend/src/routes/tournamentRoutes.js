@@ -236,8 +236,6 @@ export default async function tournamentRoutes(fastify) {
 		const {id} = request.params;
 		const {player1_id, player2_id} = request.body;
 
-		console.log("LOG ID MATCH :", { id, player1_id, player2_id });
-
 		try {
 			const matchId = createMatch(id, player1_id, player2_id);
 

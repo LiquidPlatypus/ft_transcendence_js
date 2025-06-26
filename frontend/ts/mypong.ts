@@ -158,7 +158,6 @@ export class Game{
 		// Recupere les bons noms de joueurs.
 		let player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
 		let player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
-		console.log(localStorage);
 
 		// S'assure d'afficher les bons noms en fonction du match lors d'un tournoi.
 		if (tournamentMode && currentMatchType) {
@@ -170,12 +169,6 @@ export class Game{
 				player2Alias = localStorage.getItem('thirdPlacePlayer2Alias') || player2Alias;
 			}
 		}
-
-		console.log("Current match ID:", currentMatchId);
-		console.log("Current match type:", currentMatchType);
-		console.log("Tournament mode:", tournamentMode);
-		console.log("Player 1 name:", player1Alias);
-		console.log("Player 2 name:", player2Alias);
 
 		this.gameContext!.font = "20px Orbitron";
 		this.gameContext!.fillStyle = textColor;
@@ -622,7 +615,6 @@ class Ball extends Entity {
 				// Increase speed if not at max
 				if (this.currentSpeed < this.MAX_SPEED) {
 					this.currentSpeed += this.SPEED_INCREASE_AMOUNT;
-					console.log(`Ball speed increased to: ${this.currentSpeed}`);
 				}
 			}
 		}
@@ -746,10 +738,7 @@ class Ball extends Entity {
 						}),
 					});
 					const result = await response.json();
-					console.log("Résultat sauvegardé:", result);
-				} catch (error) {
-					console.error("Erreur lors de l'enregistrement des scores:", error);
-				}
+				} catch (error) {}
 			}
 
 			// Check si on est dans un tournoi et si un match est en attente.
@@ -939,9 +928,7 @@ class Ball extends Entity {
 
 											// Démarre le match pour la 3ème place.
 											startGame(2, 'normal');
-										} catch (error) {
-											console.error("Error creating final matches:", error);
-										}
+										} catch (error) {}
 									}
 								} else if (currentMatchType === 'third-place') {
 									// Après le match pour la 3ème place, on lance la finale.
@@ -962,9 +949,7 @@ class Ball extends Entity {
 									// Démarre la finale.
 									startGame(2, 'normal');
 								}
-							} catch (error) {
-								console.error("Error in tournament progression:", error);
-							}
+							} catch (error) {}
 						});
 					}
 				}
@@ -1017,11 +1002,8 @@ class Ball extends Entity {
 
 async function getAliasById(playerId: string | null): Promise<string> {
 	if (!playerId) {
-		console.log("Warning: getAliasById called with null playerId");
 		return "Joueur ?";
 	}
-
-	console.log(`Fetching alias for player ID: ${playerId}`);
 
 	try {
 		const res = await fetch(`/api/players/${playerId}`);
@@ -1029,17 +1011,13 @@ async function getAliasById(playerId: string | null): Promise<string> {
 			throw new Error(`API error: ${res.status}`);
 
 		const data = await res.json();
-		console.log(`Player data:`, data);
 
 		if (data.success && data.player && data.player.name) {
-			console.log(`Found name for player ${playerId}: ${data.player.name}`);
 			return data.player.name;
 		} else {
-			console.warn(`No valid name found for player ${playerId}`, data);
 			return "Joueur ?";
 		}
 	} catch (e) {
-		console.error(`Error fetching alias for player ${playerId}:`, e);
 		return "Joueur ?";
 	}
 }

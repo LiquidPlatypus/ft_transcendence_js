@@ -104,13 +104,10 @@ export default async function playerRoutes(fastify, options) {
 	});
 
 	fastify.post('/match/score', async (request, reply) => {
-		console.log("🟢 Requête reçue :", request.body);
-
 		try {
 			const { matchId, player1Score, player2Score } = request.body;
 
 			if (!matchId || player1Score === undefined || player2Score === undefined) {
-				console.error("❌ Requête invalide :", request.body);
 				return reply.status(400).send({ success: false, message: "ID du match et score requis." });
 			}
 
@@ -118,7 +115,6 @@ export default async function playerRoutes(fastify, options) {
 			const match = db.prepare("SELECT * FROM matches WHERE id = ?").get(matchId);
 
 			if (!match) {
-				console.error("❌ Match non trouvé :", matchId);
 				return reply.status(404).send({ success: false, message: "Match non trouvé." });
 			}
 
@@ -126,8 +122,6 @@ export default async function playerRoutes(fastify, options) {
 				winnerId = match.player1_id;
 			else if (player2Score > player1Score)
 				winnerId = match.player2_id;
-
-			console.log("🏆 Winner ID:", winnerId);
 
 			const winnerExists = db.prepare('SELECT id FROM players WHERE id = ?').get(winnerId);
 			const safeWinnerId = winnerExists ? winnerId : null;
@@ -139,11 +133,9 @@ export default async function playerRoutes(fastify, options) {
 			`).run(player1Score, player2Score, safeWinnerId, matchId);
 
 
-			console.log("✅ Score mis à jour pour le match", matchId);
 			reply.send({ success: true, message: "Score enregistré avec succès." });
 
 		} catch (error) {
-			console.error("❌ Erreur serveur :", error);
 			return reply.status(500).send({ success: false, message: "Erreur lors de l'enregistrement du score." });
 		}
 	});
@@ -168,22 +160,17 @@ export default async function playerRoutes(fastify, options) {
 	});
 
 	fastify.post('/match4/score', async (request, reply) => {
-		console.log("🟢 Requête reçue :", request.body);
-
 		try {
 			const { matchId, player1Score, player2Score, player3Score, player4Score } = request.body;
 
 			if (!matchId || player1Score === undefined || player2Score === undefined || player3Score === undefined || player4Score === undefined) {
-				console.error("❌ Requête invalide :", request.body);
 				return reply.status(400).send({ success: false, message: "ID du match et score requis." });
 			}
 
 			let winnerId = null;
 			const match = db.prepare("SELECT * FROM matches_4 WHERE id = ?").get(matchId);
-			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! match: ", match);
 
 			if (!match) {
-				console.error("❌ Match non trouvé :", matchId);
 				return reply.status(404).send({ success: false, message: "Match non trouvé." });
 			}
 
@@ -197,8 +184,6 @@ export default async function playerRoutes(fastify, options) {
 			scores.sort((a, b) => b.score - a.score);
 			winnerId = scores[0].id;
 
-			console.log("🏆 Winner ID:", winnerId);
-
 			const winnerExists = db.prepare('SELECT id FROM players WHERE id = ?').get(winnerId);
 			const safeWinnerId = winnerExists ? winnerId : null;
 
@@ -208,12 +193,9 @@ export default async function playerRoutes(fastify, options) {
 				WHERE id = ?
 			`).run(player1Score, player2Score, player3Score, player4Score, safeWinnerId, matchId);
 
-
-			console.log("✅ Score mis à jour pour le match", matchId);
 			reply.send({ success: true, message: "Score enregistré avec succès." });
 
 		} catch (error) {
-			console.error("❌ Erreur serveur :", error);
 			return reply.status(500).send({ success: false, message: "Erreur lors de l'enregistrement du score." });
 		}
 	});

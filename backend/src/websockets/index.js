@@ -9,17 +9,14 @@ export default function setupWebsockets(fastify) {
 					// Gestion des différents types de messages
 					switch (data.type) {
 						case 'join':
-							console.log(`Joueur ${data.alias} a rejoint.`);
 							connection.socket.send(JSON.stringify({
 								type: 'join_ack',
 								message: `Bienvenue ${data.alias}.`
 							}));
 							break;
 						case 'move':
-							console.log(`Mouvement du joueur ${data.alias}.`);
 							break;
 						case 'matchmaking':
-							console.log(`Matchmaking demandé par ${data.alias}.`);
 							break;
 						default:
 							connection.socket.send(JSON.stringify({
@@ -35,9 +32,7 @@ export default function setupWebsockets(fastify) {
 				}
 			});
 
-			connection.socket.on('close', () => {
-				console.log("Un joueur s'est déconnecté.");
-			});
+			connection.socket.on('close', () => {});
 		});
 	});
 };

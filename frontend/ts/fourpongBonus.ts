@@ -288,23 +288,18 @@ export class GameFourBonus {
 
 				switch (bonus.type) {
 					case BonusType.WALL:
-						console.log("Mur activé : création d'un mur statique");
-
 						// Retarder la création du mur à après la suppression du bonus
 						this.createStaticWallLater(bonus.x + bonus.width / 2, bonus.y + bonus.height / 2);
 						break;
 					case BonusType.ICE:
-						console.log("Flocon activé : immobilise les ennemis");
 						const lastTouched = this.ball.getLastTouchedBy();
 						this.freezePlayers(lastTouched);
 						break;
 					case BonusType.POTION:
-						console.log("Potion activée : inverse les mouvements ennemis");
 						const lastTouchedPO = this.ball.getLastTouchedBy();
 						this.invertPlayersControls(lastTouchedPO);
 						break;
 					case BonusType.SPEED:
-						console.log("Vitesse activée : Augmente la vitesse de la balle");
 						this.ball.increaseSpeed(1.2);
 						break;
 				}
@@ -1148,13 +1143,10 @@ class Ball extends Entity{
 						}),
 					});
 					const result = await response.json();
-					console.log("Résultat sauvegardé:", result);
 
 					// Supprimer l'ID du match du localStorage.
 					localStorage.removeItem('currentMatchId');
-				} catch (error) {
-					console.error("Erreur lors de l'enregistrement des scores:", error);
-				}
+				} catch (error) {}
 			}
 
 			const victoryMessageElement = document.getElementById("Pong");

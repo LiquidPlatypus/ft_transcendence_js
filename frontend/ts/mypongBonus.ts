@@ -193,7 +193,6 @@ export class GameBonus{
 		// Recupere les bons noms de joueurs.
 		let player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
 		let player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
-		console.log(localStorage);
 
 		// S'assure d'afficher les bons noms en fonction du match lors d'un tournoi.
 		if (tournamentMode && currentMatchType) {
@@ -205,12 +204,6 @@ export class GameBonus{
 				player2Alias = localStorage.getItem('thirdPlacePlayer2Alias') || player2Alias;
 			}
 		}
-
-		console.log("Current match ID:", currentMatchId);
-		console.log("Current match type:", currentMatchType);
-		console.log("Tournament mode:", tournamentMode);
-		console.log("Player 1 name:", player1Alias);
-		console.log("Player 2 name:", player2Alias);
 
 		this.gameContext!.font = "20px Orbitron";
 		this.gameContext!.fillStyle = textColor;
@@ -281,13 +274,11 @@ export class GameBonus{
 
 				switch (bonus.type) {
 					case BonusType.WALL:
-						console.log("Mur activé : création d'un mur statique");
 
 						// Retarder la création du mur à après la suppression du bonus
 						this.createStaticWallLater(bonus.x + bonus.width / 2, bonus.y + bonus.height / 2);
 						break;
 					case BonusType.ICE:
-						console.log("Flocon activé : ralentit la balle");
 						const lastTouched = this.ball.getLastTouchedBy();
 						this.freezePlayers(lastTouched);
 						break;
@@ -448,7 +439,6 @@ export class Paddle2 extends Entity {
 
 	public static setAIEnabled(enabled: boolean) {
 		this.isAIEnabled = enabled;
-		console.log("AI Enabled:", enabled); // Debug log
 	}
 
 	public static isAIActive(): boolean {
@@ -723,7 +713,6 @@ class Ball extends Entity{
 	public increaseSpeed(factor: number)
 	{
 		this.speed *= factor;
-		console.log(`Vitesse augmentée : ${this.speed.toFixed(2)}`);
 	}
 
 	private onGoalCallback: (() => void) | null = null; //Pour réinitialiser les bonus, appel dans GameBonus
@@ -871,10 +860,7 @@ class Ball extends Entity{
 						}),
 					});
 					const result = await response.json();
-					console.log("Résultat sauvegardé:", result);
-				} catch (error) {
-					console.error("Erreur lors de l'enregistrement des scores:", error);
-				}
+				} catch (error) {}
 			}
 
 			// Check if we're in a tournament
@@ -944,11 +930,8 @@ class Ball extends Entity{
 
 async function getAliasById(playerId: string | null): Promise<string> {
 	if (!playerId) {
-		console.log("Warning: getAliasById called with null playerId");
 		return "Joueur ?";
 	}
-
-	console.log(`Fetching alias for player ID: ${playerId}`);
 
 	try {
 		const res = await fetch(`/api/players/${playerId}`);
@@ -956,17 +939,13 @@ async function getAliasById(playerId: string | null): Promise<string> {
 			throw new Error(`API error: ${res.status}`);
 
 		const data = await res.json();
-		console.log(`Player data:`, data);
 
 		if (data.success && data.player && data.player.name) {
-			console.log(`Found name for player ${playerId}: ${data.player.name}`);
 			return data.player.name;
 		} else {
-			console.warn(`No valid name found for player ${playerId}`, data);
 			return "Joueur ?";
 		}
 	} catch (e) {
-		console.error(`Error fetching alias for player ${playerId}:`, e);
 		return "Joueur ?";
 	}
 }
