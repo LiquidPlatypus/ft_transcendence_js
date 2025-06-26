@@ -1,13 +1,9 @@
 import {startGame} from "./script.js";
-import {screenReader} from "./screenReader.js";
 
 // Id du tournoi.
 let currentTournamentId: string | null = null;
 
-// Nombre max de joueur dans le tournoi.
-const MAX_PLAYERS: number = 4;
-
-// interface pour reponse API.
+// interface pour réponse API.
 interface TournamentResponse {
 	id: string;
 }
@@ -17,7 +13,7 @@ interface PlayerResponse {
 }
 
 /**
- * @brief Demarre un tournoi apers verif dea alias joueurs.
+ * @brief Démarre un tournoi après vérification des alias des joueurs.
  * @param event
  */
 export async function startTournament(event: Event): Promise<void> {
@@ -26,7 +22,7 @@ export async function startTournament(event: Event): Promise<void> {
 	const button = event.target as HTMLButtonElement;
 	button.disabled = true;
 
-	// Recupere les alias des joueurs (4 max).
+	// Récupère les alias des joueurs (4 max).
 	const playerAliases: string[] = [];
 	let playerCount = 0;
 
@@ -134,12 +130,11 @@ export async function startTournament(event: Event): Promise<void> {
  */
 function displayTournamentAnnouncement(playerAliases: string[]): Promise<void> {
 	return new Promise((resolve) => {
-		// Creer l'overlay d'annonce.
+		// Créer l'overlay d'annonce.
 		const overlay = document.createElement('div');
 		overlay.id = 'tournament-announcement';
 		overlay.className = 'tournament-overlay';
 
-		const currentTheme = document.body.className;
 		overlay.style.cssText = `
 			position: fixed;
 			top: 0;
@@ -268,7 +263,7 @@ function displayTournamentAnnouncement(playerAliases: string[]): Promise<void> {
 		overlay.appendChild(mainContainer);
 		document.body.appendChild(overlay);
 
-		// Compteur de 3 secondes.
+		// Compteur de trois secondes.
 		let count = 3;
 		countdown.textContent = `Le tournoi commence dans ${count} secondes...`;
 
@@ -347,7 +342,7 @@ async function createTournamentMatches(playerIds: string[], playerAliases: strin
 }
 
 /**
- * @brief Crée un match entre 2 joueurs.
+ * @brief Crée un match entre deux joueurs.
  * @param player1Id ID du premier joueur.
  * @param player2Id ID du second joueur.
  * @param round Nom du round.

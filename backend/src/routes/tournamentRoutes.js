@@ -63,7 +63,7 @@ export default async function tournamentRoutes(fastify) {
 	};
 
 	/**
-	 * @brief Creer un tournoi.
+	 * @brief Créer un tournoi.
 	 */
 	fastify.post('/', createTournamentSchema, async (request, reply) => {
 		try {
@@ -88,7 +88,7 @@ export default async function tournamentRoutes(fastify) {
 	});
 
 	/**
-	 * @brief Recupere les tournois.
+	 * @brief Récupère les tournois.
 	 */
 	fastify.get('/', async (request, reply) => {
 		try {
@@ -104,7 +104,7 @@ export default async function tournamentRoutes(fastify) {
 	});
 
 	/**
-	 * @brief Recupere un tournoi avec son ID.
+	 * @brief Récupère un tournoi avec son ID.
 	 */
 	fastify.get('/:id', async (request, reply) => {
 		const { id } = request.params;
@@ -198,7 +198,7 @@ export default async function tournamentRoutes(fastify) {
 	});
 
 	/**
-	 * @brief Recupere les joueurs d'un tournoi.
+	 * @brief Récupère les joueurs d'un tournoi.
 	 */
 	fastify.get('/:id/players', async (request, reply) => {
 		const {id} = request.params;
@@ -230,7 +230,7 @@ export default async function tournamentRoutes(fastify) {
 	});
 
 	/**
-	 * @brief Creer un match dans le tournoi.
+	 * @brief Créer un match dans le tournoi.
 	 */
 	fastify.post('/:id/matches', createMatchSchema, async (request, reply) => {
 		const {id} = request.params;
@@ -261,7 +261,7 @@ export default async function tournamentRoutes(fastify) {
 	});
 
 	/**
-	 * @brief Recupere les matchs d'un tournoi.
+	 * @brief Récupère les matchs d'un tournoi.
 	 */
 	fastify.get('/:id/matches', async (request, reply) => {
 		const {id} = request.params;
@@ -304,7 +304,7 @@ export default async function tournamentRoutes(fastify) {
 	});
 
 	/**
-	 * @brief recupere le gagnant du match
+	 * @brief Récupère le gagnant du match
 	 */
 	fastify.get('/:id/matches/:matchId/winner', async (request, reply) => {
 		const { matchId } = request.params;

@@ -4,13 +4,13 @@
  */
 function changeText(textType: string)
 {
-	// Recupere l'element body.
+	// Récupère l'élément body.
 	const body = document.body;
 
 	// Supprime les classes de texte actuelles.
 	body.classList.remove('text-normal', 'text-large', 'text-bold');
 
-	// Reinitialise toutes les variables CSS de texte a leurs valeurs par defaut.
+	// Réinitialise toutes les variables CSS de texte à leurs valeurs par défaut.
 	const resetCSSVars = () => {
 		document.documentElement.style.setProperty('--font-size-base', '');
 		document.documentElement.style.setProperty('--font-weight-base', '');
@@ -19,7 +19,7 @@ function changeText(textType: string)
 
 	resetCSSVars();
 
-	// Met a jour les variables CSS en fonction du type choisit.
+	// Met à jour les variables CSS en fonction du type choisit.
 	switch(textType) {
 		case 'normal':
 			body.classList.add('text-normal');
@@ -46,7 +46,7 @@ function changeText(textType: string)
 	// Sauvegarde la preference dans localStorage.
 	localStorage.setItem('textSize', textType);
 
-	// Force la mise a jour du texte.
+	// Force la mise à jour du texte.
 	updateTextStyles();
 }
 
@@ -69,7 +69,7 @@ function updateTextStyles() {
 }
 
 /**
- * @brief Attache les ecouteurs d'evenements aux boutons de textes.
+ * @brief Attache les écouteurs d'événements aux boutons de textes.
  */
 export function attachTextListeners() {
 	const textButtons = document.querySelectorAll('[data-text]');
