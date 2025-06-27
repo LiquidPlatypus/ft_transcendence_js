@@ -2,6 +2,7 @@ import {ButtonType} from "./script.js";
 import {t} from "../lang/i18n.js";
 import {screenReader} from "./screenReader.js";
 import {navigate} from "./popstate.js";
+import { updateTextStyles } from './textSwitcher.js';
 
 /**
  * @brief Désactive ou active les boutons au besoin.
@@ -126,6 +127,8 @@ export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
 			<button id="bonus-button-${gameType}" class="mode-btn btn btn-fixed rounded-lg border p-4 shadow" data-mode="bonus" data-game="${gameType}">${t("bonus")}</button>
 		</div>
 	`;
+
+	updateTextStyles();
 
 	// Empêche d'appuyer sur tous les autres boutons en dehors de la div actuelle.
 	disableUnrelatedButtons(gameType);

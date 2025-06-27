@@ -53,8 +53,8 @@ function changeText(textType: string)
 /**
  * @brief Met a jour les textes.
  */
-function updateTextStyles() {
-	const textElements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, button, a, li');
+export function updateTextStyles() {
+	const textElements = document.querySelectorAll('p, h3, h4, h5, h6, span, button, a, li');
 
 	textElements.forEach(element => {
 		const el = element as HTMLElement;
@@ -91,3 +91,6 @@ export function initText() {
 	const savedTextSize = localStorage.getItem('textSize') || 'normal'; // Taille par défaut.
 	changeText(savedTextSize);
 }
+
+const savedTextType = localStorage.getItem('textSize') || 'normal';
+changeText(savedTextType);

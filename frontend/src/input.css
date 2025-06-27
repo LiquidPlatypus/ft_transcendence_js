@@ -84,6 +84,10 @@ body.theme-WHITE {
 	scrollbar-color: var(--color-button) transparent;
 }
 
+#history-pong {
+	flex-direction: row !important;
+}
+
 .history-table {
 	table-layout: fixed;
 	width: 100%;

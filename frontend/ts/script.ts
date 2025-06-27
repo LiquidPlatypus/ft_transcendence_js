@@ -9,7 +9,7 @@ import { attachLanguageListeners, attachHomePageListeners } from './listeners.js
 import {disableUnrelatedButtons, GameType, MatchType} from "./Utilities.js";
 import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
-import {attachTextListeners, initText} from "./textSwitcher.js";
+import {attachTextListeners, initText, updateTextStyles} from "./textSwitcher.js";
 import {screenReader} from "./screenReader.js";
 import {navigate} from "./popstate.js";
 
@@ -196,6 +196,8 @@ export function showPlayerCountSelection(buttonType: ButtonType, matchType: Matc
 			showAliasInputs(playerCount, buttonType, matchType, 'pong');
 		});
 	});
+
+	updateTextStyles();
 }
 
 /**
@@ -239,7 +241,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			inputsHTML += `
 				<div class="mt-2 w-full">
 					<div class="flex items-center w-full">
-						<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded-l w-[calc(100%-100px)]" placeholder="${t("player")} ${i}">
+						<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded-l w-full" placeholder="${t("player")} ${i}">
 						<button id="aiToggleBtn${i}" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
 					</div>
 				</div>
@@ -475,6 +477,8 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			start_pfc(startButton, matchType);
 		}
 	}
+
+	updateTextStyles();
 }
 
 interface Match {
@@ -650,6 +654,8 @@ export async function showHistory(gameType: string) {
 			<p>${t("hist_error")}</p>
 		`;
 	}
+
+	updateTextStyles();
 }
 
 /**
@@ -810,6 +816,8 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			}, 100);
 		}
 	}
+
+	updateTextStyles();
 }
 
 /**
@@ -872,4 +880,6 @@ export function showHome() {
 		attachTextListeners();
 		initializeScreenReader();
 	}
+
+	updateTextStyles();
 }
