@@ -332,7 +332,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 						const isAIEnabled = player2Input?.disabled || false;
 
 						if (!alias1 || (!isAIEnabled && !alias2)) {
-							alert('Please enter player names');
+							alert(t("missing_player_name"));
 							return;
 						}
 

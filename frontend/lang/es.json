@@ -79,5 +79,6 @@
   "AI": "AI",
 
   "error_invalid_alias": "Alias no válido",
-  "error_alias_format": "Formato de alias no válido"
+  "error_alias_format": "Formato de alias no válido",
+  "missing_player_name": "Introduzca un alias"
 }
