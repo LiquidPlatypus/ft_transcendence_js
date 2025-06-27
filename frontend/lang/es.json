@@ -75,5 +75,9 @@
 
   "normal_text": "texto normal",
   "large_text": "texto grande",
-  "bold_text": "texto en negrita"
+  "bold_text": "texto en negrita",
+  "AI": "AI",
+
+  "error_invalid_alias": "Alias no válido",
+  "error_alias_format": "Formato de alias no válido"
 }

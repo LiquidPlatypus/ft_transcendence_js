@@ -239,8 +239,8 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			inputsHTML += `
 				<div class="mt-2 w-full">
 					<div class="flex items-center w-full">
-						<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded-l w-[calc(100%-100px)]" placeholder="${t("player")} ${i}">
-						<button id="aiToggleBtn${i}" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
+						<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded-l w-full" placeholder="${t("player")} ${i}">
+						<button aria-label="${t("AI")}" id="aiToggleBtn${i}" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
 					</div>
 				</div>
 			`;
@@ -558,8 +558,12 @@ export async function showHistory(gameType: string) {
 					tableEl.className = 'mt-10 border-collapse border w-full text-center table-fixed';
 					tableEl.innerHTML = `
 						<tr>
-							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player1}</th>
-							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player2}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2" title="${match.player1}">
+								${match.player1.length > 7 ? match.player1.substring(0, 7) + '...' : match.player1}
+							</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2" title="${match.player2}">
+								${match.player2.length > 7 ? match.player2.substring(0, 7) + '...' : match.player2}
+							</th>
 						</tr>
 						<tr>
 							<td class="border p-2">${match.player1_score}</td>
