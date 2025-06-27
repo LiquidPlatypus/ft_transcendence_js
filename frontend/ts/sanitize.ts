@@ -1,3 +1,8 @@
 export function isValidString(str: string): boolean {
-	return /^[a-zA-Z0-9_-]{1,15}$/.test(str);
+	const regex = /^[a-zA-Z0-9\s\-_]*$/;
+
+	console.warn(`Validating string: "${str}" against regex: ${regex}`);
+	console.warn(`Regex test result: ${regex.test(str)}`);
+
+	return regex.test(str);
 }

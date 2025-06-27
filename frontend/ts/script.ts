@@ -12,6 +12,7 @@ import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
 import {screenReader} from "./screenReader.js";
 import {navigate} from "./popstate.js";
+import {isValidString} from "./sanitize.js";
 
 // At the top of the file, add a global variable to store the current game instance
 let currentGameInstance: any = null;
@@ -336,6 +337,11 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 							return;
 						}
 
+						if (isValidString(alias1) || isValidString(alias2)) {
+							alert(t("error_invalid_alias") + "\n" + t("error_alias_format"));
+							return;
+						}
+
 						localStorage.setItem('player1Alias', alias1);
 						localStorage.setItem('player2Alias', alias2);
 
@@ -403,6 +409,11 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 							(!isAI3Enabled && !alias3) ||
 							(!isAI4Enabled && !alias4)) {
 							alert('Please enter player names');
+							return;
+						}
+
+						if (isValidString(alias1) || isValidString(alias2)|| isValidString(alias3)|| isValidString(alias4)) {
+							alert(t("error_invalid_alias") + "\n" + t("error_alias_format"));
 							return;
 						}
 
