@@ -730,6 +730,10 @@ class Ball extends Entity{
 	private speed: number = this.baseSpeed;
 	private currentSpeed: number = 5;
 	private lastSpeedIncreaseTime: number = 0;
+	private readonly INITIAL_WAIT_TIME: number = 10000; // Changed from 20000 to 10000 (10 seconds before first increase)
+	private readonly SPEED_INCREASE_INTERVAL: number = 5000; // Already at 5 seconds between increases
+	private readonly SPEED_INCREASE_AMOUNT: number = 0.5; // Speed increase per interval
+	private readonly MAX_SPEED: number = 12; // Maximum speed cap
 	private roundStartTime: number = 0;
 	private readonly canvasWidth: number;
 	private readonly canvasHeight: number;
@@ -829,9 +833,32 @@ class Ball extends Entity{
 		return false;
 	}
 
+	private updateSpeed() {
+		const currentTime = Date.now();
+		const timeSinceStart = currentTime - this.roundStartTime;
+
+		// Only start increasing speed after initial wait time
+		if (timeSinceStart >= this.INITIAL_WAIT_TIME) {
+			const timeSinceLastIncrease = currentTime - this.lastSpeedIncreaseTime;
+
+			// Check if it's time for another speed increase
+			if (timeSinceLastIncrease >= this.SPEED_INCREASE_INTERVAL) {
+				this.lastSpeedIncreaseTime = currentTime;
+
+				// Increase speed if not at max
+				if (this.currentSpeed < this.MAX_SPEED) {
+					this.currentSpeed += this.SPEED_INCREASE_AMOUNT;
+					console.log(`Ball speed increased to: ${this.currentSpeed}`);
+				}
+			}
+		}
+	}
+
 	update(player1: Paddle, player2: Paddle2, player3: Paddle3, player4: Paddle4, canvas: HTMLCanvasElement) {
 		// Si le jeu est en pause, on ne met pas à jour la position de la balle.
 		if (isPaused) return;
+
+		this.updateSpeed();
 
 		// Verification des buts dans les camps respectifs.
 		if (this.x <= 0) {
