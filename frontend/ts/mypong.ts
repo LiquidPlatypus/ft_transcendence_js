@@ -17,24 +17,24 @@ let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
 let gameOver = false;
 
 export class Game{
-	private gameCanvas: HTMLCanvasElement | null;
-	private gameContext: CanvasRenderingContext2D | null;
+	private readonly gameCanvas: HTMLCanvasElement | null;
+	private readonly gameContext: CanvasRenderingContext2D | null;
 	private gameStartTime: number = Date.now();
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
-	private player1: Paddle;
-	private player2: Paddle2;
+	private readonly player1: Paddle;
+	private readonly player2: Paddle2;
 
-	private ball: Ball;
+	private readonly ball: Ball;
 
 	private cleanupNavigateListener: (() => void) | null = null; // Pour stocker la fonction de désabonnement
 
 	public static ScreenReader = screenReader.getInstance();
 
-	private keydownHandler: (e: KeyboardEvent) => void;
-	private keyupHandler: (e: KeyboardEvent) => void;
-	private popstateHandler: (e: PopStateEvent) => void;
+	private readonly keydownHandler: (e: KeyboardEvent) => void;
+	private readonly keyupHandler: (e: KeyboardEvent) => void;
+	private readonly popstateHandler: (e: PopStateEvent) => void;
 
 	constructor() {
 		const canvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
@@ -44,7 +44,7 @@ export class Game{
 		this.gameCanvas = canvas;
 		this.gameContext = this.gameCanvas.getContext("2d");
 		if (!this.gameContext)
-			throw new Error("Impossible de recuperer 2D rendering context");
+			throw new Error("Impossible de récupérer 2D rendering context");
 
 		this.gameContext.font = "30px Orbitron";
 
@@ -207,15 +207,15 @@ export class Game{
 		// Trace la ligne au centre du terrain.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
 			this.gameContext.fillStyle = lineColor;
-			this.gameContext.fillRect(this.gameCanvas.width / 2 - 2, i + 10, 5, 20); // Cense etre 2.5 mais vu que pixel = entier, arrondi a 2.
+			this.gameContext.fillRect(this.gameCanvas.width / 2 - 2, i + 10, 5, 20); // Censé être 2.5 mais vu que pixel = entier, arrondi à 2.
 		}
 
-		// Defini les informations du match et des joueurs.
+		// Défini les informations du match et des joueurs.
 		const currentMatchId = localStorage.getItem('currentMatchId');
 		const currentMatchType = localStorage.getItem('currentMatchType');
 		const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
 
-		// Recupere les bons noms de joueurs.
+		// Récupère les bons noms de joueurs.
 		let player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
 		let player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
 		console.log(localStorage);
@@ -241,7 +241,7 @@ export class Game{
 		this.gameContext!.fillStyle = textColor;
 		this.gameContext!.textAlign = "center";
 
-		// Affiche le nom des joueurs au dessus du score.
+		// Affiche le nom des joueurs au-dessus du score.
 		this.gameContext!.fillText(player1Alias, this.gameCanvas!.width / 4, 30);
 		this.gameContext!.fillText(player2Alias, (3 * this.gameCanvas!.width) / 4, 30);
 
@@ -343,7 +343,7 @@ class Paddle extends Entity{
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerY: number = 0;
+	private readonly centerY: number = 0;
 	
 	// Simulated keyboard state
 	private isUpPressed: boolean = false;
@@ -365,16 +365,6 @@ class Paddle extends Entity{
 
 	public static isAIActive(): boolean {
 		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.y = this.centerY;
-		this.targetY = this.centerY;
-		this.yVal = 0;
-		this.isUpPressed = false;
-		this.isDownPressed = false;
-		this.approachingBall = false;
 	}
 
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
@@ -505,7 +495,7 @@ export class Paddle2 extends Entity {
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerY: number = 0;
+	private readonly centerY: number = 0;
 	
 	// Simulated keyboard state
 	private isUpPressed: boolean = false;
@@ -527,16 +517,6 @@ export class Paddle2 extends Entity {
 
 	public static isAIActive(): boolean {
 		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.y = this.centerY;
-		this.targetY = this.centerY;
-		this.yVal = 0;
-		this.isUpPressed = false;
-		this.isDownPressed = false;
-		this.approachingBall = false;
 	}
 
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
@@ -660,10 +640,6 @@ class Ball extends Entity {
 	private readonly SPEED_INCREASE_AMOUNT: number = 0.5; // Speed increase per interval
 	private readonly MAX_SPEED: number = 12; // Maximum speed cap
 	private lastTouchedBy: 'player1' | 'player2' | null = null;
-
-	public getLastTouchedBy(): 'player1' | 'player2' | null {
-		return this.lastTouchedBy;
-	}
 
 	constructor(w: number, h: number, x: number, y: number) {
 		super(w, h, x, y);
@@ -902,7 +878,7 @@ class Ball extends Entity {
 				return true;
 			}
 			else if (tournamentMode && pendingMatchId) {
-				// S'affiche lorsque un autre match est encore en attente.
+				// S'affiche lorsqu'un autre match est encore en attente.
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					const winnerAlias = this.getWinnerAlias(winner);
@@ -935,21 +911,21 @@ class Ball extends Entity {
 									// Set le match en attente en tant que match actuel.
 									localStorage.setItem('currentMatchId', pendingMatchId);
 
-									// Met a jour les noms des joueurs pour le prochain match.
+									// Met à jour les noms des joueurs pour le prochain match.
 									localStorage.setItem('player1Alias', localStorage.getItem('player3Alias') || 'Joueur 3');
 									localStorage.setItem('player2Alias', localStorage.getItem('player4Alias') || 'Joueur 4');
 
-									// Met a jour les infos AI pour le prochain match.
+									// Met à jour les infos AI pour le prochain match.
 									const player3Id = localStorage.getItem('player3Id') || '';
 									const player4Id = localStorage.getItem('player4Id') || '';
 									await updateAIStatus(player3Id, player4Id);
 
-									// Reset l'etat du jeu.
+									// Reset l'état du jeu.
 									Game.player1Score = 0;
 									Game.player2Score = 0;
 									Game.setGameOver(false);
 
-									// Demarre le prochain match.
+									// Démarre le prochain match.
 									startGame(2, 'normal');
 								} else if (matchId === semifinal2Id) {
 									// Stock le gagnant de la semi-finale.
@@ -1024,7 +1000,7 @@ class Ball extends Entity {
 											localStorage.setItem('player1Alias', loser1Name);
 											localStorage.setItem('player2Alias', loser2Name);
 
-											// Met a jour les informations AI pour le match de 3ème place.
+											// Met a jour les infos AI pour le match de 3ème place.
 											await updateAIStatus(semifinal1Loser, semifinal2Loser);
 
 											// Reset l'état du jeu.
@@ -1049,7 +1025,7 @@ class Ball extends Entity {
 									localStorage.setItem('player1Alias', localStorage.getItem('finalPlayer1Alias') || 'Joueur 1');
 									localStorage.setItem('player2Alias', localStorage.getItem('finalPlayer2Alias') || 'Joueur 2');
 
-									// Met a jour les infos AI pour la finale.
+									// Met à jour les infos AI pour la finale.
 									const semifinal1Winner = localStorage.getItem('semifinal1Winner') || '';
 									const semifinal2Winner = localStorage.getItem('semifinal2Winner') || '';
 									await updateAIStatus(semifinal1Winner, semifinal2Winner);
@@ -1149,7 +1125,7 @@ async function getAliasById(playerId: string | null): Promise<string> {
 }
 
 /**
- * @brief Recupere les infos AI d'un joueur.
+ * @brief Récupère les infos AI d'un joueur.
  * @param playerId id du joueur.
  */
 async function getPlayerAIStatus(playerId: string): Promise<boolean> {

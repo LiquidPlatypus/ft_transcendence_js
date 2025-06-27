@@ -1,4 +1,4 @@
-import { showHome, startGame } from "./script.js";
+import { showHome} from "./script.js";
 import { t } from "../lang/i18n.js"
 import {screenReader} from "./screenReader.js";
 import {navigate, onNavigate} from "./popstate.js";
@@ -25,27 +25,25 @@ let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
 let gameOver = false;
 
 export class GameBonus{
-	private gameCanvas: HTMLCanvasElement | null;
-	private gameContext: CanvasRenderingContext2D | null;
+	private readonly gameCanvas: HTMLCanvasElement | null;
+	private readonly gameContext: CanvasRenderingContext2D | null;
 	private gameStartTime: number = Date.now();
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
-	private player1: Paddle;
-	private player2: Paddle2;
+	private readonly player1: Paddle;
+	private readonly player2: Paddle2;
 
 	private bonuses: Bonus[] = [];
 	private lastBonusTime: number = 0;
 	private bonusStartTime: number = Date.now();
 	public staticWalls: StaticWall[] = []; // Liste pour le bonus Wall
 
-	private ball: Ball;
+	private readonly ball: Ball;
 
-	public static ScreenReader = screenReader.getInstance();
-
-	private keydownHandler: (e: KeyboardEvent) => void;
-	private keyupHandler: (e: KeyboardEvent) => void;
-	private popstateHandler: (e: PopStateEvent) => void;
+	private readonly keydownHandler: (e: KeyboardEvent) => void;
+	private readonly keyupHandler: (e: KeyboardEvent) => void;
+	private readonly popstateHandler: (e: PopStateEvent) => void;
 
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
 		setTimeout(() =>
@@ -83,7 +81,7 @@ export class GameBonus{
 		this.gameCanvas = canvas;
 		this.gameContext = this.gameCanvas.getContext("2d");
 		if (!this.gameContext)
-			throw new Error("Impossible de recuperer 2D rendering context");
+			throw new Error("Impossible de récupérer 2D rendering context");
 
 		this.gameContext.font = "30px Orbitron";
 
@@ -213,15 +211,15 @@ export class GameBonus{
 		// Trace la ligne au centre du terrain.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
 			this.gameContext.fillStyle = lineColor;
-			this.gameContext.fillRect(this.gameCanvas.width / 2 - 2, i + 10, 5, 20); // Cense etre 2.5 mais vu que pixel = entier, arrondi a 2.
+			this.gameContext.fillRect(this.gameCanvas.width / 2 - 2, i + 10, 5, 20); // Censé être 2.5 mais vu que pixel = entier, arrondi à 2.
 		}
 
-		// Defini les informations du match et des joueurs.
+		// Défini les informations du match et des joueurs.
 		const currentMatchId = localStorage.getItem('currentMatchId');
 		const currentMatchType = localStorage.getItem('currentMatchType');
 		const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
 
-		// Recupere les bons noms de joueurs.
+		// Récupère les bons noms de joueurs.
 		let player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
 		let player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
 		console.log(localStorage);
@@ -247,7 +245,7 @@ export class GameBonus{
 		this.gameContext!.fillStyle = textColor;
 		this.gameContext!.textAlign = "center";
 
-		// Affiche le nom des joueurs au dessus du score.
+		// Affiche le nom des joueurs au-dessus du score.
 		this.gameContext!.fillText(player1Alias, this.gameCanvas!.width / 4, 25);
 		this.gameContext!.fillText(player2Alias, (3 * this.gameCanvas!.width) / 4, 25);
 
@@ -466,7 +464,7 @@ export class Paddle2 extends Entity {
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerY: number = 0;
+	private readonly centerY: number = 0;
 	private gameRef: GameBonus | null = null;
 	
 	// Simulated keyboard state
@@ -496,26 +494,10 @@ export class Paddle2 extends Entity {
 		console.log("AI Enabled:", enabled); // Debug log
 	}
 
-	public static isAIActive(): boolean {
-		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.y = this.centerY;
-		this.targetY = this.centerY;
-		this.yVal = 0;
-		this.isUpPressed = false;
-		this.isDownPressed = false;
-		this.approachingBall = false;
-	}
-
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
 		if (!ball) return this.centerY;
 
-		const distanceX = this.x - ball.x;
 		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
-		const timeToReach = Math.abs(distanceX / (ball.xVal * currentBallSpeed));
 		
 		let predictedX = ball.x;
 		let predictedY = ball.y;
@@ -917,7 +899,7 @@ class Ball extends Entity{
 			}
 		}
 
-		// Fait en sorte que la balle se déplace a une vitesse constante meme en diagonale.
+		// Fait en sorte que la balle se déplace à une vitesse constante meme en diagonale.
 		const length = Math.sqrt(this.xVal * this.xVal + this.yVal * this.yVal);
 		this.x += (this.xVal / length) * this.speed;
 		this.y += (this.yVal / length) * this.speed;
@@ -955,52 +937,34 @@ class Ball extends Entity{
 				}
 			}
 
-			// Check if we're in a tournament
-			const inTournament = localStorage.getItem('currentTournamentId') !== null;
-			const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
-
-			// Only proceed with tournament logic if we're actually in a tournament
-			if (inTournament && tournamentMode) {
-			const pendingMatchId = localStorage.getItem('pendingMatchId');
-			const semifinal1Id = localStorage.getItem('semifinal1Id');
-			const semifinal2Id = localStorage.getItem('semifinal2Id');
-
-				if (pendingMatchId) {
-					// Tournament match logic...
-					// ... existing tournament code ...
-				}
-			}
-
 			// Always show victory message, regardless of tournament mode
-				const victoryMessageElement = document.getElementById("Pong");
-				if (victoryMessageElement) {
-					const winnerAlias = this.getWinnerAlias(winner);
+			const victoryMessageElement = document.getElementById("Pong");
+			if (victoryMessageElement) {
+				const winnerAlias = this.getWinnerAlias(winner);
 
-					const screenReaderInstance = screenReader.getInstance();
-					screenReaderInstance.announceScore(GameBonus.player1Score, GameBonus.player2Score, null, null);
-					screenReaderInstance.speak(`${winnerAlias} ${t("as_won")}`);
+				const screenReaderInstance = screenReader.getInstance();
+				screenReaderInstance.announceScore(GameBonus.player1Score, GameBonus.player2Score, null, null);
+				screenReaderInstance.speak(`${winnerAlias} ${t("as_won")}`);
 
-					victoryMessageElement.innerHTML = `
-						<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
-						<div class="flex justify-center">
-						<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
-						</div>
-					`;
+				victoryMessageElement.innerHTML = `
+					<p class="font-extrabold">${this.getWinnerAlias(winner)} ${t("as_won")}</p>
+					<div class="flex justify-center">
+					<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
+					</div>
+				`;
 
-				// Clean up localStorage for regular matches
-					const menu_btn = document.getElementById("menu-btn");
-					if (menu_btn) {
-						menu_btn.addEventListener("click", () => {
-						if (!inTournament) {
-							localStorage.removeItem('currentMatchId');
-							localStorage.removeItem('tournamentMode');
-							localStorage.removeItem("player1Alias");
-							localStorage.removeItem("player2Alias");
-							localStorage.removeItem("player3Alias");
-							localStorage.removeItem("player4Alias");
-							localStorage.removeItem('isPlayer2AI');
-							Paddle2.setAIEnabled(false);
-						}
+			// Clean up localStorage for regular matches
+				const menu_btn = document.getElementById("menu-btn");
+				if (menu_btn) {
+					menu_btn.addEventListener("click", () => {
+						localStorage.removeItem('currentMatchId');
+						localStorage.removeItem('tournamentMode');
+						localStorage.removeItem("player1Alias");
+						localStorage.removeItem("player2Alias");
+						localStorage.removeItem("player3Alias");
+						localStorage.removeItem("player4Alias");
+						localStorage.removeItem('isPlayer2AI');
+						Paddle2.setAIEnabled(false);
 
 						navigate('/home');
 						showHome();
@@ -1019,34 +983,5 @@ class Ball extends Entity{
 			return localStorage.getItem('player1Alias') || 'Joueur 1';
 		else
 			return localStorage.getItem('player2Alias') || 'Joueur 2';
-	}
-}
-
-async function getAliasById(playerId: string | null): Promise<string> {
-	if (!playerId) {
-		console.log("Warning: getAliasById called with null playerId");
-		return "Joueur ?";
-	}
-
-	console.log(`Fetching alias for player ID: ${playerId}`);
-
-	try {
-		const res = await fetch(`/api/players/${playerId}`);
-		if (!res.ok)
-			throw new Error(`API error: ${res.status}`);
-
-		const data = await res.json();
-		console.log(`Player data:`, data);
-
-		if (data.success && data.player && data.player.name) {
-			console.log(`Found name for player ${playerId}: ${data.player.name}`);
-			return data.player.name;
-		} else {
-			console.warn(`No valid name found for player ${playerId}`, data);
-			return "Joueur ?";
-		}
-	} catch (e) {
-		console.error(`Error fetching alias for player ${playerId}:`, e);
-		return "Joueur ?";
 	}
 }

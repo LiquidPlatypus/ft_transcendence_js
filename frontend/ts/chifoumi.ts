@@ -29,7 +29,7 @@ export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
 		console.log("start_pf called with matchType:", matchType);
 		navigate('/chifoumi/game/' + matchType);
-		showPFCMatch(matchType);
+		await showPFCMatch(matchType);
 	});
 }
 
@@ -48,7 +48,7 @@ export async function showPFCMatch(matchType: MatchType) {
 	localStorage.setItem('player2Alias', player2);
 
 	try {
-		// Creer les joueurs dans le back.
+		// Créer les joueurs dans le back.
 		const player1Response = await fetch('api/players', {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
@@ -62,7 +62,7 @@ export async function showPFCMatch(matchType: MatchType) {
 		}).then(res => res.json());
 
 		if (player1Response.success && player2Response.success) {
-			// Creer le match dans le back.
+			// Créer le match dans le back.
 			const matchResponse = await fetch("api/players/match", {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
@@ -152,7 +152,7 @@ function init() {
 	ScreenReader.announceGameEvent(t("pfc_explanation"));
 
 	function handleKeydown(e: KeyboardEvent) {
-		// Ignore les entree pendant le delai.
+		// Ignore les entree pendant le délai.
 		if (isWaiting)
 			return ;
 
@@ -192,7 +192,7 @@ function init() {
 					fightJ1.textContent = "";
 					fightJ2.textContent = "";
 
-					// Reinitialisation des choix et deblocage.
+					// Reinitialisation des choix et déblocage.
 					choixJ1 = null;
 					choixJ2 = null;
 					isWaiting = false;
@@ -378,7 +378,7 @@ function init_bonus() {
 				scores.innerHTML = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
-					verifierVainqueur(vainqueur);
+					verifierVainqueur();
 
 				setTimeout(() => {
 					fightZone.classList.remove("fight-in");
@@ -398,7 +398,7 @@ function init_bonus() {
 	handleKeydownGlobal = handleKeydown;
 	document.addEventListener("keydown", handleKeydown);
 
-	function verifierVainqueur(div: HTMLElement) {
+	function verifierVainqueur() {
 		if (scoreJ1 >= 5 || scoreJ2 >= 5) {
 			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";

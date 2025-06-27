@@ -4,18 +4,18 @@ import {screenReader} from "./screenReader.js";
 import {navigate} from "./popstate.js";
 
 /**
- * @brief Desactive ou active les boutons au besoin.
- * @param currentContext div actuelles -> definie les boutons a desactiver.
+ * @brief Désactive ou active les boutons au besoin.
+ * @param currentContext div actuelles → définie les boutons à désactiver.
  */
 export function disableUnrelatedButtons(currentContext: 'pong' | 'pfc' | 'home') {
-	// Selectionne tout les types de boutons.
+	// Sélectionne tous les types de boutons.
 	const langButtons = document.querySelectorAll('[data-lang]');
 	const themeButtons = document.querySelectorAll('[data-theme]');
 	const textButtons = document.querySelectorAll('[data-text]');
 	const pongButtons = document.querySelectorAll('#match-button, #tournament-button, #pong-hist-btn');
 	const pfcButtons = document.querySelectorAll('#pfc-button, #pfc-hist-btn');
 
-	// Active ou desactive les boutons en fonction du contexte.
+	// Active ou désactive les boutons en fonction du contexte.
 	if (currentContext === 'home') {
 		enableElements(langButtons);
 		enableElements(themeButtons);
@@ -39,7 +39,7 @@ export function disableUnrelatedButtons(currentContext: 'pong' | 'pfc' | 'home')
 
 /**
  * @brief Active les boutons.
- * @param elements boutons a activer.
+ * @param elements boutons à activer.
  */
 function enableElements(elements: NodeListOf<Element>) {
 	elements.forEach(element => {
@@ -51,8 +51,8 @@ function enableElements(elements: NodeListOf<Element>) {
 }
 
 /**
- * @brief Desactive les boutons.
- * @param elements boutons a desactiver.
+ * @brief Désactive les boutons.
+ * @param elements boutons à désactiver.
  */
 function disableElements(elements: NodeListOf<Element>) {
 	const currentTheme = localStorage.getItem('theme') || 'CP';
@@ -61,7 +61,7 @@ function disableElements(elements: NodeListOf<Element>) {
 		if (element instanceof HTMLButtonElement) {
 			element.disabled = true;
 
-			// Verifie si le bouton appartient aux divs centrales.
+			// Vérifie si le bouton appartient aux divs centrales.
 			const isCentralButton = element.closest('#Pong, #pfc, #history-pong, #history-pfc') !== null;
 
 			if (currentTheme === 'HC') {
@@ -87,12 +87,11 @@ export type GameType = 'pong' | 'pfc'
 
 /**
  * @brief Affiche le choix du type de match (normal ou bonus).
- * @param event evenement appelant la fonction.
  * @param buttonType type de match (simple/tournoi).
  * @param gameType type de jeu (pong/pfc).
  */
 export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
-	// Seectionne le bon conteneur en fonction du type de jeu
+	// Sélectionne le bon conteneur en fonction du type de jeu
 	const containerID = gameType === 'pong' ? "Pong" : "pfc";
 	const container = document.getElementById(containerID);
 
@@ -112,11 +111,11 @@ export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
 	if (pfc_hist_btn)
 		pfc_hist_btn.classList.add('hidden');
 
-	// Fait en sorte que le bouton retour soit au dessus des boutons de selection.
+	// Fait en sorte que le bouton retour soit au-dessus des boutons de selection.
 	container.classList.remove("grid-cols-2");
 	container.classList.add("grid-cols-1");
 
-	// Creer les boutons de selection du type de match.
+	// Créer les boutons de selection du type de match.
 	container.innerHTML = `
 		<div class="flex flex-col items-center gap-4">
 			<button aria-label="${t("back")}" id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
@@ -128,7 +127,7 @@ export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
 		</div>
 	`;
 
-	// Empeche d'appuyer sur tout les autres boutons en dehors de la div actuelle.
+	// Empêche d'appuyer sur tous les autres boutons en dehors de la div actuelle.
 	disableUnrelatedButtons(gameType);
 
 	const ScreenReader = screenReader.getInstance();
