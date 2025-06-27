@@ -1,8 +1,7 @@
 import { addPlayer, getPlayers, deletePlayer } from "../models/playerModel.js";
 import db from "../db.js"
-import * as repl from "node:repl";
 
-export default async function playerRoutes(fastify, options) {
+export default async function playerRoutes(fastify) {
 	// Validation des données d'entrée pour la sécurité
 	const playerSchema = {
 		body: {

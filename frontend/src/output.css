@@ -1043,6 +1043,13 @@ body.theme-WHITE {
   transform: translateX(0);
 }
 #resultat, #vainqueur {
+  width: 311.92px;
+  min-width: 311.92px;
+  max-width: 311.92px;
+  box-sizing: border-box;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
   margin-top: 30px;
   font-size: 1.5em;
   font-weight: bold;

@@ -4,15 +4,17 @@ import { Game } from './mypong.js';
 import { GameBonus, Paddle2 as Paddle2Bonus } from "./mypongBonus.js";
 import { GameFour, Paddle2, Paddle3, Paddle4 } from './fourpong.js';
 import { GameFourBonus, Paddle2 as Paddle2FourBonus, Paddle3 as Paddle3Bonus, Paddle4 as Paddle4Bonus } from "./fourpongBonus.js";
-import { twoPlayersMatch, fourPlayersMatch } from './matches.js'
 import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
-import {disableUnrelatedButtons, GameType, MatchType, matchTypeChoice} from "./Utilities.js";
+import {disableUnrelatedButtons, GameType, MatchType} from "./Utilities.js";
 import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
 import {screenReader} from "./screenReader.js";
 import {navigate} from "./popstate.js";
+
+// At the top of the file, add a global variable to store the current game instance
+let currentGameInstance: any = null;
 
 function initializeScreenReader() {
 	const ScreenReader = screenReader.getInstance();
@@ -20,11 +22,11 @@ function initializeScreenReader() {
 	// Initialise les listeners globaux pour la navigation au clavier
 	ScreenReader.initializeGlobalListeners();
 
-	// Recupere le bouton par son ID.
+	// Récupère le bouton par son ID.
 	const screenReaderButton: any = document.getElementById('screen-reader-toggle');
 
 	if (screenReaderButton) {
-		let isProcessing = false; // Flag pour eviter les clics multiples.
+		let isProcessing = false; // Flag pour éviter les clics multiples.
 
 		// Fonction pour mettre à jour l'état du bouton
 		function updateButtonState(newState: any) {
@@ -43,7 +45,7 @@ function initializeScreenReader() {
 			screenReaderButton.setAttribute('aria-label',
 				newState ? t("disable_screen_reader") : t("enable_screen_reader"));
 
-			// Met à jour l'aria-pressed pour l'accessibilité
+			// Met à jour l'aria pressed pour l'accessibilité
 			screenReaderButton.setAttribute('aria-pressed', newState.toString());
 		}
 
@@ -86,7 +88,7 @@ function initializeScreenReader() {
 				ScreenReader.speak(t("screen_reader_disabled"), true);
 				updateButtonState(false);
 
-				// Désactive le lecteur d'écran après que l'annonce soit terminée
+				// Désactive le lecteur d'écran après que l'annonce est terminée
 				setTimeout(() => {
 					ScreenReader.setEnabled(false);
 					isProcessing = false;
@@ -114,7 +116,7 @@ function initializeScreenReader() {
 	ScreenReader.announcePageChange(t("home"));
 }
 
-// Ecouteur d'evenements.
+// écouteur d'événements.
 document.addEventListener('DOMContentLoaded', async () => {
 	const savedLang = localStorage.getItem('lang') || 'fr';
 	await loadLanguage(savedLang as 'fr' | 'en' | 'es');
@@ -135,12 +137,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 export type ButtonType = 'match' | 'tournoi'
 
 /**
- * @brief Affiche le selecteur du nombre de joueurs.
+ * @brief Affiche le sélecteur du nombre de joueurs.
  * @param buttonType type de match (simple/tournoi).
  * @param matchType normal/bonus.
  */
 export function showPlayerCountSelection(buttonType: ButtonType, matchType: MatchType) {
-	// Recupere le contenu de la div "Pong".
+	// Récupère le contenu de la div "Pong".
 	const container = document.getElementById("Pong");
 	if (!container)
 		return ;
@@ -154,11 +156,11 @@ export function showPlayerCountSelection(buttonType: ButtonType, matchType: Matc
 	if (pfc_hist_btn)
 		pfc_hist_btn.classList.add('hidden');
 
-	// Fait en sorte que le bouton retour soit au dessus des boutons de selection du nombre de joueurs.
+	// Fait en sorte que le bouton retour soit au-dessus des boutons de selection du nombre de joueurs.
 	container.classList.remove("grid-cols-2");
 	container.classList.add("grid-cols-1");
 
-	// Creer les boutons de selection du nombre de joueurs.
+	// Créer les boutons de selection du nombre de joueurs.
 	container.innerHTML = `
 		<div class="flex flex-col items-center gap-4">
 			<button aria-label="${t("back")}" id="back-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
@@ -170,7 +172,7 @@ export function showPlayerCountSelection(buttonType: ButtonType, matchType: Matc
 		</div>
 	`;
 
-	// Empeche d'appuyer sur tout les autres boutons en dehors de la div de Pong.
+	// Empêche d'appuyer sur tous les autres boutons en dehors de la div de Pong.
 	disableUnrelatedButtons('pong');
 
 	const ScreenReader = screenReader.getInstance();
@@ -185,7 +187,7 @@ export function showPlayerCountSelection(buttonType: ButtonType, matchType: Matc
 		});
 	}
 
-	// Boutons de selection du nombres de joueurs.
+	// Boutons de selection du nombre de joueurs.
 	document.querySelectorAll(".player-count-btn").forEach((btn) => {
 		btn.addEventListener("click", (event) => {
 			const target = event.target as HTMLButtonElement;
@@ -224,11 +226,11 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	if (pfc_hist_btn)
 		pfc_hist_btn.classList.add('hidden');
 
-	// Fait en sorte que le bouton retour soit au dessus des boutons de selection du nombre de joueurs.
+	// Fait en sorte que le bouton retour soit au-dessus des boutons de selection du nombre de joueurs.
 	container.classList.remove("grid-cols-2");
 	container.classList.add("grid-cols-1");
 
-	// Creer les champs pour rentrer les alias selon le nombre de joueurs.
+	// Créer les champs pour rentrer les alias selon le nombre de joueurs.
 	let inputsHTML = "";
 	for (let i = 1; i <= playerCount; i++) {
 		if ((i === 2 && gameType === 'pong' && playerCount === 2) ||
@@ -237,7 +239,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			inputsHTML += `
 				<div class="mt-2 w-full">
 					<div class="flex items-center w-full">
-						<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded-l w-[calc(100%-100px)]" placeholder="Player ${i}">
+						<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded-l w-[calc(100%-100px)]" placeholder="${t("player")} ${i}">
 						<button id="aiToggleBtn${i}" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
 					</div>
 				</div>
@@ -245,13 +247,13 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 		} else {
 			inputsHTML += `
 				<div class="mt-2 w-full">
-					<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="Player ${i}">
+					<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded w-full" placeholder="${t("player")} ${i}">
 				</div>
 			`;
 		}
 	}
 
-	// Creer la div complete.
+	// Créer la div complete.
 	container.innerHTML = `
 		<div class="flex flex-col item-center gap-4">
 			<button aria-label="${t("back")}" id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
@@ -265,7 +267,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 		</div>
 	`;
 
-	// Empeche d'appuyer sur les autres boutons en dehors de la div appropriée.
+	// Empêche d'appuyer sur les autres boutons en dehors de la div appropriée.
 	disableUnrelatedButtons(gameType);
 
 	const ScreenReader = screenReader.getInstance();
@@ -275,7 +277,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 	// Bouton retour avec ID spécifique au type de jeu.
 	const backButton = document.getElementById(`back-button-${gameType}`);
 	if (backButton) {
-		backButton.addEventListener("click", (event) => {
+		backButton.addEventListener("click", () => {
 				window.history.back();
 		});
 
@@ -491,10 +493,9 @@ interface Match {
 /**
  * @brief Affiche les tableaux des historiques.
  * @param gameType type de jeu (pong/pfc).
- * @param playerCount nombre de joueurs.
  */
 export async function showHistory(gameType: string) {
-	// Recupere le contenu de la div "history" en fonction du type de jeu.
+	// Récupère le contenu de la div "history" en fonction du type de jeu.
 	const historyContainer = document.getElementById(`history-${gameType === 'fourpong' ? 'pong' : gameType}`);
 	if (!historyContainer)
 		return ;
@@ -512,11 +513,6 @@ export async function showHistory(gameType: string) {
 	if (pfc_hist_btn)
 		pfc_hist_btn.classList.add('hidden');
 
-	// Sauvegarde du contenu original pour le restaurer plus tard.
-	const originalHTML = historyContainer.innerHTML;
-	// Sauvegarde des classes CSS originales
-	const originalClasses = historyContainer.className;
-
 	// Check si des matchs existent dans la DB.
 	try {
 		const response = await fetch(`/api/scores/history/${gameType}`, {
@@ -532,7 +528,7 @@ export async function showHistory(gameType: string) {
 		// On vide d'abord le conteneur d'historique.
 		historyContainer.innerHTML = "";
 
-		// Creation de deux div distinctes : une pour l'en-tete et une pour les tableaux.
+		// Creation de deux div distinctes : une pour l'en tete et une pour les tableaux.
 		const headerDiv = document.createElement('div');
 		headerDiv.className = 'flex items-center justify-center gap-2 mb-4 mt-2';
 		headerDiv.innerHTML = `
@@ -632,7 +628,7 @@ export async function showHistory(gameType: string) {
 
 		historyContainer.appendChild(tablesDiv);
 
-		// Empeche d'appuyer sur les boutons en dehors des div d'historiques.
+		// Empêche d'appuyer sur les boutons en dehors des div d'historiques.
 		disableUnrelatedButtons(gameType === 'pong' || gameType === 'fourpong' ? 'pfc' : 'pong');
 
 		const ScreenReader = screenReader.getInstance();
@@ -662,12 +658,41 @@ export async function showHistory(gameType: string) {
  * @param matchType normal/bonus.
  */
 export function startGame(playerCount: number, matchType: MatchType) {
-	// Recupere le contenu de la div "Pong".
+	// Récupère le contenu de la div "Pong".
 	const container = document.getElementById("Pong");
 	if (!container)
 		return;
 
 	const ScreenReader = screenReader.getInstance();
+
+	console.log("Starting game with players:");
+	console.log("Player 1:", localStorage.getItem('player1Alias'));
+	console.log("Player 2:", localStorage.getItem('player2Alias'));
+	if (playerCount === 4) {
+		console.log("Player 3:", localStorage.getItem('player3Alias'));
+		console.log("Player 4:", localStorage.getItem('player4Alias'));
+	}
+
+	// Cleanup previous game instance if it exists
+	if (currentGameInstance && typeof currentGameInstance.cleanup === 'function') {
+		currentGameInstance.cleanup();
+		currentGameInstance = null;
+	}
+
+	// Reset global/static state for the correct game mode
+	if (playerCount === 2) {
+		if (matchType === 'normal') {
+			Game.resetGlobalState();
+		} else if (matchType === 'bonus') {
+			GameBonus.resetGlobalState();
+		}
+	} else if (playerCount === 4) {
+		if (matchType === 'normal') {
+			GameFour.resetGlobalState();
+		} else if (matchType === 'bonus') {
+			GameFourBonus.resetGlobalState();
+		}
+	}
 
 	// Reset les scores avant de commencer un match.
 	Game.player1Score = 0;
@@ -675,12 +700,12 @@ export function startGame(playerCount: number, matchType: MatchType) {
 	Game.setGameOver(false);
 
 	/**
-	 * @brief Calcul le delai du lecteur d'ecran.
-	 * @param text texte a definir le delai.
+	 * @brief Calcul le délai du lecteur d'écran.
+	 * @param text texte à définir le délai.
 	 */
 	function getScreenReaderDelay(text: string): number {
 		if (!ScreenReader.isEnabled())
-			return 100; // Delai mininal.
+			return 100; // Délai minimal.
 
 		const wordsPerMinute = 180;
 		const wordsPerSecond = wordsPerMinute / 60;
@@ -691,7 +716,7 @@ export function startGame(playerCount: number, matchType: MatchType) {
 		return Math.max(readingTimeMs + 2000, 3000); // Minimum 3sec.
 	}
 
-	// Set-up l'esapce de jeu.
+	// Set-up l'espace de jeu.
 	if (playerCount === 2) {
 		container.innerHTML = `
 			<div class="flex justify-center w-full">
@@ -700,7 +725,7 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			</div>
 		`;
 
-		// Empeche d'appuyer sur les autres boutons en dehors de la div "Pong".
+		// Empêche d'appuyer sur les autres boutons en dehors de la div "Pong".
 		disableUnrelatedButtons('pong');
 
 		// Only set tournament mode if we're actually in a tournament
@@ -713,7 +738,7 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			const delay = getScreenReaderDelay(t("pong_explanation"));
 
 			setTimeout(() => {
-				const game = new Game();
+				currentGameInstance = new Game();
 
 				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
 
@@ -724,14 +749,14 @@ export function startGame(playerCount: number, matchType: MatchType) {
 				}
 
 				setTimeout(() => {
-					requestAnimationFrame(game.gameLoop.bind(game));
+					requestAnimationFrame(currentGameInstance.gameLoop.bind(currentGameInstance));
 				}, delay);
 			}, 100);
 		} else if (matchType === 'bonus') {
 			const delay = getScreenReaderDelay(t("pong_explanation"));
 
 			setTimeout(() => {
-				const game = new GameBonus();
+				currentGameInstance = new GameBonus();
 
 				Game.ScreenReader.announceGameEvent(t("pong_explanation"));
 
@@ -742,7 +767,7 @@ export function startGame(playerCount: number, matchType: MatchType) {
 				}
 
 				setTimeout(() => {
-					requestAnimationFrame(game.gameLoop.bind(game));
+					requestAnimationFrame(currentGameInstance.gameLoop.bind(currentGameInstance));
 				}, delay);
 			}, 100);
 		}
@@ -763,24 +788,24 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			const delay = getScreenReaderDelay(t("pong-four_explanation"));
 
 			setTimeout(() => {
-				const game = new GameFour();
+				currentGameInstance = new GameFour();
 
 				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
 
 				setTimeout(() => {
-					requestAnimationFrame(game.gameLoop.bind(game));
+					requestAnimationFrame(currentGameInstance.gameLoop.bind(currentGameInstance));
 				}, delay);
 			}, 100);
 		} else if (matchType === 'bonus') {
 			const delay = getScreenReaderDelay(t("pong-four_explanation"));
 
 			setTimeout(() => {
-				const game = new GameFourBonus();
+				currentGameInstance = new GameFourBonus();
 
 				GameFour.ScreenReader.announceGameEvent(t("pong-four_explanation"));
 
 				setTimeout(() => {
-					requestAnimationFrame(game.gameLoop.bind(game));
+					requestAnimationFrame(currentGameInstance.gameLoop.bind(currentGameInstance));
 				}, delay);
 			}, 100);
 		}
@@ -788,13 +813,19 @@ export function startGame(playerCount: number, matchType: MatchType) {
 }
 
 /**
- * @brief Affiche la page d'acceuil.
+ * @brief Affiche la page d'accueil.
  */
 export function showHome() {
 	const appElement = document.getElementById('app');
 	if (appElement) {
 		const ScreenReader = screenReader.getInstance();
 		ScreenReader.cancelSpeech();
+
+		const lang: any = localStorage.getItem('lang');
+		const text: any = localStorage.getItem('textSize');
+		const theme: any = localStorage.getItem('theme');
+
+		localStorage.clear();
 
 		// Clean up tournament mode and AI state
 		localStorage.removeItem('tournamentMode');
@@ -821,6 +852,10 @@ export function showHome() {
 		localStorage.removeItem('player3Alias');
 		localStorage.removeItem('player4Alias');
 
+		localStorage.setItem('lang', lang);
+		localStorage.setItem('text', text);
+		localStorage.setItem('theme', theme);
+
 		appElement.innerHTML = homePage();
 
 		const pongContainer = document.getElementById("Pong");
@@ -829,7 +864,7 @@ export function showHome() {
 			pongContainer.classList.add("grid-cols-2");
 		}
 
-		// Reactive les boutons en dehors de divs specifiques.
+		// Reactive les boutons en dehors de divs spécifiques.
 		disableUnrelatedButtons('home');
 
 		attachHomePageListeners();

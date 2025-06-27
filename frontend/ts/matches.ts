@@ -4,13 +4,13 @@ import {isValidString} from "./sanitize.js";
 import {t} from "../lang/i18n.js";
 
 /**
- * @brief Creer les matchs a 2 joueurs.
+ * @brief Créer les matchs a deux joueurs.
  * @param startButton bouton pour commencer le match.
  * @param matchType normal/bonus.
  */
 export function twoPlayersMatch(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
-		showMatch(matchType);
+		await showMatch(matchType);
 	});
 }
 
@@ -29,7 +29,7 @@ export async function showMatch(matchType: MatchType) {
 	localStorage.setItem('player2Alias', player2);
 
 	try {
-		// Creer les joueurs dans le back.
+		// Créer les joueurs dans le back.
 		const player1Response = await fetch('/api/players', {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
@@ -42,7 +42,7 @@ export async function showMatch(matchType: MatchType) {
 			body: JSON.stringify({name: player2}),
 		}).then(res => res.json());
 
-		// Creer le match dans le back.
+		// Créer le match dans le back.
 		if (player1Response.success && player2Response.success) {
 			const matchResponse = await fetch("/api/players/match", {
 				method: "POST",
@@ -64,13 +64,13 @@ export async function showMatch(matchType: MatchType) {
 }
 
 /**
- * @brief Creer les matchs a 4 joueurs.
- * @param startButton bouton pour commncer le match.
+ * @brief Créer les matchs a quatre joueurs.
+ * @param startButton bouton pour commencer le match.
  * @param matchType normal/bonus.
  */
 export function fourPlayersMatch(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
-		showFourPlayersMatch(matchType);
+		await showFourPlayersMatch(matchType);
 	})
 }
 
@@ -93,7 +93,7 @@ export async function showFourPlayersMatch(matchType: MatchType) {
 	localStorage.setItem('player4Alias', player4);
 
 	try {
-		// Creer les jouurs dans le back.
+		// Créer les joueurs dans le back.
 		const player1Response = await fetch('/api/players', {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
@@ -118,7 +118,7 @@ export async function showFourPlayersMatch(matchType: MatchType) {
 			body: JSON.stringify({name: player4}),
 		}).then(res => res.json());
 
-		// Creer le match dans le back.
+		// Créer le match dans le back.
 		if (player1Response.success && player2Response.success && player3Response.success && player4Response.success) {
 			const matchResponse = await fetch("/api/players/match4", {
 				method : "POST",

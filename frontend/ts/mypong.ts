@@ -17,20 +17,24 @@ let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
 let gameOver = false;
 
 export class Game{
-	private gameCanvas: HTMLCanvasElement | null;
-	private gameContext: CanvasRenderingContext2D | null;
+	private readonly gameCanvas: HTMLCanvasElement | null;
+	private readonly gameContext: CanvasRenderingContext2D | null;
 	private gameStartTime: number = Date.now();
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
-	private player1: Paddle;
-	private player2: Paddle2;
+	private readonly player1: Paddle;
+	private readonly player2: Paddle2;
 
-	private ball: Ball;
+	private readonly ball: Ball;
 
 	private cleanupNavigateListener: (() => void) | null = null; // Pour stocker la fonction de désabonnement
 
 	public static ScreenReader = screenReader.getInstance();
+
+	private readonly keydownHandler: (e: KeyboardEvent) => void;
+	private readonly keyupHandler: (e: KeyboardEvent) => void;
+	private readonly popstateHandler: (e: PopStateEvent) => void;
 
 	constructor() {
 		const canvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
@@ -40,19 +44,16 @@ export class Game{
 		this.gameCanvas = canvas;
 		this.gameContext = this.gameCanvas.getContext("2d");
 		if (!this.gameContext)
-			throw new Error("Impossible de recuperer 2D rendering context");
+			throw new Error("Impossible de récupérer 2D rendering context");
 
 		this.gameContext.font = "30px Orbitron";
 
-		window.addEventListener("keydown", function(e){
-			Game.keysPressed[e.which] = true;
-		});
-
-		window.addEventListener("keyup", function(e){
-			Game.keysPressed[e.which] = false;
-		});
-
-		window.addEventListener("popstate", this.handlePopState.bind(this));
+		this.keydownHandler = (e) => { Game.keysPressed[e.which] = true; };
+		this.keyupHandler = (e) => { Game.keysPressed[e.which] = false; };
+		this.popstateHandler = this.handlePopState.bind(this);
+		window.addEventListener("keydown", this.keydownHandler);
+		window.addEventListener("keyup", this.keyupHandler);
+		window.addEventListener("popstate", this.popstateHandler);
 
 		this.cleanupNavigateListener = onNavigate(() => {
 			if (!Game.isGameOver()) {
@@ -65,6 +66,7 @@ export class Game{
 
 		this.player1 = new Paddle(paddleWidth, paddleHeight, wallOffset, this.gameCanvas.height / 2 - paddleHeight / 2);
 		this.player2 = new Paddle2(paddleWidth, paddleHeight, this.gameCanvas.width - (wallOffset + paddleWidth), this.gameCanvas.height / 2 - paddleHeight / 2);
+
 		this.ball = new Ball(ballSize, ballSize, this.gameCanvas.width / 2 - ballSize / 2, this.gameCanvas.height / 2 - ballSize / 2);
 
 		// Check if we're in tournament mode and if players are AI
@@ -89,17 +91,65 @@ export class Game{
 		}
 	}
 
+	private handlePlayerLeave() {
+		const victoryMessageElement = document.getElementById("Pong");
+		if (victoryMessageElement) {
+			const menu_btn = document.getElementById("menu-btn");
+			if (menu_btn) {
+				menu_btn.addEventListener("click", () => {
+					const lang: any = localStorage.getItem('lang');
+					const text: any = localStorage.getItem('textSize');
+					const theme: any = localStorage.getItem('theme');
+
+					localStorage.clear()
+
+					// Nettoyer le stockage local si nécessaire
+					localStorage.removeItem('currentMatchId');
+					localStorage.removeItem("player1Alias");
+					localStorage.removeItem("player2Alias");
+					localStorage.removeItem("player3Alias");
+					localStorage.removeItem("player4Alias");
+					localStorage.removeItem('tournamentMode');
+					localStorage.removeItem('semifinal1Id');
+					localStorage.removeItem('semifinal2Id');
+					localStorage.removeItem('semifinal1Winner');
+					localStorage.removeItem('semifinal1Loser');
+					localStorage.removeItem('semifinal2Winner');
+					localStorage.removeItem('semifinal2Loser');
+					localStorage.removeItem('player1Id');
+					localStorage.removeItem('player2Id');
+					localStorage.removeItem('player3Id');
+					localStorage.removeItem('player4Id');
+					localStorage.removeItem('currentTournamentId');
+					localStorage.removeItem('tournamentWinnerAlias');
+					localStorage.removeItem('isPlayer1AI');
+					localStorage.removeItem('isPlayer2AI');
+					Paddle.setAIEnabled(false);
+					Paddle2.setAIEnabled(false);
+
+					localStorage.setItem('lang', lang);
+					localStorage.setItem('text', text);
+					localStorage.setItem('theme', theme);
+
+					navigate('/home');
+					showHome();
+				});
+			}
+		}
+		Game.setGameOver(true);
+	}
+
 	private handlePopState() {
 		if (!Game.isGameOver()) {
 			Game.setGameOver(true);
 		}
-		if (this.cleanupNavigateListener) {
-			this.cleanupNavigateListener();
-			this.cleanupNavigateListener = null;
-		}
-	}
 
-	private handlePlayerLeave() {
+		const lang: any = localStorage.getItem('lang');
+		const text: any = localStorage.getItem('textSize');
+		const theme: any = localStorage.getItem('theme');
+
+		localStorage.clear()
+
 		localStorage.removeItem('currentMatchId');
 		localStorage.removeItem("player1Alias");
 		localStorage.removeItem("player2Alias");
@@ -118,9 +168,19 @@ export class Game{
 		localStorage.removeItem('player4Id');
 		localStorage.removeItem('currentTournamentId');
 		localStorage.removeItem('tournamentWinnerAlias');
-		navigate('/home');
-		showHome();
-		Game.setGameOver(true);
+		localStorage.removeItem('isPlayer1AI');
+		localStorage.removeItem('isPlayer2AI');
+		Paddle.setAIEnabled(false);
+		Paddle2.setAIEnabled(false);
+
+		localStorage.setItem('lang', lang);
+		localStorage.setItem('text', text);
+		localStorage.setItem('theme', theme);
+
+		if (this.cleanupNavigateListener) {
+			this.cleanupNavigateListener();
+			this.cleanupNavigateListener = null;
+		}
 	}
 
 	getCanvasColors() {
@@ -147,15 +207,15 @@ export class Game{
 		// Trace la ligne au centre du terrain.
 		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
 			this.gameContext.fillStyle = lineColor;
-			this.gameContext.fillRect(this.gameCanvas.width / 2 - 2, i + 10, 5, 20); // Cense etre 2.5 mais vu que pixel = entier, arrondi a 2.
+			this.gameContext.fillRect(this.gameCanvas.width / 2 - 2, i + 10, 5, 20); // Censé être 2.5 mais vu que pixel = entier, arrondi à 2.
 		}
 
-		// Defini les informations du match et des joueurs.
+		// Défini les informations du match et des joueurs.
 		const currentMatchId = localStorage.getItem('currentMatchId');
 		const currentMatchType = localStorage.getItem('currentMatchType');
 		const tournamentMode = localStorage.getItem('tournamentMode') === 'true';
 
-		// Recupere les bons noms de joueurs.
+		// Récupère les bons noms de joueurs.
 		let player1Alias = localStorage.getItem('player1Alias') || 'Joueur 1';
 		let player2Alias = localStorage.getItem('player2Alias') || 'Joueur 2';
 
@@ -174,7 +234,7 @@ export class Game{
 		this.gameContext!.fillStyle = textColor;
 		this.gameContext!.textAlign = "center";
 
-		// Affiche le nom des joueurs au dessus du score.
+		// Affiche le nom des joueurs au-dessus du score.
 		this.gameContext!.fillText(player1Alias, this.gameCanvas!.width / 4, 30);
 		this.gameContext!.fillText(player2Alias, (3 * this.gameCanvas!.width) / 4, 30);
 
@@ -229,6 +289,18 @@ export class Game{
 	public static isGameOver(): boolean {
 		return gameOver;
 	}
+
+	public cleanup() {
+		window.removeEventListener("keydown", this.keydownHandler);
+		window.removeEventListener("keyup", this.keyupHandler);
+		window.removeEventListener("popstate", this.popstateHandler);
+	}
+
+	public static resetGlobalState() {
+		gameOver = false;
+		isPaused = false;
+		// Add any other global/static resets if needed
+	}
 }
 
 class Entity{
@@ -264,7 +336,7 @@ class Paddle extends Entity{
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerY: number = 0;
+	private readonly centerY: number = 0;
 	
 	// Simulated keyboard state
 	private isUpPressed: boolean = false;
@@ -286,16 +358,6 @@ class Paddle extends Entity{
 
 	public static isAIActive(): boolean {
 		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.y = this.centerY;
-		this.targetY = this.centerY;
-		this.yVal = 0;
-		this.isUpPressed = false;
-		this.isDownPressed = false;
-		this.approachingBall = false;
 	}
 
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
@@ -426,7 +488,7 @@ export class Paddle2 extends Entity {
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerY: number = 0;
+	private readonly centerY: number = 0;
 	
 	// Simulated keyboard state
 	private isUpPressed: boolean = false;
@@ -448,16 +510,6 @@ export class Paddle2 extends Entity {
 
 	public static isAIActive(): boolean {
 		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.y = this.centerY;
-		this.targetY = this.centerY;
-		this.yVal = 0;
-		this.isUpPressed = false;
-		this.isDownPressed = false;
-		this.approachingBall = false;
 	}
 
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
@@ -581,10 +633,6 @@ class Ball extends Entity {
 	private readonly SPEED_INCREASE_AMOUNT: number = 0.5; // Speed increase per interval
 	private readonly MAX_SPEED: number = 12; // Maximum speed cap
 	private lastTouchedBy: 'player1' | 'player2' | null = null;
-
-	public getLastTouchedBy(): 'player1' | 'player2' | null {
-		return this.lastTouchedBy;
-	}
 
 	constructor(w: number, h: number, x: number, y: number) {
 		super(w, h, x, y);
@@ -771,6 +819,13 @@ class Ball extends Entity {
 					const menu_btn = document.getElementById("menu-btn");
 					if (menu_btn) {
 						menu_btn.addEventListener("click", () => {
+
+							const lang: any = localStorage.getItem('lang');
+							const text: any = localStorage.getItem('textSize');
+							const theme: any = localStorage.getItem('theme');
+
+							localStorage.clear();
+
 							// Nettoyage du mode tournoi
 							localStorage.removeItem('tournamentMode');
 							localStorage.removeItem('semifinal1Id');
@@ -793,6 +848,14 @@ class Ball extends Entity {
 							localStorage.removeItem('currentMatchType');
 							localStorage.removeItem('pendingMatchType');
 							localStorage.removeItem('currentMatchId');
+							localStorage.removeItem('isPlayer1AI');
+							localStorage.removeItem('isPlayer2AI');
+							Paddle.setAIEnabled(false);
+							Paddle2.setAIEnabled(false);
+
+							localStorage.setItem('lang', lang);
+							localStorage.setItem('text', text);
+							localStorage.setItem('theme', theme);
 
 							navigate('/home');
 							showHome();
@@ -804,7 +867,7 @@ class Ball extends Entity {
 				return true;
 			}
 			else if (tournamentMode && pendingMatchId) {
-				// S'affiche lorsque un autre match est encore en attente.
+				// S'affiche lorsqu'un autre match est encore en attente.
 				const victoryMessageElement = document.getElementById("Pong");
 				if (victoryMessageElement) {
 					const winnerAlias = this.getWinnerAlias(winner);
@@ -837,16 +900,21 @@ class Ball extends Entity {
 									// Set le match en attente en tant que match actuel.
 									localStorage.setItem('currentMatchId', pendingMatchId);
 
-									// Met a jour les noms des joueurs pour le prochain match.
+									// Met à jour les noms des joueurs pour le prochain match.
 									localStorage.setItem('player1Alias', localStorage.getItem('player3Alias') || 'Joueur 3');
 									localStorage.setItem('player2Alias', localStorage.getItem('player4Alias') || 'Joueur 4');
 
-									// Reset l'etat du jeu.
+									// Met à jour les infos AI pour le prochain match.
+									const player3Id = localStorage.getItem('player3Id') || '';
+									const player4Id = localStorage.getItem('player4Id') || '';
+									await updateAIStatus(player3Id, player4Id);
+
+									// Reset l'état du jeu.
 									Game.player1Score = 0;
 									Game.player2Score = 0;
 									Game.setGameOver(false);
 
-									// Demarre le prochain match.
+									// Démarre le prochain match.
 									startGame(2, 'normal');
 								} else if (matchId === semifinal2Id) {
 									// Stock le gagnant de la semi-finale.
@@ -921,6 +989,9 @@ class Ball extends Entity {
 											localStorage.setItem('player1Alias', loser1Name);
 											localStorage.setItem('player2Alias', loser2Name);
 
+											// Met a jour les infos AI pour le match de 3ème place.
+											await updateAIStatus(semifinal1Loser, semifinal2Loser);
+
 											// Reset l'état du jeu.
 											Game.player1Score = 0;
 											Game.player2Score = 0;
@@ -940,6 +1011,11 @@ class Ball extends Entity {
 									// Met à jour le nom des joueurs pour la finale.
 									localStorage.setItem('player1Alias', localStorage.getItem('finalPlayer1Alias') || 'Joueur 1');
 									localStorage.setItem('player2Alias', localStorage.getItem('finalPlayer2Alias') || 'Joueur 2');
+
+									// Met à jour les infos AI pour la finale.
+									const semifinal1Winner = localStorage.getItem('semifinal1Winner') || '';
+									const semifinal2Winner = localStorage.getItem('semifinal2Winner') || '';
+									await updateAIStatus(semifinal1Winner, semifinal2Winner);
 
 									// Reset l'état du jeu.
 									Game.player1Score = 0;
@@ -979,6 +1055,10 @@ class Ball extends Entity {
 							localStorage.removeItem("player2Alias");
 							localStorage.removeItem("player3Alias");
 							localStorage.removeItem("player4Alias");
+							localStorage.removeItem('isPlayer1AI');
+							localStorage.removeItem('isPlayer2AI');
+							Paddle.setAIEnabled(false);
+							Paddle2.setAIEnabled(false);
 							navigate('/home');
 							showHome();
 						});
@@ -1020,4 +1100,36 @@ async function getAliasById(playerId: string | null): Promise<string> {
 	} catch (e) {
 		return "Joueur ?";
 	}
+}
+
+/**
+ * @brief Récupère les infos AI d'un joueur.
+ * @param playerId id du joueur.
+ */
+async function getPlayerAIStatus(playerId: string): Promise<boolean> {
+	try {
+		const response = await fetch(`/api/players/${playerId}`);
+		const playerData = await response.json();
+		return playerData.isAI || false; // Supposant que l'API retourne cette info
+	} catch (error) {
+		console.error("Erreur lors de la récupération du statut AI:", error);
+		return false;
+	}
+}
+
+/**
+ * @brief Met a jour les infos AI d'un joueur.
+ * @param player1Id id du joueur 1.
+ * @param player2Id id du joueur 2.
+ */
+async function updateAIStatus(player1Id: string, player2Id: string) {
+	const player1IsAI = await getPlayerAIStatus(player1Id);
+	const player2IsAI = await getPlayerAIStatus(player2Id);
+
+	localStorage.setItem('isPlayer1AI', player1IsAI.toString());
+	localStorage.setItem('isPlayer2AI', player2IsAI.toString());
+
+	// Mettre à jour les paddles
+	Paddle.setAIEnabled(player1IsAI);
+	Paddle2.setAIEnabled(player2IsAI);
 }

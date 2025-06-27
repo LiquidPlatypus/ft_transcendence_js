@@ -6,8 +6,8 @@ import {showHome} from "./script.js";
 enum KeyBindings{
 	UPONE = 87, //W
 	DOWNONE = 83, //S
-	UPTWO = 38, //fleche haut
-	DOWNTWO = 40, //fleche bas
+	UPTWO = 38, //Flèche haut
+	DOWNTWO = 40, //Flèche bas
 	RIGHTONE = 79, //O
 	LEFTONE = 73, //I
 	RIGHTTWO = 86, //V
@@ -21,26 +21,29 @@ let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
 let gameOver = false;
 
 export class GameFour {
-	private gameCanvas: HTMLCanvasElement | null;
-	private gameContext: CanvasRenderingContext2D | null;
+	private readonly gameCanvas: HTMLCanvasElement | null;
+	private readonly gameContext: CanvasRenderingContext2D | null;
 	private gameStartTime: number = Date.now();
 	private lastFrameTime: number = 0;
-	private readonly targetFPS: number = 60;
 	private readonly frameInterval: number = 1000 / 60;
-	private cachedColors: any = null;
+	private readonly cachedColors: any = null;
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
 	public static player3Score: number = 0;
 	public static player4Score: number = 0;
-	private player1: Paddle;
-	private player2: Paddle2;
-	private player3: Paddle3;
-	private player4: Paddle4;
+	private readonly player1: Paddle;
+	private readonly player2: Paddle2;
+	private readonly player3: Paddle3;
+	private readonly player4: Paddle4;
 
-	private ball: Ball;
+	private readonly ball: Ball;
 
 	public static ScreenReader = screenReader.getInstance();
+
+	private readonly keydownHandler: (e: KeyboardEvent) => void;
+	private readonly keyupHandler: (e: KeyboardEvent) => void;
+	private readonly popstateHandler: (e: PopStateEvent) => void;
 
 	public static resetGameState(): void {
 		GameFour.player1Score = 0;
@@ -52,8 +55,15 @@ export class GameFour {
 		isPaused = false;
 	}
 
+	public static resetGlobalState() {
+		gameOver = false;
+		isPaused = false;
+		// Add any other global/static resets if needed
+	}
+
 	constructor(){
 		GameFour.resetGameState();  // Reset state when creating new game
+
 		const canvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
 		if (!canvas)
 			throw new Error("Element canvas non-trouve");
@@ -61,20 +71,19 @@ export class GameFour {
 		this.gameCanvas = canvas;
 		this.gameContext = this.gameCanvas.getContext("2d");
 		if (!this.gameContext)
-			throw new Error("Impossible de recuperer 2D rendering context");
+			throw new Error("Impossible de récupérer 2D rendering context");
 
 		this.gameContext.font = "30px Orbitron";
 
 		// Cache colors on init
 		this.cachedColors = this.getCanvasColors();
 
-		window.addEventListener("keydown", function(e){
-			GameFour.keysPressed[e.which] = true;
-		});
-
-		window.addEventListener("keyup", function(e){
-			GameFour.keysPressed[e.which] = false;
-		});
+		this.keydownHandler = (e) => { GameFour.keysPressed[e.which] = true; };
+		this.keyupHandler = (e) => { GameFour.keysPressed[e.which] = false; };
+		this.popstateHandler = this.handlePopState.bind(this);
+		window.addEventListener("keydown", this.keydownHandler);
+		window.addEventListener("keyup", this.keyupHandler);
+		window.addEventListener("popstate", this.popstateHandler);
 
 		let paddleWidth:number = 15, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
 
@@ -119,6 +128,12 @@ export class GameFour {
 					localStorage.removeItem('player4Id');
 					localStorage.removeItem('currentTournamentId');
 					localStorage.removeItem('tournamentWinnerAlias');
+					localStorage.removeItem('isPlayer2AI');
+					localStorage.removeItem('isPlayer3AI');
+					localStorage.removeItem('isPlayer4AI');
+					Paddle2.setAIEnabled(false);
+					Paddle3.setAIEnabled(false);
+					Paddle4.setAIEnabled(false);
 					navigate('/home');
 					showHome();
 				});
@@ -130,6 +145,36 @@ export class GameFour {
 	private handlePopState() {
 		if (!GameFour.isGameOver()) {
 			GameFour.setGameOver(true);
+		}
+
+		localStorage.removeItem('currentMatchId');
+		localStorage.removeItem("player1Alias");
+		localStorage.removeItem("player2Alias");
+		localStorage.removeItem("player3Alias");
+		localStorage.removeItem("player4Alias");
+		localStorage.removeItem('tournamentMode');
+		localStorage.removeItem('semifinal1Id');
+		localStorage.removeItem('semifinal2Id');
+		localStorage.removeItem('semifinal1Winner');
+		localStorage.removeItem('semifinal1Loser');
+		localStorage.removeItem('semifinal2Winner');
+		localStorage.removeItem('semifinal2Loser');
+		localStorage.removeItem('player1Id');
+		localStorage.removeItem('player2Id');
+		localStorage.removeItem('player3Id');
+		localStorage.removeItem('player4Id');
+		localStorage.removeItem('currentTournamentId');
+		localStorage.removeItem('tournamentWinnerAlias');
+		localStorage.removeItem('isPlayer2AI');
+		localStorage.removeItem('isPlayer3AI');
+		localStorage.removeItem('isPlayer4AI');
+		Paddle2.setAIEnabled(false);
+		Paddle3.setAIEnabled(false);
+		Paddle4.setAIEnabled(false);
+
+		if (this.cleanupNavigateListener) {
+			this.cleanupNavigateListener();
+			this.cleanupNavigateListener = null;
 		}
 	}
 
@@ -217,14 +262,14 @@ export class GameFour {
 		if (gameOver) return;
 
 		const currentTime = Date.now();
-		const deltaTime = currentTime - this.lastFrameTime;
-
 		if (currentTime - this.gameStartTime < pauseDuration) {
+
 			this.draw();
 			requestAnimationFrame(this.gameLoop);
 			return;
 		}
 
+		const deltaTime = currentTime - this.lastFrameTime;
 		if (deltaTime > this.frameInterval) {
 			this.lastFrameTime = currentTime - (deltaTime % this.frameInterval);
 			this.update();
@@ -240,6 +285,12 @@ export class GameFour {
 
 	public static isGameOver(): boolean {
 		return gameOver;
+	}
+
+	public cleanup() {
+		window.removeEventListener("keydown", this.keydownHandler);
+		window.removeEventListener("keyup", this.keyupHandler);
+		window.removeEventListener("popstate", this.popstateHandler);
 	}
 }
 
@@ -292,9 +343,8 @@ class Paddle extends Entity{
 				this.yVal = 0
 			}
 		}
-		else{
+		else
 			this.yVal = 0;
-		}
 
 		this.y += this.yVal * this.speed;
 	}
@@ -305,7 +355,7 @@ export class Paddle2 extends Entity {
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerY: number = 0;
+	private readonly centerY: number = 0;
 
 	// Simulated keyboard state
 	private isUpPressed: boolean = false;
@@ -325,36 +375,29 @@ export class Paddle2 extends Entity {
 		this.isAIEnabled = enabled;
 	}
 
-	public static isAIActive(): boolean {
-		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.y = this.centerY;
-		this.targetY = this.centerY;
-		this.yVal = 0;
-		this.isUpPressed = false;
-		this.isDownPressed = false;
-		this.approachingBall = false;
-	}
-
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
 		if (!ball) return this.centerY;
 
-		const distanceX = this.x - ball.x;
-		const estimatedBallSpeed = 7; // Match the current ball speed
-		const timeToReach = Math.abs(distanceX / (ball.xVal * estimatedBallSpeed));
+		const currentBallSpeed = ball.getSpeed(); // Ou Math.sqrt(ball.xVal² + ball.yVal²)
 
-		// Initial prediction
-		let predictedY = ball.y + (ball.yVal * estimatedBallSpeed * timeToReach);
+		let predictedX = ball.x;
+		let predictedY = ball.y;
+		let velocityX = ball.xVal;
+		let velocityY = ball.yVal;
 
-		// Account for bounces
-		while (predictedY < 0 || predictedY > canvas.height) {
+		// Simulate ball movement until it reaches our x-position
+		while (predictedX < this.x && predictedX > 0) {
+			// Update predicted position
+			predictedX += velocityX * currentBallSpeed;
+			predictedY += velocityY * currentBallSpeed;
+
+			// Account for bounces off top/bottom walls only
 			if (predictedY < 0) {
 				predictedY = Math.abs(predictedY);
+				velocityY *= -1;
 			} else if (predictedY > canvas.height) {
 				predictedY = canvas.height - (predictedY - canvas.height);
+				velocityY *= -1;
 			}
 		}
 
@@ -437,7 +480,7 @@ export class Paddle3 extends Entity {
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerX: number = 0;
+	private readonly centerX: number = 0;
 
 	// Simulated keyboard state
 	private isLeftPressed: boolean = false;
@@ -457,36 +500,29 @@ export class Paddle3 extends Entity {
 		this.isAIEnabled = enabled;
 	}
 
-	public static isAIActive(): boolean {
-		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.x = this.centerX;
-		this.targetX = this.centerX;
-		this.xVal = 0;
-		this.isLeftPressed = false;
-		this.isRightPressed = false;
-		this.approachingBall = false;
-	}
-
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
 		if (!ball) return this.centerX;
 
-		const distanceY = ball.y - this.y;
-		const estimatedBallSpeed = 7; // Match the current ball speed
-		const timeToReach = Math.abs(distanceY / (ball.yVal * estimatedBallSpeed));
+		const currentBallSpeed = ball.getSpeed(); // Ou Math.sqrt(ball.xVal² + ball.yVal²)
 
-		// Initial prediction
-		let predictedX = ball.x + (ball.xVal * estimatedBallSpeed * timeToReach);
+		let predictedX = ball.x;
+		let predictedY = ball.y;
+		let velocityX = ball.xVal;
+		let velocityY = ball.yVal;
 
-		// Account for bounces
-		while (predictedX < 0 || predictedX > canvas.width) {
+		// Simulate ball movement until it reaches our y-position
+		while (predictedY > this.y && predictedY < canvas.height) {
+			// Update predicted position
+			predictedX += velocityX * currentBallSpeed;
+			predictedY += velocityY * currentBallSpeed;
+
+			// Account for bounces off left/right walls only
 			if (predictedX < 0) {
 				predictedX = Math.abs(predictedX);
+				velocityX *= -1;
 			} else if (predictedX > canvas.width) {
 				predictedX = canvas.width - (predictedX - canvas.width);
+				velocityX *= -1;
 			}
 		}
 
@@ -569,7 +605,7 @@ export class Paddle4 extends Entity {
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerX: number = 0;
+	private readonly centerX: number = 0;
 
 	// Simulated keyboard state
 	private isLeftPressed: boolean = false;
@@ -589,36 +625,29 @@ export class Paddle4 extends Entity {
 		this.isAIEnabled = enabled;
 	}
 
-	public static isAIActive(): boolean {
-		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.x = this.centerX;
-		this.targetX = this.centerX;
-		this.xVal = 0;
-		this.isLeftPressed = false;
-		this.isRightPressed = false;
-		this.approachingBall = false;
-	}
-
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
 		if (!ball) return this.centerX;
 
-		const distanceY = this.y - ball.y;
-		const estimatedBallSpeed = 7; // Match the current ball speed
-		const timeToReach = Math.abs(distanceY / (ball.yVal * estimatedBallSpeed));
+		const currentBallSpeed = ball.getSpeed(); // Ou Math.sqrt(ball.xVal² + ball.yVal²)
 
-		// Initial prediction
-		let predictedX = ball.x + (ball.xVal * estimatedBallSpeed * timeToReach);
+		let predictedX = ball.x;
+		let predictedY = ball.y;
+		let velocityX = ball.xVal;
+		let velocityY = ball.yVal;
 
-		// Account for bounces
-		while (predictedX < 0 || predictedX > canvas.width) {
+		// Simulate ball movement until it reaches our y-position (paddle du haut)
+		while (predictedY < this.y && predictedY > 0) {
+			// Update predicted position
+			predictedX += velocityX * currentBallSpeed;
+			predictedY += velocityY * currentBallSpeed;
+
+			// Account for bounces off left/right walls only
 			if (predictedX < 0) {
 				predictedX = Math.abs(predictedX);
+				velocityX *= -1;
 			} else if (predictedX > canvas.width) {
 				predictedX = canvas.width - (predictedX - canvas.width);
+				velocityX *= -1;
 			}
 		}
 
@@ -698,19 +727,16 @@ export class Paddle4 extends Entity {
 
 class Ball extends Entity{
 	private baseSpeed: number = 5;
+	private speed: number = this.baseSpeed;
 	private currentSpeed: number = 5;
 	private lastSpeedIncreaseTime: number = 0;
-	private roundStartTime: number = 0;
-	private readonly INITIAL_WAIT_TIME: number = 10000; // 10 seconds before first increase
-	private readonly SPEED_INCREASE_INTERVAL: number = 5000; // 5 seconds between increases
+	private readonly INITIAL_WAIT_TIME: number = 10000; // Changed from 20000 to 10000 (10 seconds before first increase)
+	private readonly SPEED_INCREASE_INTERVAL: number = 5000; // Already at 5 seconds between increases
 	private readonly SPEED_INCREASE_AMOUNT: number = 0.5; // Speed increase per interval
 	private readonly MAX_SPEED: number = 12; // Maximum speed cap
-	private canvasWidth: number;
-	private canvasHeight: number;
-
-	public getCurrentSpeed(): number {
-		return this.currentSpeed;
-	}
+	private roundStartTime: number = 0;
+	private readonly canvasWidth: number;
+	private readonly canvasHeight: number;
 
 	constructor(w: number, h: number, x: number, y: number, canvasWidth: number, canvasHeight: number) {
 		super(w, h, x, y);
@@ -719,7 +745,11 @@ class Ball extends Entity{
 		this.resetBallPosition();
 	}
 
-	// Fonction pour reinitialiser la position de la balle apres un but.
+	public getSpeed(): number {
+		return this.speed;
+	}
+
+	// Fonction pour réinitialiser la position de la balle apres un but.
 	resetBallPosition() {
 		let margin = 50;
 		this.x = this.canvasWidth / 2 - this.width / 2 + (Math.random() * margin - margin / 2);
@@ -733,26 +763,6 @@ class Ball extends Entity{
 		this.currentSpeed = this.baseSpeed;
 		this.roundStartTime = Date.now();
 		this.lastSpeedIncreaseTime = this.roundStartTime;
-	}
-
-	private updateSpeed() {
-		const currentTime = Date.now();
-		const timeSinceStart = currentTime - this.roundStartTime;
-
-		// Only start increasing speed after initial wait time
-		if (timeSinceStart >= this.INITIAL_WAIT_TIME) {
-			const timeSinceLastIncrease = currentTime - this.lastSpeedIncreaseTime;
-
-			// Check if it's time for another speed increase
-			if (timeSinceLastIncrease >= this.SPEED_INCREASE_INTERVAL) {
-				this.lastSpeedIncreaseTime = currentTime;
-
-				// Increase speed if not at max
-				if (this.currentSpeed < this.MAX_SPEED) {
-					this.currentSpeed += this.SPEED_INCREASE_AMOUNT;
-				}
-			}
-		}
 	}
 
 	async checkGameEnd(): Promise<boolean> {
@@ -807,7 +817,7 @@ class Ball extends Entity{
 					</div>
 				`;
 
-				// Import dynamique pour eviter les problemes de reference circulaire.
+				// Import dynamique pour éviter les problèmes de reference circulaire.
 				import('./script.js').then(module => {
 					const menu_btn = document.getElementById("menu-btn");
 					if (menu_btn)
@@ -819,9 +829,32 @@ class Ball extends Entity{
 		return false;
 	}
 
+	private updateSpeed() {
+		const currentTime = Date.now();
+		const timeSinceStart = currentTime - this.roundStartTime;
+
+		// Only start increasing speed after initial wait time
+		if (timeSinceStart >= this.INITIAL_WAIT_TIME) {
+			const timeSinceLastIncrease = currentTime - this.lastSpeedIncreaseTime;
+
+			// Check if it's time for another speed increase
+			if (timeSinceLastIncrease >= this.SPEED_INCREASE_INTERVAL) {
+				this.lastSpeedIncreaseTime = currentTime;
+
+				// Increase speed if not at max
+				if (this.currentSpeed < this.MAX_SPEED) {
+					this.currentSpeed += this.SPEED_INCREASE_AMOUNT;
+					console.log(`Ball speed increased to: ${this.currentSpeed}`);
+				}
+			}
+		}
+	}
+
 	update(player1: Paddle, player2: Paddle2, player3: Paddle3, player4: Paddle4, canvas: HTMLCanvasElement) {
-		// Si le jeu est en pause, on ne met pas a jour la position de la balle.
+		// Si le jeu est en pause, on ne met pas à jour la position de la balle.
 		if (isPaused) return;
+
+		this.updateSpeed();
 
 		// Verification des buts dans les camps respectifs.
 		if (this.x <= 0) {
@@ -829,7 +862,7 @@ class Ball extends Entity{
 
 			screenReader.getInstance().handleScoreP1Hit();
 
-			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
@@ -842,7 +875,7 @@ class Ball extends Entity{
 
 			screenReader.getInstance().handleScoreP2Hit();
 
-			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
@@ -855,7 +888,7 @@ class Ball extends Entity{
 
 			screenReader.getInstance().handleScoreP3Hit();
 
-			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;
@@ -868,7 +901,7 @@ class Ball extends Entity{
 
 			screenReader.getInstance().handleScoreP4Hit();
 
-			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre.
 			isPaused = true;
 			setTimeout(() => {
 				isPaused = false;

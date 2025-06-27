@@ -6,8 +6,8 @@ import {navigate, onNavigate} from "./popstate.js";
 enum KeyBindings{
 	UPONE = 87, //W
 	DOWNONE = 83, //S
-	UPTWO = 38, //fleche haut
-	DOWNTWO = 40, //fleche bas
+	UPTWO = 38, //Flèche haut
+	DOWNTWO = 40, //Flèche bas
 	RIGHTONE = 79, //O
 	LEFTONE = 73, //I
 	RIGHTTWO = 86, //V
@@ -28,27 +28,31 @@ let pauseDuration = 2000; // Durée de la pause en millisecondes (2 secondes)
 let gameOver = false;
 
 export class GameFourBonus {
-	private gameCanvas: HTMLCanvasElement | null;
-	private gameContext: CanvasRenderingContext2D | null;
+	private readonly gameCanvas: HTMLCanvasElement | null;
+	private readonly gameContext: CanvasRenderingContext2D | null;
 	private gameStartTime: number = Date.now();
+	private lastFrameTime: number = 0;
+	private readonly frameInterval: number = 1000 / 60;
 	public static keysPressed: boolean[] = [];
 	public static player1Score: number = 0;
 	public static player2Score: number = 0;
 	public static player3Score: number = 0;
 	public static player4Score: number = 0;
-	private player1: Paddle;
-	private player2: Paddle2;
-	private player3: Paddle3;
-	private player4: Paddle4;
+	private readonly player1: Paddle;
+	private readonly player2: Paddle2;
+	private readonly player3: Paddle3;
+	private readonly player4: Paddle4;
 
 	private bonuses: Bonus[] = [];
 	private lastBonusTime: number = 0;
 	private bonusStartTime: number = Date.now();
 	public staticWalls: StaticWall[] = []; // Liste pour le bonus Wall
 
-	private ball: Ball;
+	private readonly ball: Ball;
 
-	public static ScreenReader = screenReader.getInstance();
+	private readonly keydownHandler: (e: KeyboardEvent) => void;
+	private readonly keyupHandler: (e: KeyboardEvent) => void;
+	private readonly popstateHandler: (e: PopStateEvent) => void;
 
 	private createStaticWallLater(x: number, y: number) { //Bonus WALL
 		setTimeout(() => {
@@ -83,6 +87,15 @@ export class GameFourBonus {
 		if (except !== 'player4') this.player4.invertControls(invertDuration);
 	}
 
+	public static resetGlobalState() {
+		gameOver = false;
+		isPaused = false;
+		GameFourBonus.player1Score = 0;
+		GameFourBonus.player2Score = 0;
+		GameFourBonus.player3Score = 0;
+		GameFourBonus.player4Score = 0;
+		// Add any other global/static resets if needed
+	}
 
 	constructor(){
 		const canvas = document.getElementById("game-canvas") as HTMLCanvasElement | null;
@@ -92,17 +105,16 @@ export class GameFourBonus {
 		this.gameCanvas = canvas;
 		this.gameContext = this.gameCanvas.getContext("2d");
 		if (!this.gameContext)
-			throw new Error("Impossible de recuperer 2D rendering context");
+			throw new Error("Impossible de récupérer 2D rendering context");
 
 		this.gameContext.font = "30px Orbitron";
 
-		window.addEventListener("keydown", function(e){
-			GameFourBonus.keysPressed[e.which] = true;
-		});
-
-		window.addEventListener("keyup", function(e){
-			GameFourBonus.keysPressed[e.which] = false;
-		});
+		this.keydownHandler = (e) => { GameFourBonus.keysPressed[e.which] = true; };
+		this.keyupHandler = (e) => { GameFourBonus.keysPressed[e.which] = false; };
+		this.popstateHandler = this.handlePopState.bind(this);
+		window.addEventListener("keydown", this.keydownHandler);
+		window.addEventListener("keyup", this.keyupHandler);
+		window.addEventListener("popstate", this.popstateHandler);
 
 		let paddleWidth:number = 15, paddleHeight:number = 50, ballSize:number = 10, wallOffset:number = 20;
 
@@ -160,6 +172,12 @@ export class GameFourBonus {
 					localStorage.removeItem('player4Id');
 					localStorage.removeItem('currentTournamentId');
 					localStorage.removeItem('tournamentWinnerAlias');
+					localStorage.removeItem('isPlayer2AI');
+					localStorage.removeItem('isPlayer3AI');
+					localStorage.removeItem('isPlayer4AI');
+					Paddle2.setAIEnabled(false);
+					Paddle3.setAIEnabled(false);
+					Paddle4.setAIEnabled(false);
 					navigate('/home');
 					showHome();
 				});
@@ -172,16 +190,36 @@ export class GameFourBonus {
 		if (!GameFourBonus.isGameOver()) {
 			GameFourBonus.setGameOver(true);
 		}
-	}
 
-	getCanvasColors() {
-		const styles = getComputedStyle(document.body);
-		return {
-			bgColor: styles.getPropertyValue('--canvas-bg-color').trim() || '#000',
-			lineColor: styles.getPropertyValue('--canvas-line-color').trim() || '#fff',
-			textColor: styles.getPropertyValue('--canvas-text-color').trim() || '#fff',
-			entityColor: styles.getPropertyValue('--canvas-entity-color').trim() || '#fff',
-		};
+		localStorage.removeItem('currentMatchId');
+		localStorage.removeItem("player1Alias");
+		localStorage.removeItem("player2Alias");
+		localStorage.removeItem("player3Alias");
+		localStorage.removeItem("player4Alias");
+		localStorage.removeItem('tournamentMode');
+		localStorage.removeItem('semifinal1Id');
+		localStorage.removeItem('semifinal2Id');
+		localStorage.removeItem('semifinal1Winner');
+		localStorage.removeItem('semifinal1Loser');
+		localStorage.removeItem('semifinal2Winner');
+		localStorage.removeItem('semifinal2Loser');
+		localStorage.removeItem('player1Id');
+		localStorage.removeItem('player2Id');
+		localStorage.removeItem('player3Id');
+		localStorage.removeItem('player4Id');
+		localStorage.removeItem('currentTournamentId');
+		localStorage.removeItem('tournamentWinnerAlias');
+		localStorage.removeItem('isPlayer2AI');
+		localStorage.removeItem('isPlayer3AI');
+		localStorage.removeItem('isPlayer4AI');
+		Paddle2.setAIEnabled(false);
+		Paddle3.setAIEnabled(false);
+		Paddle4.setAIEnabled(false);
+
+		if (this.cleanupNavigateListener) {
+			this.cleanupNavigateListener();
+			this.cleanupNavigateListener = null;
+		}
 	}
 
 	drawBoardDetails(){
@@ -318,8 +356,15 @@ export class GameFourBonus {
 			requestAnimationFrame(() => this.gameLoop());
 			return;
 		}
-		this.update();
-		this.draw();
+
+		const deltaTime = currentTime - this.lastFrameTime;
+		if (deltaTime > this.frameInterval)
+		{
+			this.lastFrameTime = currentTime - (deltaTime % this.frameInterval);
+			this.update();
+			this.draw();
+		}
+
 		requestAnimationFrame(this.gameLoop);
 	}
 
@@ -329,6 +374,11 @@ export class GameFourBonus {
 
 	public static isGameOver(): boolean {
 		return gameOver;
+	}
+	public cleanup() {
+		window.removeEventListener("keydown", this.keydownHandler);
+		window.removeEventListener("keyup", this.keyupHandler);
+		window.removeEventListener("popstate", this.popstateHandler);
 	}
 }
 
@@ -413,10 +463,7 @@ export class Paddle extends Entity{
 			}
 		}
 		else
-		{
 			this.yVal = 0;
-		}
-
 
 		this.y += this.yVal * this.speed;
 	}
@@ -427,7 +474,7 @@ export class Paddle2 extends Entity{
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerY: number = 0;
+	private readonly centerY: number = 0;
 	private gameRef: GameFourBonus | null = null;
 
 	// Simulated keyboard state
@@ -456,20 +503,6 @@ export class Paddle2 extends Entity{
 		this.isAIEnabled = enabled;
 	}
 
-	public static isAIActive(): boolean {
-		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.y = this.centerY;
-		this.targetY = this.centerY;
-		this.yVal = 0;
-		this.isUpPressed = false;
-		this.isDownPressed = false;
-		this.approachingBall = false;
-	}
-
 	public invertControls(duration: number) {
 		this.invertedUntil = Date.now() + duration;
 	}
@@ -481,9 +514,7 @@ export class Paddle2 extends Entity{
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
 		if (!ball) return this.centerY;
 
-		const distanceX = this.x - ball.x;
 		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
-		const timeToReach = Math.abs(distanceX / (ball.xVal * currentBallSpeed));
 
 		let predictedX = ball.x;
 		let predictedY = ball.y;
@@ -620,7 +651,7 @@ export class Paddle3 extends Entity{
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerX: number = 0;
+	private readonly centerX: number = 0;
 	private gameRef: GameFourBonus | null = null;
 
 	// Simulated keyboard state
@@ -649,20 +680,6 @@ export class Paddle3 extends Entity{
 		this.isAIEnabled = enabled;
 	}
 
-	public static isAIActive(): boolean {
-		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.x = this.centerX;
-		this.targetX = this.centerX;
-		this.xVal = 0;
-		this.isLeftPressed = false;
-		this.isRightPressed = false;
-		this.approachingBall = false;
-	}
-
 	public invertControls(duration: number) {
 		this.invertedUntil = Date.now() + duration;
 	}
@@ -674,9 +691,7 @@ export class Paddle3 extends Entity{
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
 		if (!ball) return this.centerX;
 
-		const distanceY = ball.y - this.y;
 		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
-		const timeToReach = Math.abs(distanceY / (ball.yVal * currentBallSpeed));
 
 		let predictedX = ball.x;
 		let predictedY = ball.y;
@@ -813,7 +828,7 @@ export class Paddle4 extends Entity{
 	private aiLastDecisionTime: number = 0;
 	private aiDecisionInterval: number = 1000;
 	private static isAIEnabled: boolean = false;
-	private centerX: number = 0;
+	private readonly centerX: number = 0;
 	private gameRef: GameFourBonus | null = null;
 
 	// Simulated keyboard state
@@ -842,20 +857,6 @@ export class Paddle4 extends Entity{
 		this.isAIEnabled = enabled;
 	}
 
-	public static isAIActive(): boolean {
-		return this.isAIEnabled;
-	}
-
-	public resetAIState() {
-		this.aiLastDecisionTime = 0;
-		this.x = this.centerX;
-		this.targetX = this.centerX;
-		this.xVal = 0;
-		this.isLeftPressed = false;
-		this.isRightPressed = false;
-		this.approachingBall = false;
-	}
-
 	public invertControls(duration: number) {
 		this.invertedUntil = Date.now() + duration;
 	}
@@ -867,9 +868,7 @@ export class Paddle4 extends Entity{
 	private predictBallPosition(ball: Ball, canvas: HTMLCanvasElement): number {
 		if (!ball) return this.centerX;
 
-		const distanceY = this.y - ball.y;
 		const currentBallSpeed = ball.getSpeed(); // Use actual ball speed
-		const timeToReach = Math.abs(distanceY / (ball.yVal * currentBallSpeed));
 
 		let predictedX = ball.x;
 		let predictedY = ball.y;
@@ -1056,8 +1055,8 @@ class StaticWall extends Entity {
 class Ball extends Entity{
 
 	private gameRef!: GameFourBonus;
-	private canvasWidth: number;
-	private canvasHeight: number;
+	private readonly canvasWidth: number;
+	private readonly canvasHeight: number;
 
 	private lastTouchedBy: 'player1' | 'player2' | 'player3' | 'player4' | null = null;
 
@@ -1096,11 +1095,7 @@ class Ball extends Entity{
 		this.resetBallPosition(); // Positionne la balle au centre du terrain avec une direction aléatoire
 	}
 
-	setSpeed(newSpeed: number) {
-		this.speed = newSpeed;
-	}
-
-	// Fonction pour reinitialiser la position de la balle apres un but.
+	// Fonction pour réinitialiser la position de la balle apres un but.
 	resetBallPosition() {
 		let margin = 50;
 		this.x = this.canvasWidth / 2 - this.width / 2 + (Math.random() * margin - margin / 2);
@@ -1164,7 +1159,7 @@ class Ball extends Entity{
 					</div>
 				`;
 
-				// Import dynamique pour eviter les problemes de reference circulaire.
+				// Import dynamique pour éviter les problèmes de reference circulaire.
 				import('./script.js').then(module => {
 					const menu_btn = document.getElementById("menu-btn");
 					if (menu_btn)
@@ -1177,7 +1172,7 @@ class Ball extends Entity{
 	}
 
 	update(player1: Paddle, player2: Paddle2, player3: Paddle3, player4: Paddle4, canvas: HTMLCanvasElement) {
-		// Si le jeu est en pause, on ne met pas a jour la position de la balle.
+		// Si le jeu est en pause, on ne met pas à jour la position de la balle.
 		if (isPaused) return;
 
 		// Verification des buts dans les camps respectifs.
@@ -1186,7 +1181,7 @@ class Ball extends Entity{
 
 			screenReader.getInstance().handleScoreP1Hit();
 
-			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
 			}
@@ -1202,7 +1197,7 @@ class Ball extends Entity{
 
 			screenReader.getInstance().handleScoreP2Hit();
 
-			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
 			}
@@ -1219,7 +1214,7 @@ class Ball extends Entity{
 
 			screenReader.getInstance().handleScoreP3Hit();
 
-			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
 			}
@@ -1236,7 +1231,7 @@ class Ball extends Entity{
 
 			screenReader.getInstance().handleScoreP4Hit();
 
-			this.resetBallPosition();  // Reinitialiser la position de la balle au centre.
+			this.resetBallPosition();  // Réinitialiser la position de la balle au centre.
 			if (this.onGoalCallback) {
 				this.onGoalCallback(); // Réinitialise bonus et minuteur
 			}
@@ -1261,7 +1256,7 @@ class Ball extends Entity{
 			screenReader.getInstance().handleLeftPaddleHit();
 		}
 
-		// Collision avec jooueur 2.
+		// Collision avec joueur 2.
 		if (this.x + this.width >= player2.x &&
 			this.x <= player2.x + player2.width &&
 			this.y + this.height >= player2.y &&
@@ -1307,17 +1302,50 @@ class Ball extends Entity{
 				this.y < wall.y + wall.height &&
 				this.y + this.height > wall.y) {
 
-				// Inversion de direction (effet "rebond") selon la direction de collision
-				const overlapX = (this.x + this.width / 2) - (wall.x + wall.width / 2);
-				const overlapY = (this.y + this.height / 2) - (wall.y + wall.height / 2);
+				// Calculer les centres pour déterminer la direction de collision
+				const ballCenterX = this.x + this.width / 2;
+				const ballCenterY = this.y + this.height / 2;
+				const wallCenterX = wall.x + wall.width / 2;
+				const wallCenterY = wall.y + wall.height / 2;
+
+				// Calculer les distances
+				const deltaX = ballCenterX - wallCenterX;
+				const deltaY = ballCenterY - wallCenterY;
+
+				// Calculer les chevauchements
+				const overlapX = (this.width + wall.width) / 2 - Math.abs(deltaX);
+				const overlapY = (this.height + wall.height) / 2 - Math.abs(deltaY);
 
 				screenReader.getInstance().handleWallHit();
 
-				if (Math.abs(overlapX) > Math.abs(overlapY)) {
-					this.xVal *= -1; // rebond horizontal
+				// Déterminer quelle face du mur a été touchée et repositionner la balle
+				if (overlapX < overlapY) {
+					// Collision horizontale
+					this.xVal *= -1;
+
+					// Repositionner la balle pour éviter qu'elle reste collée
+					if (deltaX > 0) {
+						// Balle à droite du mur
+						this.x = wall.x + wall.width + 1;
+					} else {
+						// Balle à gauche du mur
+						this.x = wall.x - this.width - 1;
+					}
 				} else {
-					this.yVal *= -1; // rebond vertical
+					// Collision verticale
+					this.yVal *= -1;
+
+					// Repositionner la balle pour éviter qu'elle reste collée
+					if (deltaY > 0) {
+						// Balle en bas du mur
+						this.y = wall.y + wall.height + 1;
+					} else {
+						// Balle en haut du mur
+						this.y = wall.y - this.height - 1;
+					}
 				}
+
+				// Sortir de la boucle après la première collision pour éviter les conflits
 				break;
 			}
 		}
@@ -1341,9 +1369,5 @@ class Ball extends Entity{
 
 	public getPosition() {
 		return { x: this.x, y: this.y };
-	}
-
-	public getGameRef(): GameFourBonus {
-		return this.gameRef;
 	}
 }

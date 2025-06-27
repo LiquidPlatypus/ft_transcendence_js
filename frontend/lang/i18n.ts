@@ -13,7 +13,7 @@ export async function loadLanguage(lang: Lang) {
 
 	localStorage.setItem('lang', lang);
 
-	// Declenche un evenement pour notifier le changement de langue.
+	// Déclenche un événement pour notifier le changement de langue.
 	document.dispatchEvent(new CustomEvent('languageChanged', {
 		detail: { lang, previousLang }
 	}));

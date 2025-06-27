@@ -1,7 +1,7 @@
 import {getCurrentLang, t} from "../lang/i18n.js";
 
 /**
- * @brief Classe gerant la fonctionnalité de lecture d'ecran.
+ * @brief Classe gérant la fonctionnalité de lecture d'écran.
  */
 export class screenReader {
 	private static instance: screenReader;
@@ -13,8 +13,8 @@ export class screenReader {
 	private pitch: number = 1.0;
 	private queue: string[] = [];
 	private speaking: boolean = false;
-	private browserType: string = '';
-	private isFirefox: boolean = false;
+	private readonly browserType: string = '';
+	private readonly isFirefox: boolean = false;
 	private sounds: Map<string, HTMLAudioElement> = new Map();
 
 	private listenersInitialized: boolean = false;
@@ -33,17 +33,17 @@ export class screenReader {
 		if (this.isFirefox)
 			this.setupFirefoxOptimizations();
 
-		// Cherche une voix francaise.
+		// Cherche une voix française.
 		this.loadVoices();
-		// Ecoute l'evenement voiceschanged pour les navigateurs qui chargent les voix asynchronement.
+		// Écoute l'événement voiceschanged pour les navigateurs qui chargent les voix de manière asynchrone.
 		this.speechSynthesis.addEventListener('voiceschanged', () => this.loadVoices());
 
-		// Ecoute les changements de langue pour mettre a jour la voix.
+		// Écoute les changements de langue pour mettre à jour la voix.
 		document.addEventListener('languageChanged', () => {
 			this.loadVoices();
 		});
 
-		// Charge l'état depuis le localStorage si dispo.
+		// Charge l'état depuis le localStorage si disponible.
 		const savedState = localStorage.getItem('screenReaderEnabled');
 		if (savedState)
 			this.enabled = savedState === 'true';
@@ -74,7 +74,7 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Detecte le navigateur utilise.
+	 * @brief Détecte le navigateur utilise.
 	 */
 	private detectBrowser(): string {
 		const userAgent = navigator.userAgent.toLowerCase();
@@ -100,7 +100,7 @@ export class screenReader {
 		}, 30000);
 	}
 	/**
-	 * @brief  Charge les voix dispo.
+	 * @brief  Charge les voix disponible.
 	 */
 	private loadVoices(): void {
 		if (this.isFirefox)
@@ -233,7 +233,7 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Ajuste les parametres en fonction du navigateur et de la voix.
+	 * @brief Ajuste les paramètres en fonction du navigateur et de la voix.
 	 * @param lang langue.
 	 * @param voice voix.
 	 */
@@ -260,7 +260,7 @@ export class screenReader {
 
 		const voiceName = voice.name.toLowerCase();
 
-		// Ajustement specifiques a Firefox.
+		// Ajustement spécifiques a Firefox.
 		if (this.isFirefox) {
 			// firefox avec eSpeak (Linux) - pas ouf.
 			if (voiceName.includes('espeak') || voiceName.includes('festival')) {
@@ -290,7 +290,7 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Active ou desactive le screen reader.
+	 * @brief Active ou désactive le screen reader.
 	 * @param enabled actif ou non.
 	 */
 	public setEnabled(enabled: boolean): void {
@@ -310,7 +310,7 @@ export class screenReader {
 
 	/**
 	 * @brief Obtient un message localise ou utilise un fallback.
-	 * @param key phrase a traduire.
+	 * @param key phrase à traduire.
 	 * @param fallback si fonctionne pas.
 	 * @param vars a mettre dans la phrase.
 	 * @private
@@ -321,7 +321,7 @@ export class screenReader {
 			// Essaie d'abord d'obtenir la traduction sans variables.
 			const rawTranslation = t(key);
 
-			// Si on a une traduction valide (differente de la cle.)
+			// Si on a une traduction valide (différente de la cle.)
 			if (rawTranslation && rawTranslation !== key) {
 				// Applique manuellement les variables.
 				if (vars) {
@@ -359,7 +359,7 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Verifie si le screen reader est actif.
+	 * @brief Vérifie si le screen reader est actif.
 	 */
 	public isEnabled(): boolean {
 		return this.enabled;
@@ -377,7 +377,7 @@ export class screenReader {
 			return;
 		}
 
-		// Si priorite, annule l'annonce en cours et nettoie la queue.
+		// Si priorité, annule l'annonce en cours et nettoie la queue.
 		if (priority) {
 			const now = Date.now();
 			const timeSinceLastButton = now - this.lastButtonAnnouncement;
@@ -397,11 +397,11 @@ export class screenReader {
 			this.clearSpeakTimeout();
 		}
 
-		// Ajoute a la queue.
+		// Ajoute à la queue.
 		this.queue.push(text);
 		console.log(`🗣️ [speak] Ajouté à la queue. Taille: ${this.queue.length}`);
 
-		// Si aucune annonce en cours, demarre la queue.
+		// Si aucune annonce en cours, démarre la queue.
 		if (!this.speaking) {
 			console.log(`🗣️ [speak] Pas de lecture en cours, démarrage de processQueue.`);
 			this.processQueue();
@@ -485,7 +485,7 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Pronoce un chunk de texte.
+	 * @brief Prononce un chunk de texte.
 	 * @param text texte a prononcer.
 	 */
 	private speakChunk(text: string): void {
@@ -520,7 +520,7 @@ export class screenReader {
 			console.error(`❌ [speakChunk] TIMEOUT après ${timeoutDuration}ms pour: "${text.substring(0, 50)}..."`);
 			console.warn(`❌ [speakChunk] État au timeout - speaking: ${this.speaking}, pending: ${this.speechSynthesis.pending}`);
 
-			// Important: si timeout arrive, aassume que le speech a foire, annule, et passe au texte d'apres.
+			// Important : si timeout arrive, assume que le speech a foiré, annule, et passe au texte d'après.
 			this.speechSynthesis.cancel();
 			this.speaking = false;
 			this.clearSpeakTimeout();
@@ -529,8 +529,8 @@ export class screenReader {
 
 		utterance.onstart = () => {
 			console.log(`✅ [speakChunk] ONSTART: "${text.substring(0, 50)}..."`);
-			this.speaking = true; // Met speaking a TRUE seulement si ca parle.
-			this.clearSpeakTimeout(); // Enleve timeout seulement quand le texte commence.
+			this.speaking = true; // Met speaking à TRUE seulement si ca parle.
+			this.clearSpeakTimeout(); // Enlève timeout seulement quand le texte commence.
 		};
 
 		utterance.onend = () => {
@@ -582,7 +582,7 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Recupere l'instance de screenReader.
+	 * @brief Récupère l'instance de screenReader.
 	 */
 	public static getInstance(): screenReader {
 		if (!screenReader.instance)
@@ -633,8 +633,8 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Annonce un evenement du jeu.
-	 * @param event event a annoncer.
+	 * @brief Annonce un événement du jeu.
+	 * @param event event à annoncer.
 	 */
 	public announceGameEvent(event: string): void {
 		if (!this.enabled)
@@ -658,7 +658,7 @@ export class screenReader {
 	}
 
 	/**
-	 * @brief Annonce l'element focus.
+	 * @brief Annonce l'élément focus.
 	 * @param element element focus.
 	 */
 	public announceFocusedElement(element: HTMLElement): void {
@@ -667,7 +667,7 @@ export class screenReader {
 
 		let announcement = '';
 
-		// Priorité à aria-label, puis title, puis textContent, puis alt
+		// Priorité à aria-label, puis title, ensuite textContent, ensuite alt
 		const text = element.getAttribute('aria-label') ||
 			element.getAttribute('title') ||
 			element.textContent?.trim() ||
@@ -694,11 +694,11 @@ export class screenReader {
 	 * @brief Initialise les event listeners globaux.
 	 */
 	public initializeGlobalListeners(): void {
-		// Evite de dupliquer les listeners.
+		// Évite de dupliquer les listeners.
 		if (this.listenersInitialized) return;
 		this.listenersInitialized = true;
 
-		// Ecouteur global pour tous les elements qui recoivent le focus.
+		// Écouteur global pour tous les elements qui reçoivent le focus.
 		document.addEventListener('focusin', (event) => {
 			const target = event.target as HTMLElement;
 			if (target && (

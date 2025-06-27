@@ -4,7 +4,7 @@ import {
 	getMatchHistoryPfc,
 } from "../models/scoreModel.js";
 
-export default async function scoreRoutes(fastify, options) {
+export default async function scoreRoutes(fastify) {
 	fastify.post('/history/pong', async (request, reply) => {
 		try {
 			const matches = getMatchHistoryPong();

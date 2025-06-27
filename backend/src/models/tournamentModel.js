@@ -1,7 +1,7 @@
 import db from "../db.js";
 
 /**
- * @brief Creer un tournoi.
+ * @brief Créer un tournoi.
  */
 export const createTournament = () => {
 	const stmt = db.prepare('INSERT INTO tournaments (status) VALUES (?)');
@@ -10,14 +10,14 @@ export const createTournament = () => {
 };
 
 /**
- * @brief Recupere tout les tournois.
+ * @brief Récupère tous les tournois.
  */
 export const getTournaments = () => {
 	return db.prepare('SELECT * FROM tournaments').all();
 };
 
 /**
- * @brief Recupere un tournoi par son ID.
+ * @brief Récupère un tournoi par son ID.
  * @param id
  * @returns {unknown}
  */
@@ -50,7 +50,7 @@ export const addPlayerToTournament = (playerId, tournamentId) => {
 };
 
 /**
- * @brief Recupere les joueurs d'un tournoi.
+ * @brief Récupère les joueurs d'un tournoi.
  * @param tournamentId
  * @returns {unknown[]}
  */
@@ -59,7 +59,7 @@ export const getTournamentPlayers = (tournamentId) => {
 };
 
 /**
- * @brief Creer un match entre 2 joueurs dans un tournoi.
+ * @brief Créer un match entre deux joueurs dans un tournoi.
  * @param tournamentId
  * @param player1Id
  * @param player2Id
@@ -72,7 +72,7 @@ export const createMatch = (tournamentId, player1Id, player2Id) => {
 };
 
 /**
- * @brief Recupere les matchs d'un tournoi.
+ * @brief Récupère les matchs d'un tournoi.
  * @param tournamentId
  * @returns {unknown[]}
  */
@@ -94,7 +94,7 @@ export const updateMatchScore = (matchId, player1Score, player2Score) => {
 };
 
 /**
- * @brief Update le status du match et definit le gagnant.
+ * @brief Update le status du match et défini le gagnant.
  * @param matchId
  * @param status
  * @param winnerId

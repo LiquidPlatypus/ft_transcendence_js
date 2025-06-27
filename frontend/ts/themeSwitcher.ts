@@ -3,15 +3,15 @@
  * @param themeName nom du theme a utiliser.
  */
 export function changeTheme(themeName: string) {
-	// Recupere l'element body.
+	// Récupère l'élément body.
 	const body = document.body;
 
 	// Supprime les classes de theme actuelles.
 	body.classList.remove('bg-catpuccin', 'text-catpuccin-text', 'bg-green-600', 'text-white', 'bg-black', 'bg-gray-100', 'text-black');
 	body.classList.remove('theme-CP', 'theme-HC', 'theme-OLED', 'theme-WHITE');
 
-	// Reinitialise toutes les variables CSS de theme a leurs valeurs par défaut
-	// pour eviter qu'elles ne persistent entre les changements de theme.
+	// Réinitialise toutes les variables CSS de theme à leurs valeurs par défaut
+	// pour éviter qu'elles ne persistent entre les changements de theme.
 	const resetCSSVars = () => {
 		document.documentElement.style.setProperty('--color-button', '');
 		document.documentElement.style.setProperty('--color-button-hover', '');
@@ -78,7 +78,7 @@ export function changeTheme(themeName: string) {
 	// Sauvegarde le theme dans localStorage.
 	localStorage.setItem('theme', themeName);
 
-	// Force la mise a jour des boutons.
+	// Force la mise à jour des boutons.
 	updateButtonStyles();
 
 	// Met à jour le style des boutons désactivés

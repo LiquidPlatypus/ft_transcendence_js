@@ -27,14 +27,16 @@ const ScreenReader = screenReader.getInstance();
 
 export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
+		console.log("start_pf called with matchType:", matchType);
 		navigate('/chifoumi/game/' + matchType);
-		showPFCMatch(matchType);
+		await showPFCMatch(matchType);
 	});
 }
 
 export async function showPFCMatch(matchType: MatchType) {
 	const player1 = (document.getElementById("playerAlias1") as HTMLInputElement).value;
 	const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
+	console.log(`Match entre ${player1} et ${player2}`);
 
 	if (!isValidString(player1) || !isValidString(player2)) {
 		alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
@@ -46,7 +48,7 @@ export async function showPFCMatch(matchType: MatchType) {
 	localStorage.setItem('player2Alias', player2);
 
 	try {
-		// Creer les joueurs dans le back.
+		// Créer les joueurs dans le back.
 		const player1Response = await fetch('api/players', {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
@@ -60,7 +62,7 @@ export async function showPFCMatch(matchType: MatchType) {
 		}).then(res => res.json());
 
 		if (player1Response.success && player2Response.success) {
-			// Creer le match dans le back.
+			// Créer le match dans le back.
 			const matchResponse = await fetch("api/players/match", {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
@@ -93,6 +95,11 @@ function creerElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?:
  * @brief Gere le pfc.
  */
 function init() {
+	scoreJ1 = 0;
+	scoreJ2 = 0;
+	choixJ1 = null;
+	choixJ2 = null;
+
 	const container = document.getElementById("pfc");
 	if (!container)
 		return ;
@@ -143,7 +150,7 @@ function init() {
 	ScreenReader.announceGameEvent(t("pfc_explanation"));
 
 	function handleKeydown(e: KeyboardEvent) {
-		// Ignore les entree pendant le delai.
+		// Ignore les entree pendant le délai.
 		if (isWaiting)
 			return ;
 
@@ -160,6 +167,8 @@ function init() {
 
 			afficherCombat(fightZone, fightJ1, fightJ2, choixJ1, choixJ2);
 			setTimeout(() => {
+				const result = comparer(choixJ1!, choixJ2!);
+
 				const choixJ1Traduit = t(getChoixTranslationKey(choixJ1!));
 				const choixJ2Traduit = t(getChoixTranslationKey(choixJ2!));
 
@@ -171,62 +180,53 @@ function init() {
 				ScreenReader.announceGameEvent(`${player1Alias} ${chooseText} ${choixJ1}`);
 				ScreenReader.announceGameEvent(`${player2Alias} ${chooseText} ${choixJ2}`);
 
-				const result = comparer(choixJ1!, choixJ2!);
-
-				resultat.textContent = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} => ${result}`;
-				scores.textContent = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
+				resultat.innerHTML = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} <br> ${result}`;
+				scores.innerHTML = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
-					verifierVainqueur(vainqueur);
+					verifierVainqueur();
+
 				setTimeout(() => {
 					fightZone.classList.remove("fight-in");
 					fightJ1.textContent = "";
 					fightJ2.textContent = "";
 
-					// Reinitialisation des choix et deblocage.
+					// Reinitialisation des choix et déblocage.
 					choixJ1 = null;
 					choixJ2 = null;
 					isWaiting = false;
 				}, 1000);
-				choixJ1 = null;
-				choixJ2 = null;
-			}, 800);
+			}, 500);
 		}
 	}
 
+	document.removeEventListener("keydown", handleKeydownGlobal);
 	handleKeydownGlobal = handleKeydown;
 	document.addEventListener("keydown", handleKeydown);
 
-	function verifierVainqueur(div: HTMLElement) {
-		if (scoreJ1 >= 5 || scoreJ2 >= 5) {
-			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
-			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
+	function verifierVainqueur() {
+		const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
+		const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-			ScreenReader.announceScore(scoreJ1, scoreJ2, null, null);
-
-			if (scoreJ1 >= 5) {
-				div.textContent = player1Alias + t("as_won");
-				ScreenReader.announceGameEvent(`${player1Alias} ${t("as_won")}`);
-			}
-			else {
-				div.textContent = player2Alias + t("as_won");
-				ScreenReader.announceGameEvent(`${player2Alias} ${t("as_won")}`);
+		if (container) {
+			container.innerHTML = `
+				<p class="font-extrabold text-2xl mb-4">${scoreJ1 >= 5 ? player1Alias + t("as_won") : player2Alias + t("as_won")}</p>
+				<div class="flex justify-center mt-4">
+					<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
+				</div>
+			`;
+			const returnButton = document.getElementById("menu-btn");
+			if (returnButton) {
+				returnButton.addEventListener("click", () => {
+					navigate('/home');
+					showHome();
+				});
 			}
 		}
 
 		document.removeEventListener("keydown", handleKeydown);
 
-		const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
-
-		returnButton.id = "return-button";
-		div.appendChild(returnButton);
-		returnButton.addEventListener("click", () => {
-			navigate('/home');
-			showHome();
-		});
-
 		const matchId = localStorage.getItem('currentMatchId');
 		if (matchId) {
-			// Envoie le score dans le back.
 			fetch('api/players/match/score', {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
@@ -237,9 +237,6 @@ function init() {
 				}),
 			}).catch(error => {});
 		}
-
-		scoreJ1 = 0;
-		scoreJ2 = 0;
 	}
 }
 
@@ -289,6 +286,11 @@ function getChoixTranslationKey(choix: Choix): string {
 
 
 function init_bonus() {
+	scoreJ1 = 0;
+	scoreJ2 = 0;
+	choixJ1 = null;
+	choixJ2 = null;
+
 	const container = document.getElementById("pfc");
 	if (!container)
 		return ;
@@ -364,11 +366,15 @@ function init_bonus() {
 				const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 				const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-				resultat.textContent = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} => ${result}`;
-				scores.textContent = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
+				const chooseText = t("choose");
+				ScreenReader.announceGameEvent(`${player1Alias} ${chooseText} ${choixJ1}`);
+				ScreenReader.announceGameEvent(`${player2Alias} ${chooseText} ${choixJ2}`);
+
+				resultat.innerHTML = `${player1Alias}: ${choixJ1Traduit} | ${player2Alias}: ${choixJ2Traduit} <br> ${result}`;
+				scores.innerHTML = `${t("score")} ${player1Alias}: ${scoreJ1} | ${t("score")} ${player2Alias}: ${scoreJ2}`;
 
 				if (scoreJ1 >= 5 || scoreJ2 >= 5)
-					verifierVainqueur(vainqueur);
+					verifierVainqueur();
 
 				setTimeout(() => {
 					fightZone.classList.remove("fight-in");
@@ -379,83 +385,91 @@ function init_bonus() {
 					choixJ1 = null;
 					choixJ2 = null;
 					isWaiting = false;
-				}, 2000); // 2 secondes d'attente avant le prochain round
-			}, 800); // délai d'affichage du résultat
+				}, 1000);
+			}, 500);
 		}
 	}
 
+	document.removeEventListener("keydown", handleKeydownGlobal);
 	handleKeydownGlobal = handleKeydown;
 	document.addEventListener("keydown", handleKeydown);
 
-	function verifierVainqueur(div: HTMLElement) {
+	function verifierVainqueur() {
 		if (scoreJ1 >= 5 || scoreJ2 >= 5) {
 			const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
 			const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-			if (scoreJ1 >= 5)
-				div.textContent = player1Alias + t("as_won");
-			else
-				div.textContent = player2Alias + t("as_won");
+			if (container) {
+				container.innerHTML = `
+					<p class="font-extrabold text-2xl mb-4">${scoreJ1 >= 5 ? player1Alias + t("as_won") : player2Alias + t("as_won")}</p>
+					<div class="flex justify-center mt-4">
+						<button id="menu-btn" class="btn btn-fixed rounded-lg border p-4 shadow">${t("menu")}</button>
+					</div>
+				`;
+				const returnButton = document.getElementById("menu-btn");
+				if (returnButton) {
+					returnButton.addEventListener("click", () => {
+						navigate('/home');
+						showHome();
+					});
+				}
+			}
+
+			document.removeEventListener("keydown", handleKeydown);
+
+			const matchId = localStorage.getItem('currentMatchId');
+			if (matchId) {
+				fetch('api/players/match/score', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						matchId: parseInt(matchId),
+						player1Score: scoreJ1,
+						player2Score: scoreJ2
+					}),
+				}).catch(error => {
+					console.error(`${t("error_score_save")}:`, error);
+				});
+			}
 		}
-		document.removeEventListener("keydown", handleKeydown);
-
-		const returnButton = creerElement("button", "btn rounded-lg border p-4 shadow", t("menu"));
-
-		returnButton.id = "return-button";
-		div.appendChild(returnButton);
-		returnButton.addEventListener("click", () => {
-			navigate('/home');
-			showHome();
-		});
-
-		const matchId = localStorage.getItem('currentMatchId');
-		if (matchId) {
-			fetch('api/players/match/score', {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({
-					matchId: parseInt(matchId),
-					player1Score: scoreJ1,
-					player2Score: scoreJ2
-				}),
-			}).catch(error => {});
-		}
-
-		scoreJ1 = 0;
-		scoreJ2 = 0;
 	}
-}
 
-function comparer_bonus(c1: Choix, c2: Choix): string {
-	// Récupération des alias des joueurs.
-	const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
-	const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
+	function comparer_bonus(c1: Choix, c2: Choix): string {
+		// Récupération des alias des joueurs.
+		const player1Alias = localStorage.getItem('player1Alias') || t("player") + " 1";
+		const player2Alias = localStorage.getItem('player2Alias') || t("player") + " 2";
 
-	if (c1 === c2) {
-		let bonusText = "";
+		if (c1 === c2) {
+			let bonusText = "";
 
-		if (scoreJ1 + 2 <= scoreJ2) {
+			if (scoreJ1 + 2 <= scoreJ2) {
+				scoreJ1++;
+				ScreenReader.announceGameEvent(`${player1Alias} ${t("wins_equalized")}`);
+				bonusText = ` (${t("bonus_equalizer", {player: player1Alias}) || `Bonus ${player1Alias}`}!)`;
+			} else if (scoreJ2 + 2 <= scoreJ1) {
+				scoreJ2++;
+				ScreenReader.announceGameEvent(`${player2Alias} ${t("wins_equalized")}`);
+				bonusText = ` (${t("bonus_equalizer", {player: player2Alias}) || `Bonus ${player2Alias}`}!)`;
+			} else {
+				return t("equality") || "Égalité !";
+			}
+
+			ScreenReader.announceGameEvent(t("equality"));
+			return (t("equality") || "Égalité !") + bonusText;
+		}
+
+		if (
+			(c1 === "pierre" && c2 === "ciseaux") ||
+			(c1 === "feuille" && c2 === "pierre") ||
+			(c1 === "ciseaux" && c2 === "feuille")
+		) {
 			scoreJ1++;
-			bonusText = ` (${t("bonus_equalizer", {player: player1Alias}) || `Bonus ${player1Alias}`}!)`;
-		} else if (scoreJ2 + 2 <= scoreJ1) {
-			scoreJ2++;
-			bonusText = ` (${t("bonus_equalizer", {player: player2Alias}) || `Bonus ${player2Alias}`}!)`;
+			ScreenReader.announceGameEvent(`${player1Alias} ${t("wins_round")}`);
+			return `${player1Alias} ${t("wins_round")}` || `${player1Alias} gagne la manche !`;
 		} else {
-			return t("equality") || "Égalité !";
+			scoreJ2++;
+			ScreenReader.announceGameEvent(`${player2Alias} ${t("wins_round")}`);
+			return `${player2Alias} ${t("wins_round")}` || `${player2Alias} gagne la manche !`;
 		}
-
-		return (t("equality") || "Égalité !") + bonusText;
-	}
-
-	if (
-		(c1 === "pierre" && c2 === "ciseaux") ||
-		(c1 === "feuille" && c2 === "pierre") ||
-		(c1 === "ciseaux" && c2 === "feuille")
-	) {
-		scoreJ1++;
-		return `${player1Alias} ${t("wins_round")}` || `${player1Alias} gagne la manche !`;
-	} else {
-		scoreJ2++;
-		return `${player2Alias} ${t("wins_round")}` || `${player2Alias} gagne la manche !`;
 	}
 }
