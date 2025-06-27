@@ -1327,16 +1327,16 @@ class Ball extends Entity{
 		this.x += (this.xVal / length) * this.speed;
 		this.y += (this.yVal / length) * this.speed;
 	}
-
+	
 	private getWinnerAlias(winner: string): string {
 		if (winner === "Joueur 1")
-			return "Joueur 1";
+			return localStorage.getItem('player1Alias') || 'Joueur 1';
 		else if (winner === "Joueur 2")
-			return "Joueur 2";
+			return localStorage.getItem('player2Alias') || 'Joueur 2';
 		else if (winner === "Joueur 3")
-			return "Joueur 3";
+			return localStorage.getItem('player3Alias') || 'Joueur 3';
 		else
-			return "Joueur 4";
+			return localStorage.getItem('player4Alias') || 'Joueur 4';
 	}
 
 	public getPosition() {
