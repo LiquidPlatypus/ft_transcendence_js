@@ -662,6 +662,9 @@
   .max-w-full {
     max-width: 100%;
   }
+  .max-w-xl {
+    max-width: var(--container-xl);
+  }
   .table-fixed {
     table-layout: fixed;
   }
@@ -959,9 +962,6 @@ body.theme-WHITE {
   color: var(--disabled-button-text-color);
 }
 #history-pong, #history-pfc {
-  display: block;
-  flex-direction: column;
-  align-items: center;
   overflow-y: auto;
   max-height: 300px;
   scrollbar-width: thin;

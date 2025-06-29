@@ -186,6 +186,10 @@ export function showPlayerCountSelection(buttonType: ButtonType, matchType: Matc
 		</div>
 	`;
 
+	// Apply text style and listeners after rendering
+	attachTextListeners();
+	initText();
+
 	// Empêche d'appuyer sur tous les autres boutons en dehors de la div de Pong.
 	disableUnrelatedButtons('pong');
 
@@ -280,6 +284,10 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			<button id="start-${gameType}" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow justify-center">${t("begin")}</button>
 		</div>
 	`;
+
+	// Apply text style and listeners after rendering
+	attachTextListeners();
+	initText();
 
 	// Empêche d'appuyer sur les autres boutons en dehors de la div appropriée.
 	disableUnrelatedButtons(gameType);
@@ -652,6 +660,10 @@ export async function showHistory(gameType: string) {
 				window.history.back();
 			});
 		}
+
+		// After rendering the history content, re-apply text style and listeners
+		attachTextListeners();
+		initText();
 	} catch (error) {
 		historyContainer.innerHTML = `
 			<div class="flex items-center justify-center gap-2 mb-4">
@@ -867,7 +879,7 @@ export function showHome() {
 			localStorage.setItem('lang', lang);
 		}
 		if (text) {
-			localStorage.setItem('text', text);
+			localStorage.setItem('textSize', text);
 		}
 		if (theme) {
 			localStorage.setItem('theme', theme);
@@ -887,6 +899,7 @@ export function showHome() {
 		attachHomePageListeners();
 		attachLanguageListeners();
 		attachTextListeners();
+		initText();
 		initializeScreenReader();
 	}
 }

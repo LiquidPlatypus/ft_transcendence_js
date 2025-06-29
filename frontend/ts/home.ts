@@ -71,7 +71,7 @@ export function homePage() {
 		<div class="flex items-center justify-center min-h-screen px-4">
 			<div class="max-w-6xl mx-auto py-10 text-center">
 				<h1 class="font-bold mb-4 text-4xl">Pong</h1>
-				<div class="grid grid-cols-1 lg:grid-cols-2 justify-center gap-10" style="width:595.5px">
+				<div class="grid grid-cols-1 lg:grid-cols-2 justify-center gap-10 w-full mx-auto">
 					<!-- Div de Pong -->
 					<div class="rounded-lg border p-4 shadow overflow-hidden">
 						<h2 class="mb-2 text-2xl font-semibold">Pong</h2>
@@ -97,7 +97,7 @@ export function homePage() {
 				<!-- Div des historiques -->
 				<div class="mt-4">
 					<div class="mb-4 inline-block rounded-lg border p-2 shadow">
-   						 <h2 class="text-xl font-semibold">History</h2>
+   						 <h2 class="text-xl font-semibold">${t("history")}</h2>
 					</div>
 					<div class="grid grid-cols-2 gap-10">
 						<div id="history-pong" class="flex flex-col items-end gap-2">
