@@ -71,37 +71,41 @@ export function homePage() {
 		<div class="flex items-center justify-center min-h-screen px-4">
 			<div class="max-w-6xl mx-auto py-10 text-center">
 				<h1 class="font-bold mb-4 text-4xl">Pong</h1>
-				<div class="grid grid-cols-1 lg:grid-cols-2 justify-center gap-10">
-					<!-- Pong wrapper -->
-					<div class="flex flex-col items-stretch">
-						<div class="rounded-lg border p-4 shadow overflow-hidden">
-							<h2 class="mb-2 text-2xl font-semibold">Pong</h2>
-							<div id="Pong" class="grid grid-cols-2 justify-center gap-4 overflow-hidden">
-								<div class="flex justify-center">
-									<button id="match-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("match")}</button>
-								</div>
-								<div class="flex justify-center">
-									<button id="tournament-button" class="btn btn-fixed rounded-lg border shadow">${t("tournament")}</button>
-								</div>
+				<div class="grid grid-cols-1 lg:grid-cols-2 justify-center gap-10" style="width:595.5px">
+					<!-- Div de Pong -->
+					<div class="rounded-lg border p-4 shadow overflow-hidden">
+						<h2 class="mb-2 text-2xl font-semibold">Pong</h2>
+						<div id="Pong" class="grid grid-cols-2 justify-center gap-4 overflow-hidden">
+							<div class="flex justify-center">
+								<button id="match-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("match")}</button>
 							</div>
-						</div>
-						<div id="history-pong" class="flex flex-row flex-nowrap justify-center items-center gap-4 max-h-60 overflow-y-auto mt-4">
-							<button id="pong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history")}</button>
-							<button aria-label="${t("history_4")}" id="fourpong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history-4")}</button>
+							<div class="flex justify-center">
+								<button id="tournament-button" class="btn btn-fixed rounded-lg border shadow">${t("tournament")}</button>
+							</div>
 						</div>
 					</div>
-					<!-- PFC wrapper -->
-					<div class="flex flex-col items-stretch">
-						<div class="rounded-lg border p-4 shadow">
-							<h2 class="mb-2 text-2xl font-semibold">${t("pfc")}</h2>
-							<div id="pfc" class="grid grid-cols-1 justify-center gap-0">
-								<div class="flex justify-center">
-									<button id="pfc-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("play")}</button>
-								</div>
+					<!-- Div de PFC -->
+					<div class="rounded-lg border p-4 shadow">
+						<h2 class="mb-2 text-2xl font-semibold">${t("pfc")}</h2>
+						<div id="pfc" class="grid grid-cols-1 justify-center gap-0">
+							<div class="flex justify-center">
+								<button id="pfc-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("play")}</button>
 							</div>
 						</div>
-						<div id="history-pfc" class="flex flex-row flex-nowrap items-center gap-4 max-h-60 overflow-y-auto mt-4">
-							<button id="pfc-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history")}</button>
+					</div>
+				</div>
+				<!-- Div des historiques -->
+				<div class="mt-4">
+					<div class="mb-4 inline-block rounded-lg border p-2 shadow">
+   						 <h2 class="text-xl font-semibold">History</h2>
+					</div>
+					<div class="grid grid-cols-2 gap-10">
+						<div id="history-pong" class="flex flex-col items-end gap-2">
+							<button id="pong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_2")}</button>
+							<button aria-label="${t("history_4")}" id="fourpong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_4")}</button>
+						</div>
+						<div id="history-pfc" class="flex justify-start items-start">
+							<button id="pfc-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_pfc")}</button>
 						</div>
 					</div>
 				</div>

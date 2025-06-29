@@ -9,7 +9,7 @@ import { attachLanguageListeners, attachHomePageListeners } from './listeners.js
 import {disableUnrelatedButtons, GameType, MatchType} from "./Utilities.js";
 import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
-import {attachTextListeners, initText, updateTextStyles} from "./textSwitcher.js";
+import {attachTextListeners, initText} from "./textSwitcher.js";
 import {screenReader} from "./screenReader.js";
 import {navigate} from "./popstate.js";
 
@@ -116,23 +116,37 @@ function initializeScreenReader() {
 	ScreenReader.announcePageChange(t("home"));
 }
 
-// écouteur d'événements.
-document.addEventListener('DOMContentLoaded', async () => {
-	const savedLang = localStorage.getItem('lang') || 'fr';
-	await loadLanguage(savedLang as 'fr' | 'en' | 'es');
-
+// A new function to handle rendering the application
+function renderApp() {
 	const appElement = document.getElementById('app');
 	if (appElement) {
 		appElement.innerHTML = homePage();
+
+		// Attach listeners for the home page content
 		attachHomePageListeners();
 		attachLanguageListeners();
 		attachThemeListeners();
 		initTheme();
 		attachTextListeners();
-		initText()
+		initText();
 		initializeScreenReader();
 	}
-})
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+	// Listen for the 'languageChanged' event to render the app
+	document.addEventListener('languageChanged', renderApp);
+
+	// Load the initial language. This will trigger the 'languageChanged'
+	// event, which will then call renderApp() for the first time.
+	let savedLang = localStorage.getItem('lang');
+	if (savedLang !== 'en' && savedLang !== 'es') {
+		savedLang = 'fr';
+	}
+	await loadLanguage(savedLang as 'fr' | 'en' | 'es');
+
+	renderApp();
+});
 
 export type ButtonType = 'match' | 'tournoi'
 
@@ -196,8 +210,6 @@ export function showPlayerCountSelection(buttonType: ButtonType, matchType: Matc
 			showAliasInputs(playerCount, buttonType, matchType, 'pong');
 		});
 	});
-
-	updateTextStyles();
 }
 
 /**
@@ -242,7 +254,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 				<div class="mt-2 w-full">
 					<div class="flex items-center w-full">
 						<input aria-label="${t("player_alias_ph")} ${i}" type="text" id="playerAlias${i}" class="border p-2 rounded-l w-full" placeholder="${t("player")} ${i}">
-						<button id="aiToggleBtn${i}" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
+						<button aria-label="${t("AI")}" id="aiToggleBtn${i}" style="width: 42px; min-width: 42px;" class="btn !w-[42px] h-[42px] border flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-r text-sm">AI</button>
 					</div>
 				</div>
 			`;
@@ -334,7 +346,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 						const isAIEnabled = player2Input?.disabled || false;
 
 						if (!alias1 || (!isAIEnabled && !alias2)) {
-							alert('Please enter player names');
+							alert(t("missing_player_name"));
 							return;
 						}
 
@@ -477,8 +489,6 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			start_pfc(startButton, matchType);
 		}
 	}
-
-	updateTextStyles();
 }
 
 interface Match {
@@ -526,7 +536,7 @@ export async function showHistory(gameType: string) {
 		});
 		const data = await response.json();
 
-		if (gameType === 'pong' || gameType === 'fourpong')
+		if (gameType === 'pong' || gameType === 'fourpong' || gameType === 'pfc')
 			historyContainer.className = 'flex flex-col items-center max-h-60 overflow-y-auto';
 
 		// On vide d'abord le conteneur d'historique.
@@ -536,8 +546,8 @@ export async function showHistory(gameType: string) {
 		const headerDiv = document.createElement('div');
 		headerDiv.className = 'flex items-center justify-center gap-2 mb-4 mt-2';
 		headerDiv.innerHTML = `
-			<button aria-label="${t("back")}" id="back-button-${gameType}" class="little_btn rounded-lg border p-4 shadow flex items-center justify-center w-8 h-8"><span class="inline-block">&lt;</span></button>
-			<h2 class="text-xl font-semibold">${t("history")} ${gameType}</h2>
+    		<button aria-label="${t("back")}" id="back-button-${gameType}" class="btn btn-fixed rounded-lg border p-4 shadow">${t("back")}</button>
+    		<h2 class="hidden">${t("history")} ${gameType}</h2>
 		`;
 		historyContainer.appendChild(headerDiv);
 
@@ -552,18 +562,18 @@ export async function showHistory(gameType: string) {
 
 			// Afficher les matchs a 2 joueurs pour 'pong'
 			if (gameType === 'pong' && twoPlayerMatches.length > 0) {
-				const twoPlayerTitle = document.createElement('h3');
-				twoPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
-				twoPlayerTitle.textContent = `${t("2_players_matches")}`;
-				tablesDiv.appendChild(twoPlayerTitle);
 
 				twoPlayerMatches.forEach((match: Match) => {
 					const tableEl = document.createElement('table');
-					tableEl.className = 'mt-10 border-collapse border w-full text-center table-fixed';
+					tableEl.className = 'kborder-collapse border w-full text-center table-fixed';
 					tableEl.innerHTML = `
 						<tr>
-							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player1}</th>
-							<th class="bg-hist bg-hist-text border p-2 w-1/2">${match.player2}</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2" title="${match.player1}">
+								${match.player1.length > 7 ? match.player1.substring(0, 7) + '...' : match.player1}
+							</th>
+							<th class="bg-hist bg-hist-text border p-2 w-1/2" title="${match.player2}">
+								${match.player2.length > 7 ? match.player2.substring(0, 7) + '...' : match.player2}
+							</th>
 						</tr>
 						<tr>
 							<td class="border p-2">${match.player1_score}</td>
@@ -576,10 +586,7 @@ export async function showHistory(gameType: string) {
 
 			// Afficher les matchs a 4 joueurs pour 'fourpong'
 			if (gameType === 'fourpong' && fourPlayerMatches.length > 0) {
-				const fourPlayerTitle = document.createElement('h3');
-				fourPlayerTitle.className = 'text-lg font-semibold mt-4 mb-2';
-				fourPlayerTitle.textContent = `${t("4_players_matches")}`;
-				tablesDiv.appendChild(fourPlayerTitle);
+
 
 				fourPlayerMatches.forEach((match: Match) => {
 					const tableEl = document.createElement('table');
@@ -654,8 +661,6 @@ export async function showHistory(gameType: string) {
 			<p>${t("hist_error")}</p>
 		`;
 	}
-
-	updateTextStyles();
 }
 
 /**
@@ -816,8 +821,6 @@ export function startGame(playerCount: number, matchType: MatchType) {
 			}, 100);
 		}
 	}
-
-	updateTextStyles();
 }
 
 /**
@@ -860,9 +863,15 @@ export function showHome() {
 		localStorage.removeItem('player3Alias');
 		localStorage.removeItem('player4Alias');
 
-		localStorage.setItem('lang', lang);
-		localStorage.setItem('text', text);
-		localStorage.setItem('theme', theme);
+		if (lang) {
+			localStorage.setItem('lang', lang);
+		}
+		if (text) {
+			localStorage.setItem('text', text);
+		}
+		if (theme) {
+			localStorage.setItem('theme', theme);
+		}
 
 		appElement.innerHTML = homePage();
 
@@ -880,6 +889,4 @@ export function showHome() {
 		attachTextListeners();
 		initializeScreenReader();
 	}
-
-	updateTextStyles();
 }

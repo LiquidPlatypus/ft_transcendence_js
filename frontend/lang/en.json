@@ -1,7 +1,7 @@
 {
   "match": "Match",
   "tournament": "Tournament",
-  "pfc": "Paper-Scissors-Stone",
+  "pfc": "Rock-Paper-Scissors",
   "play": "Play",
   "history": "History",
   "history-4": "History 4",
@@ -75,5 +75,9 @@
 
   "normal_text": "normal text",
   "large_text": "large text",
-  "bold_text": "bold text"
+  "bold_text": "bold text",
+
+  "history_2": "2-Player",
+  "history_4": "4-Player",
+  "history_pfc": "RPS"
 }

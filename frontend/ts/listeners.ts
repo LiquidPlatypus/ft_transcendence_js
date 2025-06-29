@@ -17,7 +17,6 @@ export function attachLanguageListeners() {
 			if (!lang)
 				return ;
 			await loadLanguage(lang as 'fr' | 'en' | 'es');
-			showHome();
 		});
 	});
 }
