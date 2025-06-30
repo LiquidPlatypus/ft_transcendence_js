@@ -13,6 +13,9 @@ import setupWebsockets from './src/websockets/index.js';
 import fs from 'fs';
 import db, { setupDatabase } from './src/db.js';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 // Pour obtenir le __dirname en ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,16 +40,25 @@ fastify.setErrorHandler((error, request, reply) => {
 
 fastify.register(cors, {
 	origin: (origin, cb) => {
-		// !!!!!!!!!!!!!!!!!!!!!!!!   RESTREINDRE LORS DE LA PROD
-		cb(null, true);
+		const allowedOrigins = ['https://127.0.0.1:3000', 'https://'+process.env.IP+':3000'];
+		if (!origin || allowedOrigins.includes(origin)) {
+			cb(null, true);
+		} else {
+			cb(new Error('Not allowed'), false);
+		}
 	},
 	credentials: true
 });
 
 fastify.register(fastifyCookie);
+
 fastify.register(fastifySession, {
-	secret: '32323232323232323232323232323232',
-	cookie: { secure: false} // Changer en "true" en prod
+	secret: process.env.SESSION_SECRET,
+	cookie: {
+		secure: true,
+		httpOnly: true,
+	},
+	saveUninitialized: false
 });
 
 fastify.register(fastifyWebsocket);
