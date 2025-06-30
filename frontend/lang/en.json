@@ -4,8 +4,9 @@
   "pfc": "Rock-Paper-Scissors",
   "play": "Play",
   "history": "History",
-  "history-4": "History 4",
-  "histpry_4": "four player history",
+  "history-2": "two player history",
+  "history-4_btn": "History 4",
+  "history-4": "four player history",
   "back": "Back",
 
   "how_many_players": "How many players?",
@@ -78,8 +79,8 @@
   "bold_text": "bold text",
 
   "history_2": "2-Player",
-  "history_4": "4-Player",
-  "history_pfc": "RPS"
+  "history_4_btn": "4-Player",
+  "history_pfc": "RPS",
   "AI": "AI",
 
   "error_invalid_alias": "Invalid alias",

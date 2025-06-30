@@ -101,8 +101,8 @@ export function homePage() {
 					</div>
 					<div class="grid grid-cols-2 gap-10">
 						<div id="history-pong" class="flex flex-col items-end gap-2">
-							<button id="pong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_2")}</button>
-							<button aria-label="${t("history_4")}" id="fourpong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_4")}</button>
+							<button aria-label="${t("history-2")}" id="pong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_2")}</button>
+							<button aria-label="${t("history-4")}" id="fourpong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_4_btn")}</button>
 						</div>
 						<div id="history-pfc" class="flex justify-start items-start">
 							<button id="pfc-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_pfc")}</button>

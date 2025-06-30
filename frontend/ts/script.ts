@@ -573,7 +573,7 @@ export async function showHistory(gameType: string) {
 
 				twoPlayerMatches.forEach((match: Match) => {
 					const tableEl = document.createElement('table');
-					tableEl.className = 'kborder-collapse border w-full text-center table-fixed';
+					tableEl.className = 'border-collapse border w-full text-center table-fixed';
 					tableEl.innerHTML = `
 						<tr>
 							<th class="bg-hist bg-hist-text border p-2 w-1/2" title="${match.player1}">

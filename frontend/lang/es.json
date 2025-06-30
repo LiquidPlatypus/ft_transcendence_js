@@ -4,8 +4,8 @@
   "pfc": "Roca-Hoja-Tijeras",
   "play": "Jugar",
   "history": "Histórico",
-  "history-4": "Histórico 4",
-  "history_4": "historia de cuatro jugadores",
+  "history-2": "historia de 2 jugadores",
+  "history-4": "historia de cuatro jugadores",
   "back": "Volver",
 
   "how_many_players": "¿Cuántos jugadores?",
@@ -78,8 +78,8 @@
   "bold_text": "texto en negrita",
 
   "history_2": "2-Jugador",
-  "history_4": "4-Jugador",
-  "history_pfc": "RHT"
+  "history_4_btn": "4-Jugador",
+  "history_pfc": "RHT",
   "AI": "AI",
 
   "error_invalid_alias": "Alias no válido",
