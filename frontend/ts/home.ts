@@ -71,7 +71,7 @@ export function homePage() {
 		<div class="flex items-center justify-center min-h-screen px-4">
 			<div class="max-w-6xl mx-auto py-10 text-center">
 				<h1 class="font-bold mb-4 text-4xl">Pong</h1>
-				<div class="grid grid-cols-1 lg:grid-cols-2 justify-center gap-10">
+				<div class="grid grid-cols-1 lg:grid-cols-2 justify-center gap-10 w-full mx-auto">
 					<!-- Div de Pong -->
 					<div class="rounded-lg border p-4 shadow overflow-hidden">
 						<h2 class="mb-2 text-2xl font-semibold">Pong</h2>
@@ -95,13 +95,18 @@ export function homePage() {
 					</div>
 				</div>
 				<!-- Div des historiques -->
-				<div class="mt-4 grid grid-cols-1 lg:grid-cols-2 justify-center gap-10 flex-shrink-0">
-					<div id="history-pong" class="ml-4 grid grid-cols-1 lg:grid-cols-2 justify-center max-h-60 overflow-y-auto">
-						<button id="pong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history")}</button>
-						<button aria-label="${t("history_4")}" id="fourpong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history-4")}</button>
+				<div class="mt-4">
+					<div class="mb-4 inline-block rounded-lg border p-2 shadow">
+   						 <h2 class="text-xl font-semibold">${t("history")}</h2>
 					</div>
-					<div id="history-pfc" class="flex flex-cols items-center max-h-60 overflow-y-auto">
-						<button id="pfc-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history")}</button>
+					<div class="grid grid-cols-2 gap-10">
+						<div id="history-pong" class="flex flex-col items-end gap-2">
+							<button id="pong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_2")}</button>
+							<button aria-label="${t("history_4")}" id="fourpong-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_4")}</button>
+						</div>
+						<div id="history-pfc" class="flex justify-start items-start">
+							<button id="pfc-hist-btn" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow">${t("history_pfc")}</button>
+						</div>
 					</div>
 				</div>
 			</div>

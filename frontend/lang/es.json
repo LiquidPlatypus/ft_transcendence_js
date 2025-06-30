@@ -76,6 +76,10 @@
   "normal_text": "texto normal",
   "large_text": "texto grande",
   "bold_text": "texto en negrita",
+
+  "history_2": "2-Jugador",
+  "history_4": "4-Jugador",
+  "history_pfc": "RHT"
   "AI": "AI",
 
   "error_invalid_alias": "Alias no válido",

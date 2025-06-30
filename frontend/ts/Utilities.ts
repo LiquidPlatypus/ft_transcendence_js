@@ -127,6 +127,12 @@ export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
 		</div>
 	`;
 
+	// Apply text style and listeners after rendering
+	import('./textSwitcher.js').then(({ attachTextListeners, initText }) => {
+		attachTextListeners();
+		initText();
+	});
+
 	// Empêche d'appuyer sur tous les autres boutons en dehors de la div actuelle.
 	disableUnrelatedButtons(gameType);
 

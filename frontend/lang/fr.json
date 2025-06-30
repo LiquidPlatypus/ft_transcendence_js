@@ -5,7 +5,9 @@
   "play": "Jouer",
   "history": "Historique",
   "history-4": "Hist. 4",
-  "history_4": "Historique 4 joueurs",
+  "history_4": "4-Joueurs",
+  "history_2": "2-Joueurs",
+  "history_pfc": "PFC",
   "back": "Retour",
 
   "how_many_players": "Combien de joueurs ?",
