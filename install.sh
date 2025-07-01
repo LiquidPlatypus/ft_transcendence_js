@@ -17,14 +17,14 @@ cd ..
 
 # --- Vérification et configuration du .env ---
 
-# Le build échouera si le fichier .env ou le SECRET sont manquants.
+# Le build échouera si le fichier .env ou le SESSION_SECRET sont manquants.
 if [ ! -f backend/.env ]; then
   echo "ERREUR: Fichier backend/.env manquant. Il doit être créé avant le build." >&2
   exit 1
 fi
 
-if ! grep -q '^SECRET=' backend/.env; then
-  echo "ERREUR: Variable SECRET manquante dans backend/.env." >&2
+if ! grep -q '^SESSION_SECRET=' backend/.env; then
+  echo "ERREUR: Variable SESSION_SECRET manquante dans backend/.env." >&2
   exit 1
 fi
 
