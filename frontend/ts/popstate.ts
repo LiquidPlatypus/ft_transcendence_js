@@ -107,8 +107,4 @@ window.addEventListener('popstate', (event) => {
 	}
 });
 
-if (history.state?.path) {
-	handleRoute(history.state.path);
-} else {
-	navigate('/home');
-}
+handleRoute(window.location.pathname);
