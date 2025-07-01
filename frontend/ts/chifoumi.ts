@@ -34,13 +34,16 @@ export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 }
 
 export async function showPFCMatch(matchType: MatchType) {
-	const player1 = (document.getElementById("playerAlias1") as HTMLInputElement).value;
-	const player2 = (document.getElementById("playerAlias2") as HTMLInputElement).value;
+	const player1Input = (document.getElementById("playerAlias1") as HTMLInputElement);
+	const player2Input = (document.getElementById("playerAlias2") as HTMLInputElement);
 	
-	if (!player1 || !player2) {
+	if (!player1Input || !player2Input) {
 		navigate('/chifoumi/select/players');
 		return;
 	}
+
+	const player1 = player1Input.value;
+	const player2 = player2Input.value;
 
 	console.log(`Match entre ${player1} et ${player2}`);
 
