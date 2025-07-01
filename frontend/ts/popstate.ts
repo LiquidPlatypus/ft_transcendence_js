@@ -64,8 +64,8 @@ const routes: Record<string, RouteHandler> = {
 		showPFCMatch('bonus');
 	},
 };
-export function navigate(path: string) {
-	if (path === '/home') {
+export function navigate(path: string, options?: { replace: boolean }) {
+	if (options?.replace || path === '/home') {
 		history.replaceState({ path }, '', path);
 	} else {
 		history.pushState({ path }, '', path); // ajoute une entrée
