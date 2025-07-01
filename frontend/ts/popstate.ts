@@ -57,11 +57,11 @@ const routes: Record<string, RouteHandler> = {
 	},
 
 	'/chifoumi/game/normal': () => {
-		showPFCMatch('normal');
+		showAliasInputs(2, 'match', 'normal', 'pfc');
 	},
 
 	'/chifoumi/game/bonus': () => {
-		showPFCMatch('bonus');
+		showAliasInputs(2, 'match', 'bonus', 'pfc');
 	},
 };
 export function navigate(path: string) {
