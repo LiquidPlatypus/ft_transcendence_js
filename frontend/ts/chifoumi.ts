@@ -29,6 +29,7 @@ export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
 		console.log("start_pf called with matchType:", matchType);
 		navigate('/chifoumi/game/' + matchType);
+		await showPFCMatch(matchType);
 	});
 }
 
@@ -48,13 +49,13 @@ export async function showPFCMatch(matchType: MatchType) {
 
 	try {
 		// Créer les joueurs dans le back.
-		const player1Response = await fetch('api/players', {
+		const player1Response = await fetch('/api/players', {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({name: player1}),
 		}).then(res => res.json());
 
-		const player2Response = await fetch('api/players', {
+		const player2Response = await fetch('/api/players', {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({name: player2}),
@@ -62,7 +63,7 @@ export async function showPFCMatch(matchType: MatchType) {
 
 		if (player1Response.success && player2Response.success) {
 			// Créer le match dans le back.
-			const matchResponse = await fetch("api/players/match", {
+			const matchResponse = await fetch("/api/players/match", {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
 				body: JSON.stringify({
