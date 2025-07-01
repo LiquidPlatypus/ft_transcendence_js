@@ -359,7 +359,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 							return;
 						}
 
-						if (isValidString(alias1) || isValidString(alias2)) {
+						if (!isValidString(alias1) || !isValidString(alias2)) {
 							alert(t("error_invalid_alias") + "\n" + t("error_alias_format"));
 							return;
 						}
@@ -432,7 +432,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 							return;
 						}
 
-						if (isValidString(alias1) || isValidString(alias2)|| isValidString(alias3)|| isValidString(alias4)) {
+						if (!isValidString(alias1) || !isValidString(alias2)|| !isValidString(alias3)|| !isValidString(alias4)) {
 							alert(t("error_invalid_alias") + "\n" + t("error_alias_format"));
 							return;
 						}

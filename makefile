@@ -1,5 +1,10 @@
 .PHONY: all install build start dev frontend-dev backend-dev test clean tailwind
 
+docker:
+	@cd backend/ && npm rebuild better-sqlite3
+	@cd ../
+	@docker build -t transcendence-app . && docker run -p 3000:3000 transcendence-app
+
 # Install all dependencies
 install:
 	@echo "Installing all dependencies..."
