@@ -1,9 +1,9 @@
 .PHONY: all install build start dev frontend-dev backend-dev test clean tailwind
 
 docker:
-	@cd backend/ && npm rebuild better-sqlite3
-	@cd ../
-	@docker build -t transcendence-app . && docker run -p 3000:3000 transcendence-app
+	cd backend/ && npm rebuild better-sqlite3
+	cd ../
+	docker build -t transcendence-app . > build_log.txt 2>&1 && docker run -p 3000:3000 transcendence-app
 
 # Install all dependencies
 install:
@@ -54,8 +54,6 @@ clean:
 	@rm -rf frontend/node_modules
 	@echo "Cleaning frontend compiled files..."
 	@rm -rf frontend/dist
-	@echo "Removing backend/.env..."
-	@rm -f backend/.env
 
 # Default target: install, build, and start
 all: install start
