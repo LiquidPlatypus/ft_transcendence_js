@@ -7,13 +7,13 @@ export function homePage() {
 			<!-- Boutons pour choisir sa langue. -->
 			<div class="flex gap-2">
 				<button aria-label="français" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="fr">
-					<img src="../static/fr.png" alt="français" class="w-8 h-6 rounded object-cover">
+					<img src="/static/fr.png" alt="français" class="w-8 h-6 rounded object-cover">
 				</button>
 				<button aria-label="english" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="en">
-					<img src="../static/en.png" alt="English" class="w-8 h-6 rounded object-cover">
+					<img src="/static/en.png" alt="English" class="w-8 h-6 rounded object-cover">
 				</button>
 				<button aria-label="español" class="transition rounded hover:brightness-110 focus:ring-2 focus:ring-accent" data-lang="es">
-					<img src="../static/es.png" alt="español" class="w-8 h-6 rounded object-cover">
+					<img src="/static/es.png" alt="español" class="w-8 h-6 rounded object-cover">
 				</button>
 			</div>
 		</div>
@@ -59,7 +59,7 @@ export function homePage() {
 					title="Activer/Désactiver le lecteur d'écran"
 					role="switch"
 					aria-pressed="false">
-				<img src="../static/megaphone.png" 
+				<img src="/static/megaphone.png" 
 					 alt="${t("enable_screen_reader")}" 
 					 class="w-8 h-6 rounded object-cover"
 					 aria-hidden="true">
