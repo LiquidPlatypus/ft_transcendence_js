@@ -82,8 +82,8 @@ setupWebsockets(fastify);
 
 // ADDED this handler to serve index.html for any page that is not an API route or a static file.
 // This is the fix for the 404 error on refresh for SPA routes.
-fastify.setNotFoundHandler((request, reply) => {
-	return reply.sendFile('index.html');
+fastify.setNotFoundHandler((_request, reply) => {
+	return reply.sendFile('index.html');s
 });
 
 
