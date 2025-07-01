@@ -54,6 +54,8 @@ clean:
 	@rm -rf frontend/node_modules
 	@echo "Cleaning frontend compiled files..."
 	@rm -rf frontend/dist
+	@echo "Removing backend/.env..."
+	@rm -f backend/.env
 
 # Default target: install, build, and start
 all: install start
