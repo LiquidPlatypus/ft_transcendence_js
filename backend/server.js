@@ -1,4 +1,4 @@
-import Fastify from 'fastify'
+import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyStatic from '@fastify/static';
@@ -62,6 +62,9 @@ fastify.register(fastifySession, {
 });
 
 fastify.register(fastifyWebsocket);
+
+// This static plugin serves all your frontend files.
+// The path is correct for your structure: from /backend up to / and into /frontend.
 fastify.register(fastifyStatic, {
 	root: path.join(__dirname, '../frontend'),
 	prefix: '/'
@@ -75,9 +78,14 @@ fastify.register(tournamentRoutes, { prefix: '/api/tournaments' });
 // Config WebSockets
 setupWebsockets(fastify);
 
-fastify.get('/', async (request, reply) => {
+// REMOVED the specific fastify.get('/', ...) route as it's no longer needed.
+
+// ADDED this handler to serve index.html for any page that is not an API route or a static file.
+// This is the fix for the 404 error on refresh for SPA routes.
+fastify.setNotFoundHandler((request, reply) => {
 	return reply.sendFile('index.html');
 });
+
 
 const start = async () => {
 	try {
