@@ -88,7 +88,7 @@ export function onNavigate(listener: NavigateListener): () => void {
 	};
 }
 
-function handleRoute(path: string) {
+export function handleRoute(path: string) {
 	const handler = routes[path];
 	if (handler) {
 		handler();
@@ -107,4 +107,4 @@ window.addEventListener('popstate', (event) => {
 	}
 });
 
-handleRoute(window.location.pathname);
+//handleRoute(window.location.pathname);

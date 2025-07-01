@@ -11,7 +11,7 @@ import {start_pfc} from "./chifoumi.js";
 import { attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
 import {screenReader} from "./screenReader.js";
-import {navigate} from "./popstate.js";
+import {handleRoute, navigate} from "./popstate.js";
 import {isValidString} from "./sanitize.js";
 
 // At the top of the file, add a global variable to store the current game instance
@@ -147,6 +147,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 	await loadLanguage(savedLang as 'fr' | 'en' | 'es');
 
 	renderApp();
+
+	handleRoute(window.location.pathname);
 });
 
 export type ButtonType = 'match' | 'tournoi'
