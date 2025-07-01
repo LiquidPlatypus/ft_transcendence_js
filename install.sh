@@ -1,35 +1,46 @@
 #!/bin/bash
 
-echo "Installation des dépendances du backend..."
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
+# --- Installation des dépendances ---
 cd backend
-npm install
+npm install --quiet --no-progress
 npm audit fix --force
 cd ..
 
-echo "Installation des dépendances du frontend..."
 cd frontend
-npm install
+npm install --quiet --no-progress
 npx tsc
 npm audit fix --force
 cd ..
 
-echo "Initialisation du .env ..."
+# --- Vérification et configuration du .env ---
+
+# Le build échouera si le fichier .env ou le SECRET sont manquants.
 if [ ! -f backend/.env ]; then
-  read -sp "Entrez votre SECRET pour l'API (sera stocké dans backend/.env): " SECRET_KEY
-  echo
-  echo "PORT=3000" > backend/.env
-  echo "URL_ALLOWED=https://localhost:3000, https://127.0.0.1:3000" >> backend/.env
-  local_ip=$(hostname -I | awk '{print $1}')
-  echo "IP=$local_ip" >> backend/.env
-  echo "SECRET=$SECRET_KEY" >> backend/.env
-  echo ".env créé avec votre secret."
-elif ! grep -q '^SECRET=' backend/.env; then
-  read -sp "Aucun SECRET trouvé dans backend/.env. Entrez votre SECRET pour l'ajouter : " SECRET_KEY
-  echo
-  echo "SECRET=$SECRET_KEY" >> backend/.env
-  echo "SECRET ajouté à backend/.env."
-else
-  echo "backend/.env existe déjà et contient un SECRET. Aucun changement."
+  echo "ERREUR: Fichier backend/.env manquant. Il doit être créé avant le build." >&2
+  exit 1
 fi
 
-echo "Installation terminée."
+if ! grep -q '^SECRET=' backend/.env; then
+  echo "ERREUR: Variable SECRET manquante dans backend/.env." >&2
+  exit 1
+fi
+
+# --- Ajout des variables manquantes (si nécessaire) ---
+
+# Ajoute PORT si non présent
+if ! grep -q '^PORT=' backend/.env; then
+  echo "PORT=3000" >> backend/.env
+fi
+
+# Ajoute URL_ALLOWED si non présent
+if ! grep -q '^URL_ALLOWED=' backend/.env; then
+  echo "URL_ALLOWED=https://localhost:3000, https://127.0.0.1:3000" >> backend/.env
+fi
+
+# Ajoute une IP statique (127.0.0.1) si non présente
+if ! grep -q '^IP=' backend/.env; then
+  echo "IP=127.0.0.1" >> backend/.env
+fi

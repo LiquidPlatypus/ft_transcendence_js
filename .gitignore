@@ -1,4 +1,4 @@
-.env
+/backend/.env
 /frontend/dist/ts/*.js
 /frontend/dist/lang/*.js
 /backend/node_modules/
