@@ -3,7 +3,7 @@
 docker:
 	cd backend/ && npm rebuild better-sqlite3
 	cd ../
-	docker build -t transcendence-app . > build_log.txt 2>&1 && docker run -p 3000:3000 transcendence-app
+	docker build -t transcendence-app . && docker run -p 3000:3000 transcendence-app
 
 # Install all dependencies
 install:
