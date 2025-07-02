@@ -37,7 +37,7 @@ export async function showPFCMatch(matchType: MatchType) {
 	const player2Input = (document.getElementById("playerAlias2") as HTMLInputElement);
 	
 	if (!player1Input || !player2Input) {
-		navigate('/chifoumi/game/'+matchType, {replace: true});
+		navigate('/chifoumi/select/players', {replace: true});
 		return;
 	}
 
