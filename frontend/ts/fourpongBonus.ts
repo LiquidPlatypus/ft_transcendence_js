@@ -1252,7 +1252,7 @@ class Ball extends Entity{
 			let normalizedY = relativeY / (player1.height / 2);  // Normalisation de la position verticale.
 			this.xVal = 1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
-
+			this.lastTouchedBy = 'player1';
 			screenReader.getInstance().handleLeftPaddleHit();
 		}
 
@@ -1265,7 +1265,7 @@ class Ball extends Entity{
 			let normalizedY = relativeY / (player2.height / 2);  // Normalisation de la position verticale.
 			this.xVal = -1;
 			this.yVal = normalizedY * 1.2;  // Ajuste l'angle en fonction de la collision.
-
+			this.lastTouchedBy = 'player2';
 			screenReader.getInstance().handleRightPaddleHit();
 		}
 
@@ -1278,7 +1278,7 @@ class Ball extends Entity{
 			let normalizedX = relativeX / (player3.width / 2);
 			this.yVal = 1;
 			this.xVal = normalizedX * 1.2;
-
+			this.lastTouchedBy = 'player3';
 			screenReader.getInstance().handleUpPaddleHit();
 		}
 
@@ -1291,7 +1291,7 @@ class Ball extends Entity{
 			let normalizedX = relativeX / (player4.width / 2);
 			this.yVal = -1;
 			this.xVal = normalizedX * 1.2;
-
+			this.lastTouchedBy = 'player4';
 			screenReader.getInstance().handleDownPaddleHit();
 		}
 
