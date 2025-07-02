@@ -65,6 +65,10 @@ const routes: Record<string, RouteHandler> = {
 	},
 };
 export function navigate(path: string, options?: { replace: boolean }) {
+	if (options?.replace) {
+		history.replaceState({ path }, '', path);
+		history.replaceState({ path }, '', path);
+	}
 	if (options?.replace || path === '/home') {
 		history.replaceState({ path }, '', path);
 	} else {
