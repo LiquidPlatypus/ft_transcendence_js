@@ -65,13 +65,8 @@ const routes: Record<string, RouteHandler> = {
 	},
 };
 export function navigate(path: string, options?: { replace: boolean }) {
-	if (options?.replace) {
-		console.log("going to search");
-		history.replaceState({ path }, '', path);
-		history.pushState({ path }, '', path);
-	}
 	if (options?.replace || path === '/home') {
-		history.replaceState({ path }, '', path);
+		window.history.back();
 	} else {
 		history.pushState({ path }, '', path); // ajoute une entrée
 	}
