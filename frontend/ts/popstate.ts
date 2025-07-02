@@ -66,7 +66,7 @@ const routes: Record<string, RouteHandler> = {
 };
 export function navigate(path: string, options?: { replace: boolean }) {
 	if (options?.replace || path === '/home') {
-		window.history.back();
+		history.replaceState({ path }, '', path);
 	} else {
 		history.pushState({ path }, '', path); // ajoute une entrée
 	}
