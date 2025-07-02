@@ -1,6 +1,6 @@
 {
-  "match": "Match",
-  "tournament": "Tournament",
+  "match": "Classic",
+  "tournament": "Tourney",
   "pfc": "Rock-Paper-Scissors",
   "play": "Play",
   "history": "History",

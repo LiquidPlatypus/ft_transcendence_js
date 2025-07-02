@@ -77,7 +77,7 @@ export function homePage() {
 						<h2 class="mb-2 text-2xl font-semibold">Pong</h2>
 						<div id="Pong" class="grid grid-cols-2 justify-center gap-4 overflow-hidden">
 							<div class="flex justify-center">
-								<button id="match-button" class="btn btn-fixed rounded-lg border p-4 shadow">${t("match")}</button>
+								<button id="match-button" class="btn btn-fixed rounded-lg border p-4 shadow flex justify-center">${t("match")}</button>
 							</div>
 							<div class="flex justify-center">
 								<button id="tournament-button" class="btn btn-fixed rounded-lg border shadow">${t("tournament")}</button>
