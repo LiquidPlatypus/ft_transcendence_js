@@ -29,7 +29,6 @@ export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
 	startButton.addEventListener("click", async () => {
 		console.log("start_pf called with matchType:", matchType);
 		navigate('/chifoumi/game/' + matchType);
-		await showPFCMatch(matchType);
 	});
 }
 
