@@ -38,8 +38,7 @@ export async function showPFCMatch(matchType: MatchType) {
 	const player2Input = (document.getElementById("playerAlias2") as HTMLInputElement);
 	
 	if (!player1Input || !player2Input) {
-		history.replaceState({ path: '/chifoumi/select/players' }, '', '/chifoumi/select/players');
-		handleRoute('/chifoumi/select/players');
+		navigate('/chifoumi/select/players', { replace: true });
 		return;
 	}
 
