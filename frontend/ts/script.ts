@@ -284,7 +284,7 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 			${inputsHTML}
 		</div>
 		<div class="flex justify-center">
-			<button id="start-${gameType}" class="btn btn-fixed rounded-lg border p-1 pe-1 shadow justify-center">${t("begin")}</button>
+			<button id="start-${gameType}" class="btn rounded-lg border px-4 py-2 shadow justify-center">${t("begin")}</button>
 		</div>
 	`;
 
