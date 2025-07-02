@@ -10,7 +10,7 @@
 
   "how_many_players": "¿Cuántos jugadores?",
   "players_count": "{{count}} jugadores",
-  "players_names": "Nombres de jugadores",
+  "players_names": "número de jugadores",
 
   "player": "Jugador",
   "player_alias_ph": "Alias del jugador",
@@ -33,12 +33,12 @@
 
   "equality": "¡Igualdad!",
   "score": "Puntaje",
-  "between": "Entre el jugador 1 y playerr 2",
+  "between": "Entre el jugador 1 y jugador 2",
   "error_match_creation": "Error durante la creación de partidas",
   "error_score_save": "Error durante el registro de partituras",
   "wins_round": "¡gana la ronda!",
-  "wins_equalized": "gagne la manche avec bonus égalisateur!",
-  "bonus_equalizer": "bonus égalisateur",
+  "wins_equalized": "¡Gana la ronda con bonificación de igualación!",
+  "bonus_equalizer": "bono ecualizador",
 
   "select_game_mode": "Modo de juego",
   "normal": "Normal",
