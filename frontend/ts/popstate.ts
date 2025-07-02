@@ -95,6 +95,7 @@ export function handleRoute(path: string) {
 }
 
 window.addEventListener('popstate', (event) => {
+	navigateListeners.forEach(listener => listener());
 	const state = event.state as { path?: string } | null;
 	if (state?.path) {
 		handleRoute(state.path);
