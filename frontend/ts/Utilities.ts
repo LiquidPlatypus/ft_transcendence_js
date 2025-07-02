@@ -169,9 +169,6 @@ export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
 				});
 			} else if (game === 'pfc') {
 				navigate('/chifoumi/select/players');
-				import('./script.js').then(module => {
-					module.showAliasInputs(2, buttonType, matchType, game);
-				});
 			}
 		});
 	});
