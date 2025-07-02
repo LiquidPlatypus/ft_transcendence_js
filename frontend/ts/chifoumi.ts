@@ -3,7 +3,7 @@ import {t} from "../lang/i18n.js";
 import {MatchType} from "./Utilities.js";
 import {screenReader} from "./screenReader.js"
 import {isValidString} from "./sanitize.js";
-import { handleRoute, navigate } from "./popstate.js";
+import { navigate } from "./popstate.js";
 
 type Choix = 'pierre' | 'feuille' | 'ciseaux';
 
@@ -37,6 +37,7 @@ export async function showPFCMatch(matchType: MatchType) {
 	const player2Input = (document.getElementById("playerAlias2") as HTMLInputElement);
 	
 	if (!player1Input || !player2Input) {
+		console.log("refreshing to select players");
 		navigate('/chifoumi/select/players', {replace: true});
 		return;
 	}
