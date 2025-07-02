@@ -7,12 +7,12 @@ import { GameFourBonus, Paddle2 as Paddle2FourBonus, Paddle3 as Paddle3Bonus, Pa
 import { loadLanguage, t } from '../lang/i18n.js';
 import { attachLanguageListeners, attachHomePageListeners } from './listeners.js'
 import {disableUnrelatedButtons, GameType, MatchType} from "./Utilities.js";
-import {start_pfc} from "./chifoumi.js";
-import { attachThemeListeners, initTheme } from './themeSwitcher.js';
+import {attachThemeListeners, initTheme } from './themeSwitcher.js';
 import {attachTextListeners, initText} from "./textSwitcher.js";
 import {screenReader} from "./screenReader.js";
 import {handleRoute, navigate} from "./popstate.js";
 import {isValidString} from "./sanitize.js";
+import {init, init_bonus} from "./chifoumi.js";
 
 // At the top of the file, add a global variable to store the current game instance
 let currentGameInstance: any = null;
@@ -507,7 +507,56 @@ export function showAliasInputs(playerCount: number, buttonType: ButtonType, mat
 				startButton.addEventListener('click', startTournament);
 			}
 		} else if (gameType === 'pfc') {
-			start_pfc(startButton, matchType);
+			startButton.onclick = async () => {
+				const player1Input = document.getElementById("playerAlias1") as HTMLInputElement;
+				const player2Input = document.getElementById("playerAlias2") as HTMLInputElement;
+				const player1 = player1Input.value;
+				const player2 = player2Input.value;
+
+				if (!isValidString(player1) || !isValidString(player2)) {
+					alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
+					return;
+				}
+
+				localStorage.setItem('player1Alias', player1);
+				localStorage.setItem('player2Alias', player2);
+
+				try {
+					const player1Response = await fetch('/api/players', {
+						method: 'POST',
+						headers: {'Content-Type': 'application/json'},
+						body: JSON.stringify({name: player1}),
+					}).then(res => res.json());
+
+					const player2Response = await fetch('/api/players', {
+						method: 'POST',
+						headers: {'Content-Type': 'application/json'},
+						body: JSON.stringify({name: player2}),
+					}).then(res => res.json());
+
+					if (player1Response.success && player2Response.success) {
+						const matchResponse = await fetch("/api/players/match", {
+							method: 'POST',
+							headers: {'Content-Type': 'application/json'},
+							body: JSON.stringify({
+								player1Id: player1Response.id,
+								player2Id: player2Response.id,
+								gameType: 'pfc'
+							}),
+						}).then(res => res.json());
+
+						if (matchResponse.success) {
+							localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
+							if (matchType === 'normal')
+								init();
+							else if (matchType === 'bonus')
+								init_bonus();
+						}
+					}
+				} catch (error) {
+					console.error("Failed to start PFC match:", error);
+				}
+			}
 		}
 	}
 }

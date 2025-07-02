@@ -1,6 +1,5 @@
 import { showAliasInputs, showHistory, showHome, showPlayerCountSelection } from "./script.js";
 import { matchTypeChoice } from "./Utilities.js";
-import {showPFCMatch} from "./chifoumi.js";
 
 type RouteHandler = () => void;
 
@@ -52,17 +51,14 @@ const routes: Record<string, RouteHandler> = {
 		matchTypeChoice('match', 'pfc');
 	},
 
-	'/chifoumi/select/players': () => {
+	'/chifoumi/normal/select/players': () => {
 		showAliasInputs(2, 'match', 'normal', 'pfc');
 	},
 
-	'/chifoumi/game/normal': () => {
-		showPFCMatch('normal');
+	'/chifoumi/bonus/select/players': () => {
+		showAliasInputs(2, 'match', 'bonus', 'pfc');
 	},
 
-	'/chifoumi/game/bonus': () => {
-		showPFCMatch('bonus');
-	},
 };
 export function navigate(path: string, options?: { replace: boolean }) {
 	if (options?.replace || path === '/home') {

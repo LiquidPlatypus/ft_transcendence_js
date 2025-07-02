@@ -25,72 +25,6 @@ const touchesJ2: Record<string, Choix> = { j: 'pierre', k: 'feuille', l: 'ciseau
 
 const ScreenReader = screenReader.getInstance();
 
-export function start_pfc(startButton: HTMLElement, matchType: MatchType) {
-	startButton.addEventListener("click", async () => {
-		console.log("start_pf called with matchType:", matchType);
-		navigate('/chifoumi/game/' + matchType);
-	});
-}
-
-export async function showPFCMatch(matchType: MatchType) {
-	const player1Input = (document.getElementById("playerAlias1") as HTMLInputElement);
-	const player2Input = (document.getElementById("playerAlias2") as HTMLInputElement);
-	
-	if (!player1Input || !player2Input) {
-		navigate('/chifoumi/select/players', {replace: true});
-		return;
-	}
-
-	const player1 = player1Input.value;
-	const player2 = player2Input.value;
-
-	console.log(`Match entre ${player1} et ${player2}`);
-
-	if (!isValidString(player1) || !isValidString(player2)) {
-		alert("" + t("error_invalid_alias") + "\n" + t("error_alias_format"));
-		return ;
-	}
-
-	// Stock les alias dans le localStorage.
-	localStorage.setItem('player1Alias', player1);
-	localStorage.setItem('player2Alias', player2);
-
-	try {
-		// Créer les joueurs dans le back.
-		const player1Response = await fetch('/api/players', {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({name: player1}),
-		}).then(res => res.json());
-
-		const player2Response = await fetch('/api/players', {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({name: player2}),
-		}).then(res => res.json());
-
-		if (player1Response.success && player2Response.success) {
-			// Créer le match dans le back.
-			const matchResponse = await fetch("/api/players/match", {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({
-					player1Id: player1Response.id,
-					player2Id: player2Response.id,
-					gameType: 'pfc'
-				}),
-			}).then(res => res.json());
-
-			if (matchResponse.success) {
-				localStorage.setItem('currentMatchId', matchResponse.matchId.toString());
-				if (matchType === 'normal')
-					init();
-				else if (matchType === 'bonus')
-					init_bonus();
-			}
-		}
-	} catch (error) {}
-}
 
 function creerElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, textContent?: string): HTMLElementTagNameMap[K] {
 	const el = document.createElement(tag);
@@ -102,7 +36,7 @@ function creerElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?:
 /**
  * @brief Gere le pfc.
  */
-function init() {
+export function init() {
 	scoreJ1 = 0;
 	scoreJ2 = 0;
 	choixJ1 = null;
@@ -293,7 +227,7 @@ function getChoixTranslationKey(choix: Choix): string {
 
 
 
-function init_bonus() {
+export function init_bonus() {
 	scoreJ1 = 0;
 	scoreJ2 = 0;
 	choixJ1 = null;

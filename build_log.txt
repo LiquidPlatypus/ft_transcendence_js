@@ -1,0 +1,107 @@
+#0 building with "orbstack" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 294B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:20.19-alpine
+#2 DONE 0.8s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/8] FROM docker.io/library/node:20.19-alpine@sha256:674181320f4f94582c6182eaa151bf92c6744d478be0f1d12db804b7d59b2d11
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 18.62MB 0.2s done
+#5 DONE 0.3s
+
+#6 [2/8] WORKDIR /app
+#6 CACHED
+
+#7 [3/8] COPY . .
+#7 DONE 0.7s
+
+#8 [4/8] RUN apk add --no-cache bash
+#8 0.095 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/main/aarch64/APKINDEX.tar.gz
+#8 0.404 fetch https://dl-cdn.alpinelinux.org/alpine/v3.22/community/aarch64/APKINDEX.tar.gz
+#8 0.841 (1/4) Installing ncurses-terminfo-base (6.5_p20250503-r0)
+#8 0.876 (2/4) Installing libncursesw (6.5_p20250503-r0)
+#8 0.928 (3/4) Installing readline (8.2.13-r1)
+#8 0.974 (4/4) Installing bash (5.2.37-r0)
+#8 1.091 Executing bash-5.2.37-r0.post-install
+#8 1.095 Executing busybox-1.37.0-r18.trigger
+#8 1.103 OK: 14 MiB in 22 packages
+#8 DONE 1.2s
+
+#9 [5/8] RUN chmod +x ./install.sh
+#9 DONE 0.1s
+
+#10 [6/8] RUN ./install.sh
+#10 0.088 --- Installing backend dependencies ---
+#10 0.675 
+#10 0.675 up to date, audited 163 packages in 538ms
+#10 0.675 
+#10 0.675 43 packages are looking for funding
+#10 0.675   run `npm fund` for details
+#10 0.677 
+#10 0.677 found 0 vulnerabilities
+#10 0.679 npm notice
+#10 0.679 npm notice New major version of npm available! 10.8.2 -> 11.4.2
+#10 0.679 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.2
+#10 0.679 npm notice To update run: npm install -g npm@11.4.2
+#10 0.679 npm notice
+#10 0.754 npm warn using --force Recommended protections disabled.
+#10 1.492 
+#10 1.492 up to date, audited 163 packages in 754ms
+#10 1.492 
+#10 1.492 43 packages are looking for funding
+#10 1.492   run `npm fund` for details
+#10 1.495 
+#10 1.495 found 0 vulnerabilities
+#10 1.504 --- Installing frontend dependencies ---
+#10 3.472 
+#10 3.472 added 6 packages, and audited 294 packages in 2s
+#10 3.472 
+#10 3.472 42 packages are looking for funding
+#10 3.472   run `npm fund` for details
+#10 3.473 
+#10 3.473 found 0 vulnerabilities
+#10 4.743 npm warn using --force Recommended protections disabled.
+#10 5.503 
+#10 5.503 up to date, audited 294 packages in 776ms
+#10 5.503 
+#10 5.503 42 packages are looking for funding
+#10 5.503   run `npm fund` for details
+#10 5.505 
+#10 5.505 found 0 vulnerabilities
+#10 5.512 --- Configuring .env file ---
+#10 5.512 SESSION_SECRET found.
+#10 5.513 Adding PORT to .env file...
+#10 5.514 Adding URL_ALLOWED to .env file...
+#10 5.515 Adding IP to .env file...
+#10 5.515 --- .env configuration finished ---
+#10 5.515 --- Final content of backend/.env (as seen by the script): ---
+#10 5.515 SESSION_SECRET="jesuisunegrosseputesicamarchepasmaintenant"
+#10 5.515 PORT=3000
+#10 5.515 URL_ALLOWED=https://localhost:3000, https://127.0.0.1:3000
+#10 5.515 IP=127.0.0.1
+#10 5.515 ---------------------------------------------------------
+#10 DONE 5.6s
+
+#11 [7/8] RUN cd backend && npm rebuild better-sqlite3
+#11 1.553 rebuilt dependencies successfully
+#11 DONE 1.6s
+
+#12 [8/8] RUN npm cache clean --force
+#12 0.175 npm warn using --force Recommended protections disabled.
+#12 DONE 0.3s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 0.5s done
+#13 writing image sha256:fccec4ac963c1114e006b5a9fa4163786495a2c2c0787f54d19fbdc38ed050cd done
+#13 naming to docker.io/library/transcendence-app done
+#13 DONE 0.5s

@@ -165,7 +165,7 @@ export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
 			if (game === 'pong') {
 				navigate('/pong/'+matchType+'/playerSize');
 			} else if (game === 'pfc') {
-				navigate('/chifoumi/select/players');
+				navigate('/chifoumi/'+matchType+'/select/players');
 			}
 		});
 	});
