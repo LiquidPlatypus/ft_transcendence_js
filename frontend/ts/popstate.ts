@@ -66,6 +66,7 @@ const routes: Record<string, RouteHandler> = {
 };
 export function navigate(path: string, options?: { replace: boolean }) {
 	if (options?.replace) {
+		console.log("going to search");
 		history.replaceState({ path }, '', path);
 		history.replaceState({ path }, '', path);
 	}
