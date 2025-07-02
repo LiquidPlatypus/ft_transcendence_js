@@ -38,7 +38,7 @@ export async function showPFCMatch(matchType: MatchType) {
 	
 	if (!player1Input || !player2Input) {
 		console.log("refreshing to select players");
-		navigate('/chifoumi/select/players', {replace: true});
+		navigate('/chifoumi/select/players', {replace: false});
 		return;
 	}
 

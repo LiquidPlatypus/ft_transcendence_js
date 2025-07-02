@@ -65,12 +65,9 @@ const routes: Record<string, RouteHandler> = {
 	},
 };
 export function navigate(path: string, options?: { replace: boolean }) {
-	console.log(`Navigating to ${path}`);
 	if (options?.replace || path === '/home') {
-		console.log(`replacing state for ${path}`);
 		history.replaceState({ path }, '', path);
 	} else {
-		console.log(`pushing state for ${path}`);
 		history.pushState({ path }, '', path); // ajoute une entrée
 	}
 	// Déclenchez les écouteurs *avant* d'appeler handleRoute, car handleRoute change le contenu
