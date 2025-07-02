@@ -7,6 +7,7 @@ set -e
 echo "--- Installing backend dependencies ---"
 cd backend
 npm install --quiet --no-progress
+npm install dotenv
 npm audit fix --force
 cd ..
 
