@@ -164,9 +164,6 @@ export function matchTypeChoice(buttonType: ButtonType, gameType: GameType) {
 
 			if (game === 'pong') {
 				navigate('/pong/'+matchType+'/playerSize');
-				import('./script.js').then(module => {
-					module.showPlayerCountSelection(buttonType, matchType);
-				});
 			} else if (game === 'pfc') {
 				navigate('/chifoumi/select/players');
 			}

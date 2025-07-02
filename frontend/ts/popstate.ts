@@ -1,3 +1,22 @@
+// --- HISTORY DEBUGGER: PASTE AT THE TOP OF popstate.ts ---
+(function() {
+	const originalPushState = history.pushState;
+	const originalReplaceState = history.replaceState;
+  
+	history.pushState = function(...args) {
+	  console.log('HISTORY PUSH:', args); // Logs any pushState call
+	  debugger; // This will pause the script
+	  return originalPushState.apply(this, args);
+	};
+  
+	history.replaceState = function(...args) {
+	  console.log('HISTORY REPLACE:', args); // Logs any replaceState call
+	  // We don't need to pause on replace, only on the unexpected push
+	  return originalReplaceState.apply(this, args);
+	};
+  })();
+  // --- END OF DEBUGGER ---
+
 import { showAliasInputs, showHistory, showHome, showPlayerCountSelection } from "./script.js";
 import { matchTypeChoice } from "./Utilities.js";
 import {showPFCMatch} from "./chifoumi.js";
@@ -68,9 +87,9 @@ export function navigate(path: string, options?: { replace: boolean }) {
 	if (options?.replace || path === '/home') {
 		history.replaceState({ path }, '', path);
 	} else {
-		history.pushState({ path }, '', path);
+		history.pushState({ path }, '', path); // ajoute une entrée
 	}
-
+	// Déclenchez les écouteurs *avant* d'appeler handleRoute, car handleRoute change le contenu
 	navigateListeners.forEach(listener => listener());
 	handleRoute(path);
 }
