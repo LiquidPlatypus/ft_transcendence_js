@@ -2,8 +2,8 @@ import { showHome } from "./script.js";
 import {t} from "../lang/i18n.js";
 import {MatchType} from "./Utilities.js";
 import {screenReader} from "./screenReader.js"
-import {navigate} from "./popstate.js";
 import {isValidString} from "./sanitize.js";
+import { handleRoute, navigate } from "./popstate.js";
 
 type Choix = 'pierre' | 'feuille' | 'ciseaux';
 
@@ -38,7 +38,8 @@ export async function showPFCMatch(matchType: MatchType) {
 	const player2Input = (document.getElementById("playerAlias2") as HTMLInputElement);
 	
 	if (!player1Input || !player2Input) {
-		navigate('/chifoumi/select/players', { replace: true });
+		history.replaceState({ path: '/chifoumi/select/players' }, '', '/chifoumi/select/players');
+		handleRoute('/chifoumi/select/players');
 		return;
 	}
 
