@@ -1,4 +1,6 @@
 # ft_transcendence_js
+
+Projet final du tronc commun de l'école 42, permettant de jouer à Pong ou PIerre-feuille-ciseaux en multijoueur local.
  
 - BACKEND
 - FRONTEND
@@ -11,10 +13,3 @@
 - multiple language support
 - accessibility features
 - 
-
-
-tournoi : route /matchs/$matchId/status : 404
- dans front/tournament.ts  |  back/tournamentRoutes.js
-
-docker fait par qulusche
-et c'est le seul et dernier truc
